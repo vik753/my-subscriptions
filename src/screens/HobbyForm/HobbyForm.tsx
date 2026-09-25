@@ -10,6 +10,7 @@ import {
   type Weekday,
 } from '../../domain'
 import { currencyLabel, formatDate, formatMoney } from '../../i18n/format'
+import { parsePrice } from '../../i18n/money'
 import { useApp } from '../../store/appStore'
 import { useAuth } from '../../store/authStore'
 import { useNow } from '../../store/clock'
@@ -21,7 +22,6 @@ import { DurationField } from '../../ui/DurationField'
 import { Field, SelectInput, TextInput } from '../../ui/Field'
 import { Sheet } from '../../ui/Sheet'
 import styles from './HobbyForm.module.css'
-import { parsePrice } from './parsePrice'
 
 const CURRENCIES: Currency[] = ['UAH', 'USD', 'EUR']
 const WEEK: Weekday[] = [0, 1, 2, 3, 4, 5, 6]
