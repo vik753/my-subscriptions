@@ -1,9 +1,11 @@
 /// <reference types="vitest/config" />
 import react from '@vitejs/plugin-react'
-import { copyFileSync } from 'node:fs'
+import { copyFileSync, readFileSync } from 'node:fs'
 import path from 'node:path'
 import { defineConfig, type Plugin } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
+
+const { version } = JSON.parse(readFileSync('package.json', 'utf8')) as { version: string }
 
 // GitHub Pages serves the app from /<repo>/; dev always runs at /.
 const PAGES_BASE = '/my-subscriptions/'
@@ -23,6 +25,7 @@ const spaFallback = (): Plugin => {
 
 export default defineConfig(({ command }) => ({
   base: process.env.BASE_PATH ?? (command === 'build' ? PAGES_BASE : '/'),
+  define: { __APP_VERSION__: JSON.stringify(version) },
   plugins: [
     react(),
     spaFallback(),

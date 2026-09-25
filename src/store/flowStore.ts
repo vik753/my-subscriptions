@@ -12,6 +12,8 @@ export type FlowSheet =
   | { kind: 'reminder'; hobbyId: string; queue: string[] }
   | { kind: 'payment'; hobbyId: string; queue: string[] }
   | { kind: 'session'; hobbyId: string; key: SessionKey }
+  | { kind: 'install' }
+  | { kind: 'wipe' }
 
 interface FlowState {
   sheet: FlowSheet | null

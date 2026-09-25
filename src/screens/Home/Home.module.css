@@ -14,6 +14,12 @@
   padding-top: 20px;
 }
 
+.actions {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+
 .date {
   display: flex;
   align-items: center;

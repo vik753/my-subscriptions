@@ -1,5 +1,6 @@
 import { act, fireEvent, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
+import { MemoryRouter } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
 import { markSession, summarize } from '../../domain'
 import { resetAppStore, useApp } from '../../store/appStore'
@@ -41,7 +42,11 @@ beforeEach(async () => {
     price: 400_000,
     paymentDate: '2026-09-05',
   })
-  render(<SheetHost />)
+  render(
+    <MemoryRouter>
+      <SheetHost />
+    </MemoryRouter>,
+  )
 })
 
 afterEach(() => vi.restoreAllMocks())

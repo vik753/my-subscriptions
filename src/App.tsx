@@ -4,9 +4,11 @@ import styles from './App.module.css'
 import { detectLanguage } from './i18n'
 import { Home } from './screens/Home/Home'
 import { HobbyDetail } from './screens/HobbyDetail/HobbyDetail'
+import { About } from './screens/About/About'
 import { HobbyForm } from './screens/HobbyForm/HobbyForm'
 import { Kit } from './screens/Kit/Kit'
 import { ScrollToTop } from './screens/ScrollToTop'
+import { Settings } from './screens/Settings/Settings'
 import { SheetHost } from './screens/sheets/SheetHost'
 import { SignIn } from './screens/SignIn/SignIn'
 import { useApp } from './store/appStore'
@@ -85,6 +87,8 @@ export function App() {
             <Route path="/new" element={<HobbyForm />} />
             <Route path="/hobby/:id" element={<HobbyDetail />} />
             <Route path="/hobby/:id/edit" element={<HobbyForm />} />
+            <Route path="/settings" element={<Settings />} />
+            <Route path="/about" element={<About />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
           <SheetHost />

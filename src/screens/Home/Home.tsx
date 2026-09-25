@@ -1,4 +1,4 @@
-import { CalendarBlank, CloudSlash, Plus, Ticket, Warning } from '@phosphor-icons/react'
+import { CalendarBlank, CloudSlash, GearSix, Plus, Ticket, Warning } from '@phosphor-icons/react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { formatDateLong } from '../../i18n/format'
 import { useApp } from '../../store/appStore'
@@ -50,12 +50,15 @@ export function Home() {
           </p>
           <h1 className={styles.title}>{t.title}</h1>
         </div>
-        <IconButton
-          variant="primary"
-          label={t.newHobby}
-          icon={<Plus />}
-          onClick={() => navigate('/new')}
-        />
+        <span className={styles.actions}>
+          <IconButton label={t.settings} icon={<GearSix />} onClick={() => navigate('/settings')} />
+          <IconButton
+            variant="primary"
+            label={t.newHobby}
+            icon={<Plus />}
+            onClick={() => navigate('/new')}
+          />
+        </span>
       </header>
 
       {loadError && (

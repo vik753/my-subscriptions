@@ -1,0 +1,113 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 12px 0 max(34px, calc(env(safe-area-inset-bottom) + 16px));
+  animation: ms-screen 240ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.topBar {
+  display: flex;
+  align-items: center;
+  margin: 0 -8px;
+}
+
+.title {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-neutral-400);
+}
+
+.schemes {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+}
+
+.account {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 12px 16px;
+  border-bottom: 1px solid var(--color-divider);
+}
+
+.avatar {
+  display: flex;
+  flex: none;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  background: var(--color-accent-900);
+  color: var(--color-accent-200);
+  font-size: 13px;
+  font-weight: 500;
+}
+
+.accountText {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.accountName {
+  font-size: 15px;
+}
+
+.accountEmail {
+  overflow: hidden;
+  font-size: 12px;
+  color: var(--color-neutral-400);
+  text-overflow: ellipsis;
+}
+
+.accountSync {
+  font-size: 12px;
+  color: var(--color-neutral-500);
+}
+
+.value {
+  font-size: 14px;
+  color: var(--color-neutral-400);
+  white-space: nowrap;
+}
+
+.version {
+  font-size: 13px;
+  color: var(--color-neutral-500);
+}
+
+.reminder {
+  display: flex;
+  flex-direction: column;
+}
+
+.minutes {
+  padding: 0 16px 14px;
+  animation: ms-in 240ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+/* design-review: "Delete all data" must not wrap. */
+.wipe {
+  align-self: flex-start;
+  padding-left: 0;
+  white-space: nowrap;
+}

@@ -129,3 +129,14 @@ test('sessions are written to the app calendar', async ({ page }) => {
   expect(calendarWrites.map((w) => w.body.summary)).toContain('Gym · Paid')
   expect(calendarWrites.map((w) => w.body.summary)).toContain('Gym · Unpaid')
 })
+
+test('settings: language and scheme apply at once, About is reachable', async ({ page }) => {
+  await page.goto('./')
+  await page.getByRole('button', { name: 'Settings' }).click()
+  await page.getByRole('button', { name: /Sea/ }).click()
+  await expect(page.locator('html')).toHaveAttribute('data-scheme', 'sea')
+  await page.getByRole('button', { name: /Русский/ }).click()
+  await expect(page.getByRole('heading', { name: 'Настройки' })).toBeVisible()
+  await page.getByRole('button', { name: /О приложении/ }).click()
+  await expect(page.getByRole('heading', { name: 'My Subscriptions' })).toBeVisible()
+})
