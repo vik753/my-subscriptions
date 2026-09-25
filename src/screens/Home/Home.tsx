@@ -2,6 +2,7 @@ import { Plus, Ticket, Warning } from '@phosphor-icons/react'
 import { useNavigate } from 'react-router'
 import { formatDateLong } from '../../i18n/format'
 import { useApp } from '../../store/appStore'
+import { openPendingFlow } from '../../store/flowStore'
 import { useNow } from '../../store/clock'
 import { useLanguage, useT } from '../../store/useT'
 import { Button, IconButton } from '../../ui/Button'
@@ -55,7 +56,13 @@ export function Home() {
       ) : (
         <div className={styles.list}>
           {hobbies.map((h) => (
-            <HobbyCard key={h.id} hobby={h} now={now} onOpen={() => navigate(`/hobby/${h.id}`)} />
+            <HobbyCard
+              key={h.id}
+              hobby={h}
+              now={now}
+              onOpen={() => navigate(`/hobby/${h.id}`)}
+              onPending={() => openPendingFlow(h.id)}
+            />
           ))}
         </div>
       )}

@@ -13,10 +13,13 @@ export function HobbyCard({
   hobby,
   now,
   onOpen,
+  onPending,
 }: {
   hobby: Hobby
   now: LocalDateTime
   onOpen: () => void
+  /** "Unmarked: N" tag → the pending flow of this hobby. */
+  onPending: () => void
 }) {
   const t = useT()
   const lang = useLanguage()
@@ -25,7 +28,7 @@ export function HobbyCard({
   const pending = s.pending.length
 
   return (
-    <Card onClick={onOpen}>
+    <Card onClick={onOpen} label={`${hobby.name}, ${s.remaining} ${t.remOf(s.remaining)}`}>
       <span className={styles.cardTop}>
         <span className={styles.cardHead}>
           <span className={styles.cardName}>{hobby.name}</span>
@@ -37,7 +40,7 @@ export function HobbyCard({
         </span>
         <span className={styles.tags}>
           {pending > 0 && (
-            <Tag icon={<ClockCountdown size={12} aria-hidden="true" />}>
+            <Tag icon={<ClockCountdown size={12} aria-hidden="true" />} onClick={onPending}>
               {t.tagPending(pending)}
             </Tag>
           )}

@@ -138,7 +138,7 @@ export function Kit() {
       </Section>
 
       <Section title="Card">
-        <Card onClick={() => toast.show(t.tSynced)}>
+        <Card onClick={() => toast.show(t.tSynced)} label={t.tSynced}>
           <strong className={styles.cardName}>Gym</strong>
           <span className={styles.meta}>Mo 10:00 (60 min) · Fr 18:00 (90 min)</span>
         </Card>

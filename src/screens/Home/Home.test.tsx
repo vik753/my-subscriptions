@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { resetAppStore, useApp } from '../../store/appStore'
 import { localClock } from '../../store/clock'
+import { useFlow } from '../../store/flowStore'
 import { createMemoryStorage } from '../../store/persistence/storage'
 import { Home } from './Home'
 
@@ -48,13 +49,15 @@ describe('Home', () => {
       paymentDate: '2026-09-05',
     })
     renderHome()
-    const card = screen.getByRole('button', { name: /Gym/ })
+    const card = screen.getByRole('button', { name: /Gym/ }).parentElement as HTMLElement
     // 8 paid, none marked, 5 sessions already ended → all pending, 8 still paid-left.
     expect(card).toHaveTextContent('8paid sessions left')
     expect(card).toHaveTextContent('Unmarked: 5')
     expect(card).toHaveTextContent('Next: Fri, Sep 25, 18:00')
     expect(card).toHaveTextContent('Mo 10:00 (60 min) · Fr 18:00 (90 min)')
-    await userEvent.click(card)
+    await userEvent.click(screen.getByRole('button', { name: 'Unmarked: 5' }))
+    expect(useFlow.getState().sheet).toEqual({ kind: 'pending', hobbyId: expect.any(String) })
+    await userEvent.click(screen.getByRole('button', { name: /Gym/ }))
     expect(screen.getByText('detail')).toBeInTheDocument()
   })
 })

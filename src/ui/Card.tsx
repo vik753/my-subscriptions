@@ -2,15 +2,24 @@ import type { ReactNode } from 'react'
 import styles from './Card.module.css'
 
 /**
- * Surface card (hobby cards, install card). Clickable cards render as a button whose content is
- * its accessible name — pass phrasing content only (span, strong), no block elements.
+ * Surface card (hobby cards, install card). A clickable card is covered by one button named
+ * `label`; buttons inside the content (e.g. a tag) sit above it, so no button is nested in another.
  */
-export function Card({ children, onClick }: { children: ReactNode; onClick?: () => void }) {
-  return onClick ? (
-    <button type="button" className={`${styles.card} ${styles.clickable}`} onClick={onClick}>
+export function Card({
+  children,
+  onClick,
+  label,
+}: {
+  children: ReactNode
+  onClick?: () => void
+  label?: string
+}) {
+  return (
+    <div className={`${styles.card} ${onClick ? styles.clickable : ''}`}>
+      {onClick && (
+        <button type="button" className={styles.cover} aria-label={label} onClick={onClick} />
+      )}
       {children}
-    </button>
-  ) : (
-    <div className={styles.card}>{children}</div>
+    </div>
   )
 }

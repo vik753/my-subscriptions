@@ -58,7 +58,9 @@ describe('HobbyDetail', () => {
     expect(within(stats).getByText('3')).toBeInTheDocument()
     expect(within(stats).getByText('1 000 ₴')).toBeInTheDocument()
     expect(screen.getByRole('heading', { name: 'September 2026' })).toBeInTheDocument()
-    expect(screen.getByText('Mon, Sep 21, 10:00 — Unmarked')).toBeInTheDocument()
+    expect(
+      screen.getByRole('button', { name: 'Mon, Sep 21, 10:00 — Unmarked' }),
+    ).toBeInTheDocument()
     expect(screen.getByRole('button', { name: /1 session needs marking/ })).toBeInTheDocument()
   })
 
