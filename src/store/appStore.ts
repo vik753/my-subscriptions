@@ -16,6 +16,8 @@ export interface AppState {
   /** Applies a pure domain mutation and stamps `updatedAt`. */
   updateHobby: (id: string, mutate: (hobby: Hobby) => Hobby) => void
   deleteHobby: (id: string) => void
+  /** Replace the data with a merged copy from the Drive backup (timestamps kept as merged). */
+  applyMerged: (data: PersistedState) => void
   /** "Remind me later": hide the renewal reminder of this hobby until `until`. */
   snoozeRenewal: (id: string, until: string) => void
 }
@@ -80,7 +82,11 @@ export const useApp = create<AppState>((set, get) => {
 
     updateSettings: (patch) => {
       const { data } = get()
-      commit({ ...data, settings: { ...data.settings, ...patch } })
+      commit({
+        ...data,
+        settings: { ...data.settings, ...patch },
+        settingsUpdatedAt: appClock.nowIso(),
+      })
     },
 
     addHobby: (input) => {
@@ -98,6 +104,8 @@ export const useApp = create<AppState>((set, get) => {
         hobbies: data.hobbies.map((h) => (h.id === id ? { ...mutate(h), updatedAt } : h)),
       })
     },
+
+    applyMerged: (data) => commit(data),
 
     snoozeRenewal: (id, until) => {
       const { settings } = get().data

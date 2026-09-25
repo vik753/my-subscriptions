@@ -29,6 +29,7 @@ const makeRaw = (overrides: Partial<PersistedState> = {}): PersistedState => ({
   schemaVersion: SCHEMA_VERSION,
   hobbies: [],
   settings: makeSettings(),
+  settingsUpdatedAt: '2026-09-01T00:00:00.000Z',
   deletedHobbies: {},
   ...overrides,
 })
@@ -45,6 +46,7 @@ describe('defaultState', () => {
         reminderMinutes: 0,
         renewSnoozedUntil: {},
       },
+      settingsUpdatedAt: '',
       deletedHobbies: {},
     })
   })
@@ -147,5 +149,28 @@ describe('migrate: newer schema version', () => {
   it('throws rather than silently dropping data from a newer app version', () => {
     const raw = makeRaw({ schemaVersion: (SCHEMA_VERSION + 1) as typeof SCHEMA_VERSION })
     expect(() => migrate(raw, 'en')).toThrow()
+  })
+})
+
+describe('migrate: v1 → v2', () => {
+  it('adds settingsUpdatedAt as never changed and keeps everything else', () => {
+    const hobby = makeHobby()
+    const v1 = {
+      schemaVersion: 1,
+      hobbies: [hobby],
+      settings: makeSettings({ language: 'uk', reminderMinutes: 15 }),
+      deletedHobbies: { h2: '2026-09-01T00:00:00.000Z' },
+    }
+    expect(migrate(v1, 'en')).toEqual({
+      schemaVersion: 2,
+      hobbies: [hobby],
+      settings: makeSettings({ language: 'uk', reminderMinutes: 15 }),
+      settingsUpdatedAt: '',
+      deletedHobbies: { h2: '2026-09-01T00:00:00.000Z' },
+    })
+  })
+
+  it('replaces a non-string settingsUpdatedAt with never', () => {
+    expect(migrate({ ...makeRaw(), settingsUpdatedAt: 5 }, 'en').settingsUpdatedAt).toBe('')
   })
 })
