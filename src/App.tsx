@@ -3,6 +3,7 @@ import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import styles from './App.module.css'
 import { detectLanguage } from './i18n'
 import { Home } from './screens/Home/Home'
+import { HobbyDetail } from './screens/HobbyDetail/HobbyDetail'
 import { HobbyForm } from './screens/HobbyForm/HobbyForm'
 import { Kit } from './screens/Kit/Kit'
 import { SignIn } from './screens/SignIn/SignIn'
@@ -59,6 +60,7 @@ export function App() {
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/new" element={<HobbyForm />} />
+            <Route path="/hobby/:id" element={<HobbyDetail />} />
             <Route path="/hobby/:id/edit" element={<HobbyForm />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
