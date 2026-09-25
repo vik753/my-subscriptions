@@ -55,6 +55,8 @@ export default tseslint.config(
       '@typescript-eslint/consistent-type-imports': 'error',
       'import-x/no-default-export': 'error',
       'import-x/no-restricted-paths': ['error', { zones: boundaries }],
+      // Vite plugin virtual modules exist only at build time (typed via tsconfig `types`).
+      'import-x/no-unresolved': ['error', { ignore: ['^virtual:'] }],
       'no-console': ['error', { allow: ['warn', 'error'] }],
     },
   },

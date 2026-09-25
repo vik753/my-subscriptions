@@ -72,6 +72,8 @@ export const uk: Messages = {
   installBtn: 'Встановити',
   installRow: 'Встановити застосунок',
   tInstalled: 'Застосунок встановлено',
+  updateAvail: 'Доступна нова версія застосунку',
+  updateBtn: 'Оновити',
   pendingTitle: 'Позначте минулі заняття',
   pendingCount: (n) =>
     n + ' ' + pluralSlav(n, 'заняття без позначки', 'заняття без позначки', 'занять без позначки'),

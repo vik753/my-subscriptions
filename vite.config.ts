@@ -30,7 +30,9 @@ export default defineConfig(({ command }) => ({
     react(),
     spaFallback(),
     VitePWA({
-      registerType: 'autoUpdate',
+      // The update banner asks before reloading — never swap code under a half-filled form.
+      registerType: 'prompt',
+      injectRegister: false,
       includeAssets: ['icons/apple-touch-icon.png', 'icons/icon.svg', 'icons/favicon-32.png'],
       manifest: {
         name: 'My Subscriptions',

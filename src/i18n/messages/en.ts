@@ -58,6 +58,8 @@ export const en = {
   installBtn: 'Install',
   installRow: 'Install the app',
   tInstalled: 'App installed',
+  updateAvail: 'A new version of the app is available',
+  updateBtn: 'Update',
   pendingTitle: 'Mark past sessions',
   pendingCount: (n: number) => n + ' ' + pluralEn(n, 'unmarked session', 'unmarked sessions'),
   markAll: 'Mark all as attended',

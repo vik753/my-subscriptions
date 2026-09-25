@@ -11,6 +11,7 @@ import { ScrollToTop } from './screens/ScrollToTop'
 import { Settings } from './screens/Settings/Settings'
 import { SheetHost } from './screens/sheets/SheetHost'
 import { SignIn } from './screens/SignIn/SignIn'
+import { UpdateBanner } from './screens/UpdateBanner'
 import { useApp } from './store/appStore'
 import { useAuth } from './store/authStore'
 import { runOpenCheck, useFlow } from './store/flowStore'
@@ -80,6 +81,7 @@ export function App() {
 
   return (
     <main className={styles.shell} aria-busy="false">
+      {import.meta.env.PROD && <UpdateBanner />}
       {!gated ? (
         <BrowserRouter basename={import.meta.env.BASE_URL}>
           <ScrollToTop />

@@ -72,6 +72,8 @@ export const ru: Messages = {
   installBtn: 'Установить',
   installRow: 'Установить приложение',
   tInstalled: 'Приложение установлено',
+  updateAvail: 'Доступна новая версия приложения',
+  updateBtn: 'Обновить',
   pendingTitle: 'Отметьте прошедшие занятия',
   pendingCount: (n) =>
     n + ' ' + pluralSlav(n, 'занятие без отметки', 'занятия без отметки', 'занятий без отметки'),
