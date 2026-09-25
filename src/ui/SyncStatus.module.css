@@ -1,0 +1,26 @@
+.status {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  min-width: 0;
+  font-size: 13px;
+  color: var(--color-neutral-400);
+}
+
+/* design-review: the status text shrinks (ellipsis), the action never wraps. */
+.label {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.warn {
+  color: var(--color-accent);
+}
+
+.action {
+  flex: none;
+  min-height: 32px;
+  font-size: 13px;
+}

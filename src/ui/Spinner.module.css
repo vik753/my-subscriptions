@@ -1,0 +1,4 @@
+.spinner {
+  flex: none;
+  animation: ms-spin 0.9s linear infinite;
+}

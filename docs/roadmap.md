@@ -3,7 +3,7 @@
 Approved by the user on 2026-09-25. Update the checkboxes and "Status" as stages complete.
 Every stage ends with `/ship` → PR `dev → main` → the user merges → GitHub Pages deploys.
 
-**Status:** Stages 0, 1, 2 done (stage 1: GO — sign-in, silent renewal and Calendar/Drive scopes verified on the user's iPhone PWA, 2026-09-25). Stage 3 done. Next: Stage 4 (UI kit).
+**Status:** Stages 0, 1, 2 done (stage 1: GO — sign-in, silent renewal and Calendar/Drive scopes verified on the user's iPhone PWA, 2026-09-25). Stages 3–4 done. Next: Stage 5 (core screens).
 
 | #   | Stage                   | Deliverable                                                                                                                                     | Agents                                 | Est.  |
 | --- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ----- |
@@ -11,7 +11,7 @@ Every stage ends with `/ship` → PR `dev → main` → the user merges → GitH
 | 1   | ✅ Google sign-in spike | GIS sign-in in the installed iOS PWA + silent token refresh on open. **Go / no-go** for the serverless architecture                             | —                                      | 1–2 d |
 | 2   | ✅ Domain engine        | Model, session generation, payments, statuses, moves, cancel/forfeit/restore, schedule edits, pending, next session — 100% coverage             | `spec-tester` → implement              | 4–5 d |
 | 3   | ✅ Data, i18n, theme    | IndexedDB + Zustand, schema versioning/migrations, all prototype strings in uk/en/ru with plurals, date/money formatting, scheme/mode switching | `spec-tester` (formatting, migrations) | 2–3 d |
-| 4   | ☐ UI kit                | Button, Card, Sheet (motion), Switch, Segmented, Tag, Pill, Toast, MonthCalendar, inputs, Spinner, SyncStatus                                   | `ui-verifier`                          | 3–4 d |
+| 4   | ✅ UI kit               | Button, Card, Sheet (motion), Switch, Segmented, Tag, Pill, Toast, MonthCalendar, inputs, Spinner, SyncStatus                                   | `ui-verifier`                          | 3–4 d |
 | 5   | ☐ Core screens          | Sign-in (all states), Home (list, empty, install card), Hobby detail, Create/Edit                                                               | `ui-verifier`                          | 4–5 d |
 | 6   | ☐ Sheets & flows        | Add payment, Session sheet (move/cancel/restore), Attendance prompt, Pending list, Renewal reminder + snooze, app-open check                    | `ui-verifier`                          | 3–4 d |
 | 7   | ☐ "All sessions" tab    | Shared month calendar of all hobbies                                                                                                            | `ui-verifier`                          | 1–2 d |
