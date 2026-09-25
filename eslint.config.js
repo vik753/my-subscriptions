@@ -59,7 +59,7 @@ export default tseslint.config(
   },
   {
     // Tool configs must default-export.
-    files: ['*.config.{ts,js}'],
+    files: ['*.config.{ts,js}', '.claude/hooks/**/*.mjs'],
     languageOptions: { globals: globals.node },
     rules: {
       'import-x/no-default-export': 'off',
