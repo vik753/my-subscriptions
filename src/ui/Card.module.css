@@ -1,0 +1,21 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+  width: 100%;
+  padding: 18px;
+  border: none;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  box-shadow: var(--shadow-sm);
+  color: var(--color-text);
+  text-align: left;
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.clickable:active {
+  background: color-mix(in srgb, var(--color-surface), var(--color-text) 4%);
+}

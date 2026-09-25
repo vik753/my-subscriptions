@@ -1,0 +1,65 @@
+.tag {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 3px 8px;
+  border: none;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  line-height: 1.3;
+  white-space: nowrap;
+}
+
+.accent {
+  background: var(--color-accent-800);
+  color: var(--color-accent-100);
+}
+
+.neutral {
+  background: var(--color-neutral-800);
+  color: var(--color-neutral-100);
+}
+
+.clickable {
+  cursor: pointer;
+}
+
+.pill {
+  display: inline-flex;
+  align-items: center;
+  padding: 4px 10px;
+  border: 1px solid transparent;
+  border-radius: 12px;
+  font-size: 12px;
+  font-weight: 500;
+  line-height: 1.2;
+  white-space: nowrap;
+}
+
+.paid {
+  background: var(--paid-fill);
+  border-color: var(--paid-fill);
+  color: var(--paid-text);
+}
+
+.unpaid {
+  border: 1px dashed var(--color-neutral-600);
+  color: var(--color-neutral-400);
+}
+
+.attended {
+  border-color: var(--paid-line);
+  color: var(--paid-text);
+}
+
+.pending {
+  border-color: var(--color-accent);
+  color: var(--color-accent-200);
+}
+
+.cancelled,
+.forfeit {
+  border-color: var(--color-neutral-700);
+  color: var(--color-neutral-400);
+}

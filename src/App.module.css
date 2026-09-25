@@ -14,3 +14,7 @@
   font-size: 14px;
   color: var(--color-neutral-400);
 }
+
+.kitShell {
+  padding-top: 16px;
+}

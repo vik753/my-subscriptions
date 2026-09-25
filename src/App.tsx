@@ -2,6 +2,7 @@ import { useEffect } from 'react'
 import styles from './App.module.css'
 import { APP_NAME, detectLanguage } from './i18n'
 import { AuthSpike } from './screens/AuthSpike/AuthSpike'
+import { Kit } from './screens/Kit/Kit'
 import { useApp } from './store/appStore'
 import { useAuth } from './store/authStore'
 import { createIdbStorage } from './store/persistence/storage'
@@ -36,6 +37,14 @@ export function App() {
 
   // Render nothing until settings are loaded, so uk/ru users never see an English flash.
   if (!ready) return <main className={styles.shell} aria-busy="true" />
+
+  // DEV ONLY: UI kit for visual verification (tree-shaken from production builds).
+  if (import.meta.env.DEV && window.location.hash === '#kit')
+    return (
+      <main className={styles.kitShell} aria-busy="false">
+        <Kit />
+      </main>
+    )
 
   return (
     <main className={styles.shell} aria-busy="false">

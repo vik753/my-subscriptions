@@ -1,0 +1,37 @@
+.track {
+  position: relative;
+  flex: none;
+  width: 44px;
+  height: 26px;
+  padding: 0;
+  border: 1px solid var(--color-neutral-600);
+  border-radius: 13px;
+  background: transparent;
+  cursor: pointer;
+  transition:
+    background 160ms,
+    border-color 160ms;
+}
+
+.knob {
+  position: absolute;
+  top: 3px;
+  left: 3px;
+  width: 18px;
+  height: 18px;
+  border-radius: 9px;
+  background: var(--color-neutral-500);
+  transition:
+    left 160ms,
+    background 160ms;
+}
+
+.on {
+  border-color: var(--color-accent);
+  background: var(--color-accent-900);
+}
+
+.on .knob {
+  left: 22px;
+  background: var(--color-accent);
+}

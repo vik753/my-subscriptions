@@ -1,0 +1,35 @@
+.group {
+  display: grid;
+  gap: 4px;
+  padding: 4px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+}
+
+.option {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  min-width: 0;
+  height: 38px;
+  padding: 0 8px;
+  border: 1px solid transparent;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--color-neutral-300);
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.text {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.selected {
+  border-color: var(--color-accent);
+  background: var(--color-accent-900);
+  color: var(--color-accent-200);
+}

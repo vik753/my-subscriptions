@@ -1,0 +1,70 @@
+.kit {
+  display: flex;
+  flex-direction: column;
+  gap: 28px;
+  padding: 24px 0 120px;
+}
+
+.h1 {
+  margin: 0;
+  font-size: 28px;
+  font-weight: 500;
+}
+
+.section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.h2 {
+  margin: 0;
+  font-size: 13px;
+  font-weight: 400;
+  color: var(--color-neutral-400);
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+.row {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 8px;
+}
+
+.time {
+  width: 104px;
+}
+
+.priceRow {
+  display: grid;
+  grid-template-columns: 1fr 88px;
+  gap: 8px;
+}
+
+.currency {
+  min-width: 0;
+}
+
+.cardName {
+  font-size: 18px;
+  font-weight: 500;
+}
+
+.meta {
+  margin: 0;
+  font-size: 13px;
+  color: var(--color-neutral-400);
+}
+
+.kicker {
+  font-size: 13px;
+  color: var(--color-accent-300);
+}
+
+.sheetTitle {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+}
