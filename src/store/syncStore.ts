@@ -11,11 +11,12 @@ import { APP_NAME, messages, type Language } from '../i18n'
 import {
   calendarExists,
   createCalendar,
+  deleteCalendar,
   deleteEvent,
   upsertEvent,
   type EventBody,
 } from '../services/calendarApi'
-import { downloadJson, findStateFile, uploadJson } from '../services/driveApi'
+import { deleteFile, downloadJson, findStateFile, uploadJson } from '../services/driveApi'
 import { GoogleHttpError } from '../services/googleAuth'
 import { useApp } from './appStore'
 import { accessToken, useAuth } from './authStore'
@@ -141,17 +142,7 @@ const sync = async (store: MetaStorage): Promise<void> => {
     }
   }
 
-  // 2. Calendar.
-  if (m.calendarId && !verified && !(await calendarExists(token, m.calendarId)))
-    m = { ...emptyMeta(account), lastSync: m.lastSync, driveFileId: fileId }
-  if (!m.calendarId) {
-    m.calendarId = await createCalendar(token, APP_NAME, syncEnv.timeZone())
-    m.synced = {}
-    await save()
-  }
-  verified = true
-  const calendarId = m.calendarId
-
+  // 2. Calendar — created only once there is something to put in it.
   const { hobbies, settings } = useApp.getState().data
   const now = localClock.now()
   const bodies = new Map<string, { model: CalendarEventModel; body: EventBody; hash: string }>()
@@ -165,31 +156,44 @@ const sync = async (store: MetaStorage): Promise<void> => {
     )
     bodies.set(model.key, { model, body, hash: hashText(JSON.stringify(body)) })
   }
-  const { upsert, remove } = diffEvents(
-    [...bodies.values()].map(({ model, hash }) => ({ key: model.key, hash })),
-    m.synced,
-  )
+  if (m.calendarId || bodies.size > 0) {
+    if (m.calendarId && !verified && !(await calendarExists(token, m.calendarId)))
+      m = { ...emptyMeta(account), lastSync: m.lastSync, driveFileId: fileId }
+    if (!m.calendarId) {
+      m.calendarId = await createCalendar(token, APP_NAME, syncEnv.timeZone())
+      m.synced = {}
+      await save()
+    }
+    verified = true
+    const calendarId = m.calendarId
 
-  // Bookkeeping is saved after every write: a crash never loses more than one op, and
-  // deterministic ids make redoing that op harmless.
-  for (const key of upsert) {
-    const item = bodies.get(key)
-    if (!item) continue
-    await upsertEvent(
-      token,
-      calendarId,
-      eventId(item.model.hobbyId, item.model.sessionKey),
-      item.body,
+    const { upsert, remove } = diffEvents(
+      [...bodies.values()].map(({ model, hash }) => ({ key: model.key, hash })),
+      m.synced,
     )
-    m.synced[key] = item.hash
-    await save()
+
+    // Bookkeeping is saved after every write: a crash never loses more than one op, and
+    // deterministic ids make redoing that op harmless.
+    for (const key of upsert) {
+      const item = bodies.get(key)
+      if (!item) continue
+      await upsertEvent(
+        token,
+        calendarId,
+        eventId(item.model.hobbyId, item.model.sessionKey),
+        item.body,
+      )
+      m.synced[key] = item.hash
+      await save()
+    }
+    for (const key of remove) {
+      const [hobbyId = '', sessionKey = ''] = key.split('|')
+      await deleteEvent(token, calendarId, eventId(hobbyId, sessionKey))
+      m.synced = Object.fromEntries(Object.entries(m.synced).filter(([k]) => k !== key))
+      await save()
+    }
   }
-  for (const key of remove) {
-    const [hobbyId = '', sessionKey = ''] = key.split('|')
-    await deleteEvent(token, calendarId, eventId(hobbyId, sessionKey))
-    m.synced = Object.fromEntries(Object.entries(m.synced).filter(([k]) => k !== key))
-    await save()
-  }
+
   // 3. Backup: write the merged state back when it differs from the Drive copy.
   const doc: BackupDoc = { ...useApp.getState().data, calendarId: m.calendarId }
   if (!remote || !sameState(doc, remote)) fileId = await uploadJson(token, fileId, doc)
@@ -289,13 +293,28 @@ export const startSync = (store: MetaStorage): (() => void) => {
   }
 }
 
-/** "Delete all data": forget the calendar bookkeeping (the calendar itself is deleted by the caller). */
-export const resetSyncMeta = async () => {
-  verified = false
-  await meta?.clear()
-  useSync.setState({ lastSync: null })
+/**
+ * "Delete all data": the calendar and the Drive backup go first (when Google is reachable), then
+ * the local data. Offline, the local tombstones remove the hobbies everywhere on the next sync.
+ */
+export const wipeAllData = async (): Promise<void> => {
+  const token = accessToken()
+  const m = readMeta(await meta?.load())
+  let removed = false
+  if (token && useSync.getState().online) {
+    try {
+      if (m.calendarId) await deleteCalendar(token, m.calendarId)
+      const fileId = m.driveFileId ?? (await findStateFile(token))
+      if (fileId) await deleteFile(token, fileId)
+      removed = true
+    } catch {
+      // Unreachable now: tombstones and the event diff finish the job on the next sync.
+    }
+  }
+  if (removed) {
+    verified = false
+    await meta?.save(emptyMeta(m.account))
+    useSync.setState({ lastSync: null })
+  }
+  useApp.getState().wipe()
 }
-
-/** The current calendar id, if one was created (Settings / delete all data). */
-export const currentCalendarId = async (): Promise<string | null> =>
-  meta ? readMeta(await meta.load()).calendarId : null

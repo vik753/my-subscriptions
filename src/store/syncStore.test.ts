@@ -5,7 +5,7 @@ import { resetAppStore, useApp } from './appStore'
 import { useAuth } from './authStore'
 import { localClock } from './clock'
 import { createMemoryMeta, createMemoryStorage } from './persistence/storage'
-import { eventBody, startSync, syncEnv, useSync } from './syncStore'
+import { eventBody, startSync, syncEnv, useSync, wipeAllData } from './syncStore'
 
 /** In-memory Google Calendar: enough of calendars + events to exercise the sync. */
 const server = () => {
@@ -55,6 +55,10 @@ const server = () => {
     }
     const events = calendars.get(parts[0] ?? '')
     if (!events) return new Response('{}', { status: 404 })
+    if (parts.length === 1 && method === 'DELETE') {
+      calendars.delete(parts[0] ?? '')
+      return new Response(null, { status: 204 })
+    }
     if (parts.length === 1) return ok({ id: parts[0] })
     if (parts.length === 2 && method === 'POST') {
       const id = String(body.id)
@@ -138,6 +142,8 @@ afterEach(() => {
 })
 
 const settle = () => vi.waitFor(() => expect(useSync.getState().running).toBe(false))
+const backupHobbies = () =>
+  ([...google.drive.values()][0] as { hobbies?: unknown[] } | undefined)?.hobbies
 /** One full sync (joins a run already in flight). */
 const run = async () => {
   await settle()
@@ -411,6 +417,38 @@ describe('calendar sync', () => {
       expect(await run()).toBe(false)
       expect(backup()).toEqual({ schemaVersion: 99, hobbies: [] })
       expect(google.calendars.size).toBe(0)
+    })
+  })
+
+  describe('delete all data', () => {
+    it('removes the calendar, the backup and the local hobbies', async () => {
+      addGym()
+      signIn()
+      stop = startSync(meta)
+      await run()
+      await wipeAllData()
+      expect(google.calendars.size).toBe(0)
+      expect(google.drive.size).toBe(0)
+      expect(useApp.getState().data.hobbies).toEqual([])
+      expect(useApp.getState().data.deletedHobbies).toHaveProperty('gym')
+      // No new empty calendar appears after the wipe.
+      await run()
+      expect(google.calendars.size).toBe(0)
+    })
+
+    it('offline: deletes locally and removes the events on the next sync', async () => {
+      addGym()
+      signIn()
+      stop = startSync(meta)
+      await run()
+      useSync.setState({ online: false })
+      await wipeAllData()
+      expect(useApp.getState().data.hobbies).toEqual([])
+      expect(google.live('cal1')).toHaveLength(13)
+      useSync.setState({ online: true })
+      await run()
+      expect(google.live('cal1')).toEqual([])
+      expect(backupHobbies()).toEqual([])
     })
   })
 })
