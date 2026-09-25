@@ -10,6 +10,8 @@ export default defineConfig({
   use: {
     baseURL: `http://localhost:${PORT}/`,
     trace: 'on-first-retry',
+    // Requests made by the PWA service worker bypass page.route mocks.
+    serviceWorkers: 'block',
   },
   projects: [
     {
