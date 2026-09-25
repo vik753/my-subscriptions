@@ -16,7 +16,8 @@ const boundaries = [
     target: layer('services'),
     from: ['store', 'screens', 'ui', 'i18n', 'theme'].map(layer),
   },
-  { target: layer('store'), from: ['screens', 'ui', 'theme'].map(layer) },
+  { target: layer('store'), from: ['screens', 'ui'].map(layer) },
+  { target: layer('theme'), from: ['store', 'services', 'screens', 'ui', 'domain'].map(layer) },
   { target: layer('ui'), from: ['store', 'services', 'screens', 'domain'].map(layer) },
   { target: layer('screens'), from: ['services'].map(layer) },
 ]
