@@ -10,6 +10,7 @@ PWA for tracking prepaid class passes (gym, lessons, any hobby). Users are famil
 
 - Product spec (source of truth): `design_handoff_my_subscriptions/README.md` (PWA handoff, **approved 2026-09-25**) + `docs/design-review.md` (decisions and fixes — overrides the README where they differ). `docs/design-brief-pwa.md` is historical only. If unclear, ask — don't invent behavior.
 - `design_handoff_my_subscriptions/` is read-only reference. Never edit it.
+- Work follows `docs/roadmap.md` stage by stage; update its checkboxes and status line when a stage ships.
 
 ## Stack
 
@@ -80,6 +81,7 @@ Never store derived values (`remaining`, statuses, `paid`/`price` totals) — co
 - Claude commits and pushes to `dev` without asking. Then opens (or updates) a PR `dev → main` with `gh pr create --base main --head dev`. **The user merges PRs into `main` personally.**
 - Before every commit: `npm run typecheck && npm run lint && npm test` must pass. Enforced by husky (`pre-commit`: lint-staged + typecheck, `pre-push`: tests + build), by `.claude/hooks/guard-git.mjs` (blocks `main`, force-push, `--no-verify`, `gh pr merge`) and by CI (`.github/workflows/ci.yml`) — `main` accepts only PRs with green CI.
 - Ship finished work with `/ship`.
+- The only PRs in this repo are `dev → main`. Dependabot PRs (target `dev`): evaluate, port accepted updates as regular commits on `dev`, then close the PR with a comment (`gh pr close <n> --comment ...`). Never merge PRs.
 - Conventional Commits: `feat(domain): carry payment over on cancel`. Small, focused commits.
 - PR description: what changed, how it was verified, screenshots for UI changes, open questions.
 

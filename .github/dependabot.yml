@@ -1,3 +1,5 @@
+# Dependabot opens PRs into `dev`; Claude ports accepted updates as regular commits on `dev`
+# and closes the PRs (the only PRs in this repo are dev → main).
 version: 2
 updates:
   - package-ecosystem: npm
@@ -5,11 +7,26 @@ updates:
     target-branch: dev
     schedule:
       interval: weekly
+    open-pull-requests-limit: 5
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+      vitest:
+        patterns: ['vitest', '@vitest/*']
+    ignore:
+      # Types must match the Node version in .nvmrc (24).
+      - dependency-name: '@types/node'
+        update-types: ['version-update:semver-major']
+      # eslint-plugin-import-x / eslint-import-resolver-typescript don't support ESLint 10 yet.
+      - dependency-name: 'eslint'
+        update-types: ['version-update:semver-major']
+      - dependency-name: '@eslint/js'
+        update-types: ['version-update:semver-major']
   - package-ecosystem: github-actions
     directory: /
     target-branch: dev
     schedule:
       interval: weekly
+    groups:
+      actions:
+        patterns: ['*']
