@@ -1,5 +1,7 @@
 # Stage 5 — core screens: implementation plan
 
+**Progress (2026-09-25):** all code done and pushed to `dev` (sign-in + router, Home, Create/Edit, Detail, e2e core flow; 205 unit + 15 e2e green). **Remaining:** `ui-verifier` for Sign-in / Home / Detail / Form against the screenshots below, `reviewer`, then PR `dev → main` and roadmap ✅.
+
 Prepared 2026-09-25 at the end of a session; screenshots 01, 02, 03, 07, 08, 12, 13, 15, 16, 18, 19 already reviewed. Delete this file when stage 5 ships.
 
 ## Routing
