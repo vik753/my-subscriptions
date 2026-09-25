@@ -12,7 +12,8 @@ import { SignIn } from './screens/SignIn/SignIn'
 import { useApp } from './store/appStore'
 import { useAuth } from './store/authStore'
 import { runOpenCheck } from './store/flowStore'
-import { createIdbStorage } from './store/persistence/storage'
+import { createIdbMeta, createIdbStorage } from './store/persistence/storage'
+import { startSync } from './store/syncStore'
 import { useToast } from './store/toastStore'
 import { applyTheme } from './theme/applyTheme'
 import { ToastRegion } from './ui/Toast'
@@ -59,6 +60,9 @@ export function App() {
     document.addEventListener('visibilitychange', onVisible)
     return () => document.removeEventListener('visibilitychange', onVisible)
   }, [checking])
+
+  // Calendar sync for everyone past the sign-in screen; it waits by itself while signed out/offline.
+  useEffect(() => (checking ? undefined : startSync(createIdbMeta('sync'))), [checking])
 
   // Nothing until settings and auth are known — no English flash, no sign-in flicker.
   if (!ready || auth === 'checking') return <main className={styles.shell} aria-busy="true" />

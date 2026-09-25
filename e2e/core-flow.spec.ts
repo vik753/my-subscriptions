@@ -1,10 +1,23 @@
 import { expect, test } from '@playwright/test'
 
 // Signed-in session without Google: a valid token in sessionStorage + mocked userinfo.
+// Google Calendar is faked: every call succeeds; the app calendar is `cal1`.
+const calendarWrites: { method: string; body: Record<string, unknown> }[] = []
+
 test.beforeEach(async ({ page }) => {
+  calendarWrites.length = 0
   await page.route('https://www.googleapis.com/oauth2/v3/userinfo', (route) =>
     route.fulfill({ json: { email: 'me@gmail.com', name: 'Me' } }),
   )
+  await page.route('https://www.googleapis.com/calendar/v3/**', (route) => {
+    const req = route.request()
+    if (req.method() !== 'GET')
+      calendarWrites.push({
+        method: req.method(),
+        body: (req.postDataJSON() ?? {}) as Record<string, unknown>,
+      })
+    return route.fulfill({ json: req.method() === 'POST' ? { id: 'cal1' } : {} })
+  })
   await page.addInitScript(() => {
     sessionStorage.setItem(
       'auth.token',
@@ -90,4 +103,22 @@ test('on open, past sessions are asked about and saved', async ({ page }) => {
   await expect(page.getByText('Marked: 3')).toBeVisible()
   await expect(sheet).toBeHidden()
   await expect(page.locator('dl')).toContainText('5')
+})
+
+test('sessions are written to the app calendar', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-09-24T10:02:00'))
+  await page.goto('./')
+  await page.getByRole('button', { name: 'Add hobby' }).click()
+  await page.getByLabel('Name').fill('Gym')
+  await page.getByRole('button', { name: 'Mo', exact: true }).click()
+  await page.getByLabel('Monday', { exact: true }).fill('10:00')
+  await page.getByLabel('Sessions in pass').fill('2')
+  await page.getByRole('button', { name: 'Create and add to calendar' }).click()
+
+  await expect
+    .poll(() => calendarWrites.filter((w) => typeof w.body.summary === 'string').length)
+    .toBe(13) // the calendar + 12 Mondays (Sep 28 … Dec 14)
+  expect(calendarWrites[0]?.body).toMatchObject({ summary: 'My Subscriptions' })
+  expect(calendarWrites.map((w) => w.body.summary)).toContain('Gym · Paid')
+  expect(calendarWrites.map((w) => w.body.summary)).toContain('Gym · Unpaid')
 })

@@ -39,6 +39,8 @@ interface AuthState {
   resume: () => void
   signIn: () => void
   signOut: () => void
+  /** A Google API answered 401: drop the token, keep the account → "Sign in again". */
+  expire: () => void
 }
 
 const safe = <T>(fn: () => T, fallback: T): T => {
@@ -61,6 +63,12 @@ const local = {
 }
 const readJson = <T>(k: string): T | null =>
   safe(() => JSON.parse(session.get(k) ?? 'null') as T | null, null)
+
+/** The current access token while it is still valid, for API calls. */
+export const accessToken = (): string | null => {
+  const token = readJson<StoredToken>(TOKEN_KEY)
+  return token && token.expiresAt > Date.now() ? token.accessToken : null
+}
 
 /** Seam for tests: jsdom can't navigate. */
 export const authNavigation = {
@@ -201,6 +209,11 @@ export const useAuth = create<AuthState>((set) => ({
   signIn: () => {
     session.del(SILENT_KEY)
     redirect()
+  },
+
+  expire: () => {
+    clearSession()
+    set({ status: 'signedOut', expiresAt: null, error: 'token_expired' })
   },
 
   signOut: () => {

@@ -1,8 +1,9 @@
-import { CalendarBlank, Plus, Ticket, Warning } from '@phosphor-icons/react'
+import { CalendarBlank, CloudSlash, Plus, Ticket, Warning } from '@phosphor-icons/react'
 import { useNavigate, useSearchParams } from 'react-router'
 import { formatDateLong } from '../../i18n/format'
 import { useApp } from '../../store/appStore'
 import { openPendingFlow } from '../../store/flowStore'
+import { useSyncState } from '../../store/syncState'
 import { useNow } from '../../store/clock'
 import { useLanguage, useT } from '../../store/useT'
 import { Button, IconButton } from '../../ui/Button'
@@ -19,6 +20,7 @@ export function Home() {
   const navigate = useNavigate()
   const hobbies = useApp((s) => s.data.hobbies)
   const loadError = useApp((s) => s.loadError)
+  const sync = useSyncState()
   // Tab and selected day live in the URL, so Back from a hobby returns to the same view.
   const [params, setParams] = useSearchParams()
   const tab = params.get('tab') === 'all' && hobbies.length > 0 ? 'all' : 'list'
@@ -32,7 +34,20 @@ export function Home() {
     <div className={styles.screen}>
       <header className={styles.header}>
         <div>
-          <p className={styles.date}>{formatDateLong(lang, now.slice(0, 10))}</p>
+          <p className={styles.date}>
+            {formatDateLong(lang, now.slice(0, 10))}
+            {sync === 'offline' && (
+              <CloudSlash size={14} className={styles.syncIcon} role="img" aria-label={t.offline} />
+            )}
+            {sync === 'reauth' && (
+              <Warning
+                size={14}
+                className={`${styles.syncIcon} ${styles.syncWarn}`}
+                role="img"
+                aria-label={t.reauth}
+              />
+            )}
+          </p>
           <h1 className={styles.title}>{t.title}</h1>
         </div>
         <IconButton

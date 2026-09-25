@@ -15,9 +15,20 @@
 }
 
 .date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin: 0;
   font-size: 13px;
   color: var(--color-neutral-400);
+}
+
+.syncIcon {
+  flex: none;
+}
+
+.syncWarn {
+  color: var(--color-accent);
 }
 
 .title {
