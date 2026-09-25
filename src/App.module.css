@@ -1,0 +1,16 @@
+.shell {
+  padding-top: 64px;
+}
+
+.title {
+  margin: 0;
+  font-size: 30px;
+  font-weight: 500;
+  letter-spacing: -0.02em;
+}
+
+.tagline {
+  margin: 8px 0 0;
+  font-size: 14px;
+  color: var(--color-neutral-400);
+}

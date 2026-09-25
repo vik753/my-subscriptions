@@ -1,0 +1,6 @@
+design_handoff_my_subscriptions
+dist
+coverage
+playwright-report
+test-results
+package-lock.json
