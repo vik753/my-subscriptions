@@ -13,7 +13,7 @@ import { SheetHost } from './screens/sheets/SheetHost'
 import { SignIn } from './screens/SignIn/SignIn'
 import { useApp } from './store/appStore'
 import { useAuth } from './store/authStore'
-import { runOpenCheck } from './store/flowStore'
+import { runOpenCheck, useFlow } from './store/flowStore'
 import { createIdbMeta, createIdbStorage } from './store/persistence/storage'
 import { startSync } from './store/syncStore'
 import { useToast } from './store/toastStore'
@@ -32,6 +32,7 @@ export function App() {
   // Only a first-time user is gated; a returning user with an expired session keeps their local
   // data and sees "Sign in again" in the sync status (reauth).
   const toast = useToast()
+  const sheetOpen = useFlow((s) => s.sheet !== null)
 
   useEffect(() => {
     void useApp.getState().load(getStorage(), detectLanguage(navigator.languages))
@@ -96,7 +97,7 @@ export function App() {
       ) : (
         <SignIn />
       )}
-      <ToastRegion message={toast.message} leaving={toast.leaving} />
+      <ToastRegion message={toast.message} leaving={toast.leaving} top={sheetOpen} />
     </main>
   )
 }
