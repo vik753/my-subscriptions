@@ -15,6 +15,7 @@ const USER_KEY = 'auth.user'
 const STATE_KEY = 'auth.state'
 const SILENT_KEY = 'auth.silent' // 'pending' → redirect in flight; 'used' → no more silent attempts this session
 const HINT_KEY = 'auth.loginHint'
+const RETURN_KEY = 'auth.returnTo' // Google redirects back to the app root; this restores the route
 const RENEW_MARGIN_MS = 5 * 60_000
 
 /** `offline` = we have a session but can't reach Google right now; local work continues. */
@@ -27,6 +28,8 @@ interface StoredToken {
 
 interface AuthState {
   status: AuthStatus
+  /** Has signed in on this device before (and not signed out) — gates the sign-in screen. */
+  known: boolean
   user: GoogleUser | null
   expiresAt: number | null
   error: string | null
@@ -69,6 +72,7 @@ const redirect = (prompt?: 'none') => {
   if (!clientId) throw new Error('VITE_GOOGLE_CLIENT_ID is not set')
   const state = crypto.randomUUID()
   session.set(STATE_KEY, state)
+  session.set(RETURN_KEY, window.location.pathname + window.location.search)
   const loginHint = local.get(HINT_KEY) ?? undefined
   authNavigation.go(
     buildAuthUrl({
@@ -90,13 +94,16 @@ const clearSession = () => {
 let running: Promise<void> | null = null
 
 const runInit = async (set: (s: Partial<AuthState>) => void): Promise<void> => {
+  set({ known: local.get(HINT_KEY) != null })
   const response = parseAuthResponse(window.location.hash, Date.now())
   let grant: AuthState['lastGrant'] = 'restored'
   let token = readJson<StoredToken>(TOKEN_KEY)
   let fresh = false
 
   if (response) {
-    history.replaceState(null, '', window.location.pathname + window.location.search)
+    const returnTo = session.get(RETURN_KEY) ?? window.location.pathname + window.location.search
+    session.del(RETURN_KEY)
+    history.replaceState(null, '', returnTo)
     const expected = session.get(STATE_KEY)
     session.del(STATE_KEY)
     const wasSilent = session.get(SILENT_KEY) === 'pending'
@@ -125,7 +132,12 @@ const runInit = async (set: (s: Partial<AuthState>) => void): Promise<void> => {
     const cachedUser = readJson<GoogleUser>(USER_KEY)
     if (!navigator.onLine) {
       // Never navigate to accounts.google.com offline — the standalone app would land on an error page.
-      return set(cachedUser ? { status: 'offline', user: cachedUser } : { status: 'signedOut' })
+      // A known account stays offline even without a cached profile: back online, resume() renews it.
+      return set(
+        cachedUser || local.get(HINT_KEY) != null
+          ? { status: 'offline', user: cachedUser }
+          : { status: 'signedOut' },
+      )
     }
     // One silent attempt per app session, only for returning users.
     if (local.get(HINT_KEY) != null && session.get(SILENT_KEY) == null) {
@@ -140,7 +152,14 @@ const runInit = async (set: (s: Partial<AuthState>) => void): Promise<void> => {
     const user = await fetchUser(token.accessToken)
     local.set(HINT_KEY, user.email)
     session.set(USER_KEY, JSON.stringify(user))
-    set({ status: 'signedIn', user, expiresAt: token.expiresAt, lastGrant: grant, error: null })
+    set({
+      status: 'signedIn',
+      known: true,
+      user,
+      expiresAt: token.expiresAt,
+      lastGrant: grant,
+      error: null,
+    })
   } catch (e) {
     if (e instanceof GoogleHttpError && e.status === 401) {
       clearSession()
@@ -159,6 +178,7 @@ const runInit = async (set: (s: Partial<AuthState>) => void): Promise<void> => {
 
 export const useAuth = create<AuthState>((set) => ({
   status: 'checking',
+  known: false,
   user: null,
   expiresAt: null,
   error: null,
@@ -188,6 +208,7 @@ export const useAuth = create<AuthState>((set) => ({
     local.del(HINT_KEY)
     set({
       status: 'signedOut',
+      known: false,
       user: null,
       expiresAt: null,
       lastGrant: null,

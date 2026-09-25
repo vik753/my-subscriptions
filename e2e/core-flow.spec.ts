@@ -46,3 +46,24 @@ test('create a hobby, see it in detail and on Home', async ({ page }) => {
   await page.reload()
   await expect(page.getByRole('heading', { name: 'Gym' })).toBeVisible()
 })
+
+test('a returning user with an expired session keeps their data', async ({ browser }) => {
+  const page = await browser.newPage()
+  // Known account, no token, silent renewal already spent this session.
+  await page.addInitScript(() => {
+    localStorage.setItem('auth.loginHint', 'me@gmail.com')
+    sessionStorage.setItem('auth.silent', 'used')
+  })
+  await page.goto('./')
+  await expect(page.getByRole('heading', { name: 'No passes yet' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Sign in with Google' })).toHaveCount(0)
+
+  await page.getByRole('button', { name: 'Add hobby' }).click()
+  await page.getByRole('button', { name: 'Mo', exact: true }).click()
+  await page.getByLabel('Monday', { exact: true }).fill('10:00')
+  await page.getByLabel('Sessions in pass').fill('8')
+  await page.getByRole('button', { name: 'Create and add to calendar' }).click()
+  await expect(page.getByText('Sign in again to sync')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible()
+  await page.close()
+})

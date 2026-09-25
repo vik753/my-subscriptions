@@ -22,6 +22,7 @@ export function App() {
   const ready = useApp((s) => s.ready)
   const { scheme, mode, language } = useApp((s) => s.data.settings)
   const auth = useAuth((s) => s.status)
+  const known = useAuth((s) => s.known)
   const toast = useToast()
 
   useEffect(() => {
@@ -52,10 +53,12 @@ export function App() {
       </main>
     )
 
-  const signedIn = auth === 'signedIn' || auth === 'offline'
+  // Only a first-time user is gated; a returning user with an expired session keeps their local
+  // data and sees "Sign in again" in the sync status (reauth).
+  const gated = !known && auth !== 'signedIn' && auth !== 'offline'
   return (
     <main className={styles.shell} aria-busy="false">
-      {signedIn ? (
+      {!gated ? (
         <BrowserRouter basename={import.meta.env.BASE_URL}>
           <Routes>
             <Route path="/" element={<Home />} />

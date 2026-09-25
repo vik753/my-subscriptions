@@ -1,3 +1,4 @@
+import { useEffect, useState } from 'react'
 import { CalendarCheck, GoogleDriveLogo, GoogleLogo, Ticket, Warning } from '@phosphor-icons/react'
 import { APP_NAME } from '../../i18n'
 import { useAuth } from '../../store/authStore'
@@ -9,7 +10,17 @@ export function SignIn() {
   const t = useT()
   const status = useAuth((s) => s.status)
   const signIn = useAuth((s) => s.signIn)
-  const redirecting = status === 'checking'
+  // Set on tap: the page stays visible until the browser leaves for Google.
+  const [redirecting, setRedirecting] = useState(false)
+
+  // Coming back with the Back gesture restores this page from bfcache with the spinner still on.
+  useEffect(() => {
+    const onShow = (e: PageTransitionEvent) => {
+      if (e.persisted) setRedirecting(false)
+    }
+    window.addEventListener('pageshow', onShow)
+    return () => window.removeEventListener('pageshow', onShow)
+  }, [])
 
   const features = [
     { icon: <Ticket />, text: t.feat1 },
@@ -53,7 +64,10 @@ export function SignIn() {
           tall
           icon={<GoogleLogo />}
           loading={redirecting}
-          onClick={signIn}
+          onClick={() => {
+            setRedirecting(true)
+            signIn()
+          }}
         >
           {status === 'denied' ? t.grant : t.signIn}
         </Button>
