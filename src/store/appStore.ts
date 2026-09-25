@@ -68,7 +68,6 @@ export const useApp = create<AppState>((set, get) => {
           set({ data, ready: true, loadError: null })
         } catch (e) {
           // Storage stays detached: data from a newer app version must never be overwritten.
-          // TODO(stage 5): surface `loadError` in the UI.
           const message = e instanceof Error ? e.message : String(e)
           console.warn('load failed; changes will not be saved', message)
           set({ data: defaultState(language), ready: true, loadError: message })

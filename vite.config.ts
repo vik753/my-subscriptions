@@ -1,6 +1,7 @@
 /// <reference types="vitest/config" />
 import react from '@vitejs/plugin-react'
 import { copyFileSync } from 'node:fs'
+import path from 'node:path'
 import { defineConfig, type Plugin } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
@@ -8,11 +9,17 @@ import { VitePWA } from 'vite-plugin-pwa'
 const PAGES_BASE = '/my-subscriptions/'
 
 // GitHub Pages serves 404.html for unknown paths — make it the SPA so deep links work.
-const spaFallback = (): Plugin => ({
-  name: 'spa-404-fallback',
-  apply: 'build',
-  closeBundle: () => copyFileSync('dist/index.html', 'dist/404.html'),
-})
+const spaFallback = (): Plugin => {
+  let outDir = 'dist'
+  return {
+    name: 'spa-404-fallback',
+    apply: 'build',
+    configResolved: (config) => {
+      outDir = path.resolve(config.root, config.build.outDir)
+    },
+    closeBundle: () => copyFileSync(path.join(outDir, 'index.html'), path.join(outDir, '404.html')),
+  }
+}
 
 export default defineConfig(({ command }) => ({
   base: process.env.BASE_PATH ?? (command === 'build' ? PAGES_BASE : '/'),

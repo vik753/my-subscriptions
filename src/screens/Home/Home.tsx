@@ -35,7 +35,7 @@ export function Home() {
       {loadError && (
         <p className={styles.error} role="alert">
           <Warning size={18} aria-hidden="true" />
-          {loadError}
+          {t.loadErr}
         </p>
       )}
 
