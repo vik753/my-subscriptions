@@ -3,7 +3,7 @@
 Approved by the user on 2026-09-25. Update the checkboxes and "Status" as stages complete.
 Every stage ends with `/ship` → PR `dev → main` → the user merges → GitHub Pages deploys.
 
-**Status:** Stages 0, 1, 2 done (stage 1: GO — sign-in, silent renewal and Calendar/Drive scopes verified on the user's iPhone PWA, 2026-09-25). Stages 3–4 done. Next: Stage 5 (core screens).
+**Status:** Stages 0–4 done. Stage 5: code shipped in PR #16 (user reviewed on the phone: looks good); next = fix `docs/reviews/stage-5.md` findings in a follow-up PR (finding #4 needs the user's decision — ask first), then `ui-verifier`, then stage 6.
 
 | #   | Stage                   | Deliverable                                                                                                                                     | Agents                                 | Est.  |
 | --- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ----- |
