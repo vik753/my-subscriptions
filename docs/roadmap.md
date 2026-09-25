@@ -3,7 +3,7 @@
 Approved by the user on 2026-09-25. Update the checkboxes and "Status" as stages complete.
 Every stage ends with `/ship` → PR `dev → main` → the user merges → GitHub Pages deploys.
 
-**Status:** Stages 0, 2 done. Next: Stage 3 (Stage 1 waits for the Google OAuth Client ID from the user).
+**Status:** Stages 0, 2 done. Stage 1 code shipped — waiting for the user's iPhone test (go / no-go). Next: Stage 3.
 
 | #   | Stage                  | Deliverable                                                                                                                                     | Agents                                 | Est.  |
 | --- | ---------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ----- |
