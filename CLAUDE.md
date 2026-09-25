@@ -44,7 +44,7 @@ src/
   theme/     tokens.css (from design tokens), scheme × mode switching
 ```
 
-Dependency direction (enforced by ESLint `import/no-restricted-paths`): `screens → ui, store, i18n, theme` · `store → domain, services` · `services → domain` · **`domain → nothing`** (no React, no browser APIs, no `Date.now()` — `today` is always a parameter).
+Dependency direction (enforced by ESLint `import/no-restricted-paths`): `screens → ui, store, i18n, theme` · `store → domain, services, i18n, theme` · `services → domain` · `theme → i18n` · **`domain → nothing`** (no React, no browser APIs, no `Date.now()` — `today` is always a parameter).
 
 Core flow — everything derives from one pure function:
 
