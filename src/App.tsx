@@ -6,9 +6,12 @@ import { Home } from './screens/Home/Home'
 import { HobbyDetail } from './screens/HobbyDetail/HobbyDetail'
 import { HobbyForm } from './screens/HobbyForm/HobbyForm'
 import { Kit } from './screens/Kit/Kit'
+import { ScrollToTop } from './screens/ScrollToTop'
+import { SheetHost } from './screens/sheets/SheetHost'
 import { SignIn } from './screens/SignIn/SignIn'
 import { useApp } from './store/appStore'
 import { useAuth } from './store/authStore'
+import { runOpenCheck } from './store/flowStore'
 import { createIdbStorage } from './store/persistence/storage'
 import { useToast } from './store/toastStore'
 import { applyTheme } from './theme/applyTheme'
@@ -23,6 +26,8 @@ export function App() {
   const { scheme, mode, language } = useApp((s) => s.data.settings)
   const auth = useAuth((s) => s.status)
   const known = useAuth((s) => s.known)
+  // Only a first-time user is gated; a returning user with an expired session keeps their local
+  // data and sees "Sign in again" in the sync status (reauth).
   const toast = useToast()
 
   useEffect(() => {
@@ -42,6 +47,19 @@ export function App() {
 
   useEffect(() => applyTheme(scheme, mode, language), [scheme, mode, language])
 
+  // App open check (replaces notifications): on launch and whenever the app comes back to the front.
+  const gated = !known && auth !== 'signedIn' && auth !== 'offline'
+  const checking = !ready || auth === 'checking' || gated
+  useEffect(() => {
+    if (checking) return
+    runOpenCheck()
+    const onVisible = () => {
+      if (document.visibilityState === 'visible') runOpenCheck()
+    }
+    document.addEventListener('visibilitychange', onVisible)
+    return () => document.removeEventListener('visibilitychange', onVisible)
+  }, [checking])
+
   // Nothing until settings and auth are known — no English flash, no sign-in flicker.
   if (!ready || auth === 'checking') return <main className={styles.shell} aria-busy="true" />
 
@@ -53,13 +71,11 @@ export function App() {
       </main>
     )
 
-  // Only a first-time user is gated; a returning user with an expired session keeps their local
-  // data and sees "Sign in again" in the sync status (reauth).
-  const gated = !known && auth !== 'signedIn' && auth !== 'offline'
   return (
     <main className={styles.shell} aria-busy="false">
       {!gated ? (
         <BrowserRouter basename={import.meta.env.BASE_URL}>
+          <ScrollToTop />
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/new" element={<HobbyForm />} />
@@ -67,6 +83,7 @@ export function App() {
             <Route path="/hobby/:id/edit" element={<HobbyForm />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Routes>
+          <SheetHost />
         </BrowserRouter>
       ) : (
         <SignIn />

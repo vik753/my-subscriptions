@@ -39,7 +39,8 @@ test('create a hobby, see it in detail and on Home', async ({ page }) => {
 
   await page.getByRole('button', { name: 'Subscriptions' }).click()
   const card = page.getByRole('button', { name: /Gym/ })
-  await expect(card).toContainText('8paid sessions left')
+  await expect(card).toHaveAccessibleName('Gym, 8 paid sessions left')
+  await expect(card.locator('..')).toContainText('8paid sessions left')
 
   // Deep link survives a reload (router + persistence).
   await card.click()
@@ -66,4 +67,27 @@ test('a returning user with an expired session keeps their data', async ({ brows
   await expect(page.getByText('Sign in again to sync')).toBeVisible()
   await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible()
   await page.close()
+})
+
+test('on open, past sessions are asked about and saved', async ({ page }) => {
+  await page.clock.setFixedTime(new Date('2026-09-24T10:02:00'))
+  await page.goto('./')
+  await page.getByRole('button', { name: 'Add hobby' }).click()
+  await page.getByLabel('Name').fill('Gym')
+  await page.getByRole('button', { name: 'Mo', exact: true }).click()
+  await page.getByLabel('Monday', { exact: true }).fill('10:00')
+  await page.getByLabel('First session').fill('2026-09-07')
+  await page.getByLabel('Sessions in pass').fill('8')
+  await page.getByRole('button', { name: 'Create and add to calendar' }).click()
+  await expect(page.getByRole('heading', { name: 'Gym' })).toBeVisible()
+
+  // Reopening the app runs the check: Sep 7, 14, 21 have ended.
+  await page.reload()
+  const sheet = page.getByRole('dialog', { name: 'Mark past sessions' })
+  await expect(sheet.getByText('3 unmarked sessions')).toBeVisible()
+  await sheet.getByRole('button', { name: 'Mark all as attended' }).click()
+  await sheet.getByRole('button', { name: 'Save' }).click()
+  await expect(page.getByText('Marked: 3')).toBeVisible()
+  await expect(sheet).toBeHidden()
+  await expect(page.locator('dl')).toContainText('5')
 })

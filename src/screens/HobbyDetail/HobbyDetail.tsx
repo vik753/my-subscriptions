@@ -6,6 +6,7 @@ import type { Messages } from '../../i18n'
 import { formatDate, formatMoney, formatMonthYear, formatScheduleGroups } from '../../i18n/format'
 import { useApp } from '../../store/appStore'
 import { useAuth } from '../../store/authStore'
+import { openPendingFlow, useFlow, type FlowSheet } from '../../store/flowStore'
 import { useNow } from '../../store/clock'
 import { useSyncState } from '../../store/syncState'
 import { useLanguage, useT } from '../../store/useT'
@@ -58,6 +59,14 @@ function Detail({ hobby }: { hobby: Hobby }) {
   const sync = useSyncState()
   const signIn = useAuth((s) => s.signIn)
   const s = summarize(hobby, now)
+  const open = useFlow((f) => f.open)
+  // Pending → Attendance prompt; unmarked or cancelled → Session sheet; attended / missed are final.
+  const sheetFor = (x: Session): FlowSheet | null =>
+    x.pending
+      ? { kind: 'prompt', hobbyId: hobby.id, key: x.key }
+      : !x.mark || x.mark === 'cancelled' || x.mark === 'forfeit'
+        ? { kind: 'session', hobbyId: hobby.id, key: x.key }
+        : null
   const segment = segmentAt(hobby.sched, today) ?? hobby.sched[hobby.sched.length - 1]
 
   const first = s.next?.date ?? today
@@ -98,8 +107,12 @@ function Detail({ hobby }: { hobby: Hobby }) {
         <SyncStatus state={sync} label={syncLabel} actionLabel={t.reauthBtn} onAction={signIn} />
       </div>
 
-      {/* Payment and session sheets arrive in stage 6. */}
-      <Button variant="primary" block icon={<Plus />}>
+      <Button
+        variant="primary"
+        block
+        icon={<Plus />}
+        onClick={() => open({ kind: 'payment', hobbyId: hobby.id, queue: [] })}
+      >
         {t.addPayment}
       </Button>
 
@@ -140,6 +153,7 @@ function Detail({ hobby }: { hobby: Hobby }) {
                 time: x.time,
                 status: cellStatus(x),
                 label: `${formatDate(lang, x.date)}, ${x.time} — ${statusLabel(t, x)}`,
+                ...(sheetFor(x) && { onClick: () => open(sheetFor(x) as FlowSheet) }),
               })}
             />
           )
@@ -155,7 +169,11 @@ function Detail({ hobby }: { hobby: Hobby }) {
       </ul>
 
       {s.pending.length > 0 && (
-        <button type="button" className={styles.pendingRow}>
+        <button
+          type="button"
+          className={styles.pendingRow}
+          onClick={() => openPendingFlow(hobby.id)}
+        >
           <ClockCountdown size={18} aria-hidden="true" />
           <span>{t.pendingRow(s.pending.length)}</span>
           <CaretRight size={14} aria-hidden="true" />
@@ -166,18 +184,24 @@ function Detail({ hobby }: { hobby: Hobby }) {
         <h2 className={styles.h2}>{t.upcoming}</h2>
         <ul className={styles.list}>
           {upcoming.map((x) => (
-            <li key={x.key} className={styles.row}>
-              <span className={styles.rowText}>
-                <span className={styles.rowTitle}>{formatDate(lang, x.date)}</span>
-                <span className={styles.rowSub}>
-                  {x.time} · {x.dur} {t.min}
-                  {x.movedFrom && ` · ${t.movedShort}`}
+            <li key={x.key}>
+              <button
+                type="button"
+                className={`${styles.row} ${styles.rowButton}`}
+                onClick={() => open({ kind: 'session', hobbyId: hobby.id, key: x.key })}
+              >
+                <span className={styles.rowText}>
+                  <span className={styles.rowTitle}>{formatDate(lang, x.date)}</span>
+                  <span className={styles.rowSub}>
+                    {x.time} · {x.dur} {t.min}
+                    {x.movedFrom && ` · ${t.movedShort}`}
+                  </span>
                 </span>
-              </span>
-              <StatusPill status={x.status === 'paid' ? 'paid' : 'unpaid'}>
-                {statusLabel(t, x)}
-              </StatusPill>
-              <CaretRight size={14} className={styles.chevron} aria-hidden="true" />
+                <StatusPill status={x.status === 'paid' ? 'paid' : 'unpaid'}>
+                  {statusLabel(t, x)}
+                </StatusPill>
+                <CaretRight size={14} className={styles.chevron} aria-hidden="true" />
+              </button>
             </li>
           ))}
         </ul>

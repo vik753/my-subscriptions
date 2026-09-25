@@ -16,6 +16,8 @@ export interface AppState {
   /** Applies a pure domain mutation and stamps `updatedAt`. */
   updateHobby: (id: string, mutate: (hobby: Hobby) => Hobby) => void
   deleteHobby: (id: string) => void
+  /** "Remind me later": hide the renewal reminder of this hobby until `until`. */
+  snoozeRenewal: (id: string, until: string) => void
 }
 
 /** Seam for tests. */
@@ -95,6 +97,11 @@ export const useApp = create<AppState>((set, get) => {
         ...data,
         hobbies: data.hobbies.map((h) => (h.id === id ? { ...mutate(h), updatedAt } : h)),
       })
+    },
+
+    snoozeRenewal: (id, until) => {
+      const { settings } = get().data
+      get().updateSettings({ renewSnoozedUntil: { ...settings.renewSnoozedUntil, [id]: until } })
     },
 
     deleteHobby: (id) => {
