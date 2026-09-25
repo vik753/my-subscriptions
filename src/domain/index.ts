@@ -2,7 +2,7 @@ export type * from './types'
 export { summarize, collectPending } from './sessions'
 export { firstSessionDate, segmentAt } from './schedule'
 export { renewalDue } from './renewal'
-export { addDays, weekdayOf } from './dates'
+export { addDays, addMinutes, weekdayOf } from './dates'
 export {
   addPayment,
   cancelSession,
@@ -13,3 +13,5 @@ export {
   moveSession,
   restoreSession,
 } from './mutations'
+export { calendarEvents, diffEvents, eventId, hashText } from './calendar'
+export type { CalendarEventModel } from './calendar'
