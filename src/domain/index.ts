@@ -15,3 +15,5 @@ export {
 } from './mutations'
 export { calendarEvents, diffEvents, eventId, hashText } from './calendar'
 export type { CalendarEventModel } from './calendar'
+export { mergeHobbies } from './merge'
+export type { HobbySet } from './merge'
