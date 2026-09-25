@@ -1,6 +1,6 @@
 import { CaretLeft, CaretRight, ClockCountdown, PencilSimple, Plus } from '@phosphor-icons/react'
 import { useState } from 'react'
-import { Navigate, useNavigate, useParams } from 'react-router'
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router'
 import { segmentAt, summarize, type Hobby, type Session, type SessionStatus } from '../../domain'
 import type { Messages } from '../../i18n'
 import { formatDate, formatMoney, formatMonthYear, formatScheduleGroups } from '../../i18n/format'
@@ -69,7 +69,10 @@ function Detail({ hobby }: { hobby: Hobby }) {
         : null
   const segment = segmentAt(hobby.sched, today) ?? hobby.sched[hobby.sched.length - 1]
 
-  const first = s.next?.date ?? today
+  // Opened from "All sessions": show the month of the tapped session.
+  const location = useLocation()
+  const month = (location.state as { month?: string } | null)?.month
+  const first = month ? `${month}-01` : (s.next?.date ?? today)
   const [view, setView] = useState<[number, number]>([
     Number(first.slice(0, 4)),
     Number(first.slice(5, 7)) - 1,
@@ -86,7 +89,11 @@ function Detail({ hobby }: { hobby: Hobby }) {
   return (
     <div className={styles.screen}>
       <header className={styles.topBar}>
-        <Button variant="ghost" icon={<CaretLeft />} onClick={() => navigate('/')}>
+        <Button
+          variant="ghost"
+          icon={<CaretLeft />}
+          onClick={() => (location.key === 'default' ? navigate('/') : navigate(-1))}
+        >
           {t.title}
         </Button>
         <IconButton
