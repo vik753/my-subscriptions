@@ -48,6 +48,7 @@ export const en = {
   feat2: 'Sessions in Google Calendar, paid ones in green',
   feat3: 'Your data is stored in your Google Drive',
   signErr: 'Couldn’t sign in. Please try again',
+  loadErr: 'Couldn’t open the data on this device. Changes won’t be saved',
   signDenied: 'Without calendar access the app can’t create sessions',
   grant: 'Grant access',
   install: 'Add to Home Screen',
@@ -140,6 +141,7 @@ export const en = {
   fStart: 'First session',
   fPaid: 'Sessions in pass',
   fPrice: 'Pass price',
+  fCurrency: 'Currency',
   summary: (dt: string, n: number, per: string) =>
     dt +
     '. The first ' +

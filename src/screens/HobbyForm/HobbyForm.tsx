@@ -1,10 +1,9 @@
 import { Copy, GoogleLogo, Trash } from '@phosphor-icons/react'
 import { useState } from 'react'
-import { Navigate, useNavigate, useParams } from 'react-router'
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router'
 import {
   editSchedule,
   firstSessionDate,
-  segmentAt,
   type Currency,
   type HHMM,
   type Hobby,
@@ -22,6 +21,7 @@ import { DurationField } from '../../ui/DurationField'
 import { Field, SelectInput, TextInput } from '../../ui/Field'
 import { Sheet } from '../../ui/Sheet'
 import styles from './HobbyForm.module.css'
+import { parsePrice } from './parsePrice'
 
 const CURRENCIES: Currency[] = ['UAH', 'USD', 'EUR']
 const WEEK: Weekday[] = [0, 1, 2, 3, 4, 5, 6]
@@ -32,17 +32,25 @@ type Durs = Partial<Record<Weekday, number | null>>
 const addDay = (date: string, days: number) =>
   new Date(Date.parse(`${date}T00:00:00Z`) + days * 86_400_000).toISOString().slice(0, 10)
 
+const sameRecord = <V,>(a: Partial<Record<Weekday, V>>, b: Partial<Record<Weekday, V>>) =>
+  WEEK.every((d) => a[d] === b[d])
+
 /** Create (`/new`) and edit (`/hobby/:id/edit`) share this form. */
 export function HobbyForm() {
   const { id } = useParams()
   const hobby = useApp((s) => s.data.hobbies.find((h) => h.id === id))
   const navigate = useNavigate()
+  // 'default' = the form is the first entry (cold deep link): there is nothing in-app to go back to.
+  const hasHistory = useLocation().key !== 'default'
   if (id && !hobby) return <Navigate to="/" replace />
+  const back = hobby ? `/hobby/${hobby.id}` : '/'
+  const leave = () => (hasHistory ? navigate(-1) : navigate(back, { replace: true }))
   return (
     <Form
       hobby={hobby}
-      onDone={(to) => navigate(to, { replace: true })}
-      onCancel={() => navigate(-1)}
+      // Edit returns to the Detail it came from instead of stacking a second copy of it.
+      onDone={(to) => (hobby && to === back ? leave() : navigate(to, { replace: true }))}
+      onCancel={leave}
     />
   )
 }
@@ -64,7 +72,8 @@ function Form({
   const { addHobby, updateHobby, deleteHobby } = useApp.getState()
   const toast = useToast((s) => s.show)
   const edit = Boolean(hobby)
-  const base = hobby && (segmentAt(hobby.sched, today) ?? hobby.sched[hobby.sched.length - 1])
+  // The latest segment: editing an older one would silently drop the schedule planned after it.
+  const base = hobby?.sched[hobby.sched.length - 1]
 
   const [name, setName] = useState(hobby?.name ?? '')
   const [times, setTimes] = useState<Times>(base?.times ?? {})
@@ -113,9 +122,10 @@ function Form({
   }
 
   const n = Number(sessions || 0)
-  const minor = Math.round(Number((price || '0').replace(',', '.')) * 100)
+  const minor = parsePrice(price)
   const timesOk = days.length > 0 && days.every((d) => /^\d\d:\d\d$/.test(times[d] ?? ''))
-  const valid = timesOk && (edit || (n > 0 && start !== ''))
+  // Edit: a past (or empty) date would rewrite sessions that already happened.
+  const valid = timesOk && (edit ? effective >= today : n > 0 && start !== '' && minor !== null)
   const dtList = days
     .map((d) => `${t.daysF[d]} ${times[d] || '—'} (${durOf(d)} ${t.min})`)
     .join(', ')
@@ -125,7 +135,7 @@ function Form({
       ? t.fillAll
       : edit
         ? t.editSummary(dtList, formatDate(lang, effective))
-        : t.summary(dtList, n, formatMoney(minor / Math.max(1, n), currency))
+        : t.summary(dtList, n, formatMoney((minor ?? 0) / Math.max(1, n), currency))
 
   const submit = () => {
     if (!valid) return toast(days.length ? t.fillAll : t.pickDay)
@@ -133,8 +143,12 @@ function Form({
       Record<Weekday, number>
     >
     if (hobby) {
+      const unchanged =
+        base !== undefined &&
+        sameRecord(filled(times), base.times) &&
+        sameRecord(cleanDurs, base.durs)
       updateHobby(hobby.id, (h) => ({
-        ...editSchedule(h, effective, filled(times), cleanDurs),
+        ...(unchanged ? h : editSchedule(h, effective, filled(times), cleanDurs)),
         name: name.trim() || h.name,
         currency: h.payments.length <= 1 ? currency : h.currency,
       }))
@@ -148,7 +162,7 @@ function Form({
       durs: cleanDurs,
       currency,
       sessions: n,
-      price: minor,
+      price: minor ?? 0,
       paymentDate: today,
     })
     onDone(`/hobby/${created.id}`)
@@ -256,7 +270,7 @@ function Form({
               )}
             </Field>
           )}
-          <Field label={edit ? t.fPrice : '\u00a0'} className={styles.currency}>
+          <Field label={edit ? t.fCurrency : '\u00a0'} className={styles.currency}>
             {(fid) => (
               <SelectInput
                 id={fid}
