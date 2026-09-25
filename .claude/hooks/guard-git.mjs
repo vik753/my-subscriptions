@@ -40,7 +40,7 @@ for (const seg of segments) {
     /(^|\s)(--force|--force-with-lease|-f|--mirror|--delete|-d)(\s|$)|\s\+\S+/.test(seg)
   )
     problems.push('Force / mirror / delete push is forbidden.')
-  if (isPush && /(\s|:)main(\s|$)/.test(seg))
+  if (isPush && /(\s|:|\/)main(\s|$)/.test(seg))
     problems.push('Pushing to `main` is forbidden. Push to `dev` and open a PR.')
 
   const branch = currentBranch()
