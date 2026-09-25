@@ -3,7 +3,7 @@ import { useState } from 'react'
 import { Navigate, useNavigate, useParams } from 'react-router'
 import { segmentAt, summarize, type Hobby, type Session, type SessionStatus } from '../../domain'
 import type { Messages } from '../../i18n'
-import { formatDate, formatMoney, formatMonthYear, formatSchedule } from '../../i18n/format'
+import { formatDate, formatMoney, formatMonthYear, formatScheduleGroups } from '../../i18n/format'
 import { useApp } from '../../store/appStore'
 import { useAuth } from '../../store/authStore'
 import { useNow } from '../../store/clock'
@@ -11,6 +11,7 @@ import { useSyncState } from '../../store/syncState'
 import { useLanguage, useT } from '../../store/useT'
 import { Button, IconButton } from '../../ui/Button'
 import { shiftMonth } from '../../ui/calendarGrid'
+import { Groups } from '../../ui/Groups'
 import { MonthCalendar, SessionDayCell, type SessionCellStatus } from '../../ui/MonthCalendar'
 import { StatusPill } from '../../ui/Tag'
 import { SyncStatus } from '../../ui/SyncStatus'
@@ -90,7 +91,9 @@ function Detail({ hobby }: { hobby: Hobby }) {
       <div className={styles.head}>
         <h1 className={styles.title}>{hobby.name}</h1>
         {segment && (
-          <p className={styles.schedule}>{formatSchedule(lang, segment.times, segment.durs)}</p>
+          <p className={styles.schedule}>
+            <Groups parts={formatScheduleGroups(lang, segment.times, segment.durs)} />
+          </p>
         )}
         <SyncStatus state={sync} label={syncLabel} actionLabel={t.reauthBtn} onAction={signIn} />
       </div>

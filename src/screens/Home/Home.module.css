@@ -69,10 +69,6 @@
   color: var(--color-neutral-400);
 }
 
-.nowrap {
-  white-space: nowrap;
-}
-
 .tags {
   display: flex;
   flex: none;

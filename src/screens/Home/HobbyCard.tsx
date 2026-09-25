@@ -1,8 +1,9 @@
 import { Clock, ClockCountdown } from '@phosphor-icons/react'
 import { segmentAt, summarize, type Hobby, type LocalDateTime } from '../../domain'
-import { formatDate, formatSchedule } from '../../i18n/format'
+import { formatDate, formatScheduleGroups } from '../../i18n/format'
 import { useLanguage, useT } from '../../store/useT'
 import { Card } from '../../ui/Card'
+import { Groups } from '../../ui/Groups'
 import { Tag } from '../../ui/Tag'
 import styles from './Home.module.css'
 
@@ -30,7 +31,7 @@ export function HobbyCard({
           <span className={styles.cardName}>{hobby.name}</span>
           {segment && (
             <span className={styles.schedule}>
-              {formatSchedule(lang, segment.times, segment.durs)}
+              <Groups parts={formatScheduleGroups(lang, segment.times, segment.durs)} />
             </span>
           )}
         </span>
