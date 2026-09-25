@@ -1,7 +1,7 @@
 import { expect, test } from '@playwright/test'
 
 // Signed-in session without Google: a valid token in sessionStorage + mocked userinfo.
-// Google Calendar is faked: every call succeeds; the app calendar is `cal1`.
+// Google Calendar and Drive are faked: every call succeeds; the app calendar is `cal1`.
 const calendarWrites: { method: string; body: Record<string, unknown> }[] = []
 
 test.beforeEach(async ({ page }) => {
@@ -17,6 +17,13 @@ test.beforeEach(async ({ page }) => {
         body: (req.postDataJSON() ?? {}) as Record<string, unknown>,
       })
     return route.fulfill({ json: req.method() === 'POST' ? { id: 'cal1' } : {} })
+  })
+  // Drive backup: no file yet; creating and writing it succeed.
+  await page.route(/https:\/\/www\.googleapis\.com\/(upload\/)?drive\/v3\/.*/, (route) => {
+    const method = route.request().method()
+    return route.fulfill({
+      json: method === 'GET' ? { files: [] } : method === 'POST' ? { id: 'file1' } : {},
+    })
   })
   await page.addInitScript(() => {
     sessionStorage.setItem(

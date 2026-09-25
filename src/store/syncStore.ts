@@ -15,9 +15,11 @@ import {
   upsertEvent,
   type EventBody,
 } from '../services/calendarApi'
+import { downloadJson, findStateFile, uploadJson } from '../services/driveApi'
 import { GoogleHttpError } from '../services/googleAuth'
 import { useApp } from './appStore'
 import { accessToken, useAuth } from './authStore'
+import { mergeState, readBackup, sameState, type BackupDoc } from './backup'
 import { localClock } from './clock'
 import type { MetaStorage } from './persistence/storage'
 import { useToast } from './toastStore'
@@ -35,6 +37,8 @@ export interface SyncMeta {
   synced: Record<string, string>
   /** ISO timestamp of the last successful sync. */
   lastSync: string | null
+  /** Drive file id of the state.json backup, once known. */
+  driveFileId: string | null
 }
 
 const emptyMeta = (account: string | null): SyncMeta => ({
@@ -42,6 +46,7 @@ const emptyMeta = (account: string | null): SyncMeta => ({
   calendarId: null,
   synced: {},
   lastSync: null,
+  driveFileId: null,
 })
 
 const readMeta = (raw: unknown): SyncMeta => {
@@ -51,6 +56,7 @@ const readMeta = (raw: unknown): SyncMeta => {
     calendarId: typeof m.calendarId === 'string' ? m.calendarId : null,
     synced: m.synced && typeof m.synced === 'object' ? { ...m.synced } : {},
     lastSync: typeof m.lastSync === 'string' ? m.lastSync : null,
+    driveFileId: typeof m.driveFileId === 'string' ? m.driveFileId : null,
   }
 }
 
@@ -111,8 +117,33 @@ const sync = async (store: MetaStorage): Promise<void> => {
   if (m.account !== account) m = emptyMeta(account)
   const save = () => store.save(m)
 
+  // 1. Backup: merge this device with the Drive copy (another device may have changed things).
+  const language = useApp.getState().data.settings.language
+  let fileId = m.driveFileId ?? (await findStateFile(token))
+  let remote: BackupDoc | null = null
+  if (fileId) {
+    try {
+      remote = readBackup(await downloadJson(token, fileId), language)
+    } catch (e) {
+      // The file vanished (e.g. "Delete all data" on another device): write a new one.
+      if (!(e instanceof GoogleHttpError && e.status === 404)) throw e
+      fileId = null
+    }
+  }
+  if (remote) {
+    const local = useApp.getState().data
+    const merged = mergeState(local, remote)
+    if (!sameState(merged, local)) useApp.getState().applyMerged(merged)
+    // A new device reuses the calendar the account already has.
+    if (!m.calendarId && remote.calendarId) {
+      m.calendarId = remote.calendarId
+      verified = false
+    }
+  }
+
+  // 2. Calendar.
   if (m.calendarId && !verified && !(await calendarExists(token, m.calendarId)))
-    m = { ...emptyMeta(account), lastSync: m.lastSync }
+    m = { ...emptyMeta(account), lastSync: m.lastSync, driveFileId: fileId }
   if (!m.calendarId) {
     m.calendarId = await createCalendar(token, APP_NAME, syncEnv.timeZone())
     m.synced = {}
@@ -159,6 +190,11 @@ const sync = async (store: MetaStorage): Promise<void> => {
     m.synced = Object.fromEntries(Object.entries(m.synced).filter(([k]) => k !== key))
     await save()
   }
+  // 3. Backup: write the merged state back when it differs from the Drive copy.
+  const doc: BackupDoc = { ...useApp.getState().data, calendarId: m.calendarId }
+  if (!remote || !sameState(doc, remote)) fileId = await uploadJson(token, fileId, doc)
+  m.driveFileId = fileId
+
   m.lastSync = new Date().toISOString()
   await save()
   useSync.setState({ lastSync: m.lastSync })

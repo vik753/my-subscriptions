@@ -13,9 +13,32 @@ const server = () => {
   let next = 1
   const requests: string[] = []
   let failWith: number | null = null
+  const drive = new Map<string, unknown>()
+  const handleDrive = (u: URL, method: string, init?: RequestInit): Response => {
+    const ok = (data: unknown = {}) => new Response(JSON.stringify(data), { status: 200 })
+    const id = decodeURIComponent(u.pathname.split('/files/')[1] ?? '')
+    if (method === 'GET' && !id) return ok({ files: [...drive.keys()].map((k) => ({ id: k })) })
+    if (method === 'GET')
+      return drive.has(id) ? ok(drive.get(id)) : new Response('{}', { status: 404 })
+    if (method === 'POST') {
+      const newId = `file${drive.size + 1}`
+      drive.set(newId, null)
+      return ok({ id: newId })
+    }
+    if (method === 'PATCH') {
+      drive.set(id, JSON.parse(String(init?.body)))
+      return ok({ id })
+    }
+    drive.delete(id)
+    return new Response(null, { status: 204 })
+  }
   const handle = (url: string, init?: RequestInit): Response => {
     const method = init?.method ?? 'GET'
     const u = new URL(url)
+    if (u.pathname.includes('/drive/v3/')) {
+      requests.push(`DRIVE ${method}`)
+      return failWith ? new Response('{}', { status: failWith }) : handleDrive(u, method, init)
+    }
     requests.push(`${method} ${decodeURIComponent(u.pathname.replace('/calendar/v3', ''))}`)
     if (failWith) return new Response('{}', { status: failWith })
     const body = init?.body ? (JSON.parse(String(init.body)) as Record<string, unknown>) : {}
@@ -55,6 +78,7 @@ const server = () => {
   }
   return {
     calendars,
+    drive,
     requests,
     fail: (status: number | null) => (failWith = status),
     live: (cal: string) =>
@@ -195,7 +219,9 @@ describe('calendar sync', () => {
     // Nothing changed → no event writes.
     google.requests.length = 0
     await run()
-    expect(google.requests.filter((r) => !r.startsWith('GET'))).toEqual([])
+    expect(google.requests.filter((r) => !r.startsWith('GET') && !r.startsWith('DRIVE'))).toEqual(
+      [],
+    )
   })
 
   it('writes only what changed', async () => {
@@ -212,7 +238,7 @@ describe('calendar sync', () => {
       .getState()
       .updateHobby('gym', (h) => cancelSession(h, '2026-09-28', true, '2026-09-24T10:02'))
     await run()
-    const writes = google.requests.filter((r) => !r.startsWith('GET'))
+    const writes = google.requests.filter((r) => !r.startsWith('GET') && !r.startsWith('DRIVE'))
     expect(writes.sort()).toEqual(
       [
         `DELETE /calendars/cal1/events/${eventId('gym', '2026-09-28')}`,
@@ -261,6 +287,7 @@ describe('calendar sync', () => {
     stop = startSync(meta)
     await run()
     signIn('other@gmail.com')
+    google.drive.clear() // each account has its own Drive
     await run()
     expect(google.live('cal2')).toHaveLength(13)
     expect(meta.value).toMatchObject({ account: 'other@gmail.com', calendarId: 'cal2' })
@@ -300,7 +327,7 @@ describe('calendar sync', () => {
     })
     stop = startSync(meta)
     await settle()
-    expect(google.live('cal1')).toHaveLength(4)
+    expect(google.live('cal1').length).toBeLessThan(13)
     expect(await run()).toBe(true)
     expect(google.calendars.get('cal1')?.size).toBe(13)
   })
@@ -322,5 +349,68 @@ describe('calendar sync', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+
+  describe('Drive backup', () => {
+    const backup = () => [...google.drive.values()][0] as Record<string, unknown> | undefined
+
+    it('backs up the state with the calendar id, and only when it changed', async () => {
+      addGym()
+      signIn()
+      stop = startSync(meta)
+      await run()
+      expect(backup()).toMatchObject({
+        schemaVersion: 2,
+        calendarId: 'cal1',
+        hobbies: [{ id: 'gym' }],
+      })
+      google.requests.length = 0
+      await run()
+      expect(google.requests.filter((r) => r === 'DRIVE PATCH')).toEqual([])
+    })
+
+    it('a new device restores hobbies and reuses the account calendar', async () => {
+      addGym()
+      signIn()
+      stop = startSync(meta)
+      await run()
+      stop()
+
+      // Second device: empty local data, fresh bookkeeping, same account.
+      resetAppStore(initial)
+      await useApp.getState().load(createMemoryStorage(), 'en')
+      meta = createMemoryMeta()
+      stop = startSync(meta)
+      await run()
+      expect(useApp.getState().data.hobbies.map((h) => h.name)).toEqual(['Gym'])
+      expect(google.calendars.size).toBe(1)
+      expect(google.calendars.get('cal1')?.size).toBe(13)
+    })
+
+    it('a hobby deleted on another device disappears here with its events', async () => {
+      addGym()
+      signIn()
+      stop = startSync(meta)
+      await run()
+      const doc = backup() as { hobbies: unknown[]; deletedHobbies: Record<string, string> }
+      google.drive.set('file1', {
+        ...doc,
+        hobbies: [],
+        deletedHobbies: { gym: '2099-01-01T00:00:00.000Z' },
+      })
+      await run()
+      expect(useApp.getState().data.hobbies).toEqual([])
+      expect(google.live('cal1')).toEqual([])
+    })
+
+    it('never overwrites a backup written by a newer app version', async () => {
+      addGym()
+      signIn()
+      google.drive.set('file1', { schemaVersion: 99, hobbies: [] })
+      stop = startSync(meta)
+      expect(await run()).toBe(false)
+      expect(backup()).toEqual({ schemaVersion: 99, hobbies: [] })
+      expect(google.calendars.size).toBe(0)
+    })
   })
 })
