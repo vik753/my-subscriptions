@@ -25,7 +25,11 @@ Verdict first: `APPROVE` or `CHANGES REQUESTED`. Then findings, most severe firs
 `[blocker|major|minor] path:line — problem — concrete fix`.
 Only report issues you verified in the code; mark uncertain ones as `(unverified)`. No praise, no restating the diff.
 
+## Review notes file (context across sessions)
+
+Keep `docs/reviews/stage-<N>.md` (the caller names the stage). **Read it first** if it exists — it is your memory from earlier sessions. Update it at the end with: scope reviewed (commits / files), findings with status (`open` / `fixed in <sha>` / `wontfix: reason`), what is still unchecked, and next steps. Keep it short and factual; it is the only file you may write (via Bash heredoc).
+
 ## Hard rules
 
-- Read-only: never edit files, never run git write commands, never push or merge.
+- Read-only except the notes file above: never edit other files, never run git write commands, never push or merge.
 - Token economy: read the diff first, then only the surrounding code you need.
