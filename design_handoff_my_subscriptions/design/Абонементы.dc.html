@@ -1,0 +1,1567 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<link rel="stylesheet" href="_ds/nocturne-85349a81-e2cd-4417-9684-943753bcfada/styles.css">
+<script src="_ds/nocturne-85349a81-e2cd-4417-9684-943753bcfada/_ds_bundle.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/regular/style.css">
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/fill/style.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+body{margin:0;background:var(--color-neutral-900);font-family:var(--font-body);color:var(--color-text)}
+a{color:var(--color-accent-300)}a:hover{color:var(--color-accent-200)}
+*{box-sizing:border-box}
+@keyframes ms-spin{to{transform:rotate(360deg)}}
+@keyframes ms-fade{from{opacity:0}to{opacity:1}}
+@keyframes ms-fadeout{from{opacity:1}to{opacity:0}}
+@keyframes ms-screen{from{opacity:0;transform:translateY(8px)}to{opacity:1;transform:none}}
+@keyframes ms-up{from{transform:translateY(100%)}to{transform:none}}
+@keyframes ms-down{from{transform:none}to{transform:translateY(100%)}}
+@keyframes ms-toast-in{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:none}}
+@keyframes ms-toast-out{from{opacity:1;transform:none}to{opacity:0;transform:translateY(12px)}}
+@media (prefers-reduced-motion: reduce){*{animation-duration:1ms !important}}
+@keyframes ms-in{from{opacity:0;transform:translateY(-6px);max-height:0}to{opacity:1;transform:none;max-height:120px}}
+</style>
+</helmet>
+<div style="min-height:100vh;display:flex;align-items:flex-start;justify-content:center;gap:48px;padding:40px 24px;flex-wrap:wrap">
+  <div style="{{ themeStyle }}">
+  <div data-screen-label="App" style="color:var(--color-text);font-family:var(--font-body);width:{{ frame.w }};height:{{ frame.h }};border-radius:{{ frame.r }};flex:none;background:var(--color-bg);box-shadow:var(--shadow-lg);position:relative;overflow:hidden;display:flex;flex-direction:column;background-image:radial-gradient(120% 60% at 0% 0%, var(--color-accent-900), transparent 60%)">
+    <sc-if value="{{ isPhone }}" hint-placeholder-val="{{ true }}">
+      <div style="height:50px;flex:none;display:flex;align-items:center;justify-content:space-between;padding:0 30px 0 36px;font-size:15px;font-weight:600">
+        <span>10:02</span>
+        <div style="width:120px;height:34px;border-radius:20px;background:oklch(0.16 0.005 270);position:absolute;left:135px;top:10px"></div>
+        <div style="display:flex;gap:6px;font-size:16px"><i class="ph ph-cell-signal-full"></i><i class="ph ph-wifi-high"></i><i class="ph-fill ph-battery-full"></i></div>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isDesktop }}" hint-placeholder-val="{{ false }}">
+      <div style="height:40px;flex:none;display:flex;align-items:center;gap:8px;padding:0 14px;background:var(--color-surface);border-bottom:1px solid var(--color-divider)">
+        <span style="width:10px;height:10px;border-radius:5px;background:var(--color-neutral-700)"></span>
+        <span style="width:10px;height:10px;border-radius:5px;background:var(--color-neutral-700)"></span>
+        <span style="width:10px;height:10px;border-radius:5px;background:var(--color-neutral-700)"></span>
+        <div style="flex:1;max-width:420px;margin:0 auto;height:26px;border-radius:13px;background:var(--color-bg);display:flex;align-items:center;justify-content:center;gap:6px;font-size:12px;color:var(--color-neutral-400)"><i class="ph ph-lock-simple"></i>my-subscriptions.app</div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isSignIn }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;min-height:0;overflow-y:auto;width:100%;max-width:480px;align-self:center;animation:ms-screen 240ms cubic-bezier(.2,.7,.2,1) both;padding:24px 24px 36px;display:flex;flex-direction:column;gap:28px">
+        <div style="display:flex;flex-direction:column;gap:14px;padding-top:48px">
+          <div style="width:72px;height:72px;border-radius:17px;overflow:hidden;box-shadow:var(--shadow-sm)">
+            <div style="transform:scale(0.4);transform-origin:0 0;width:180px;height:180px;background:var(--color-accent-900);display:flex;align-items:center;justify-content:center">
+              <div style="width:132px;height:86px;border-radius:14px;background:var(--color-accent);position:relative;transform:rotate(-12deg);display:flex;align-items:center">
+                <div style="position:absolute;left:-11px;top:32px;width:22px;height:22px;border-radius:11px;background:var(--color-accent-900)"></div>
+                <div style="position:absolute;right:-11px;top:32px;width:22px;height:22px;border-radius:11px;background:var(--color-accent-900)"></div>
+                <div style="width:92px;display:flex;align-items:center;justify-content:center;font-size:46px;color:var(--color-accent-900)"><i class="ph ph-check" style="font-weight:700"></i></div>
+                <div style="height:62px;border-left:3px dashed var(--color-accent-700)"></div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+                  <span style="width:10px;height:10px;border-radius:5px;background:var(--paid-fill)"></span><span style="width:10px;height:10px;border-radius:5px;background:var(--paid-fill)"></span><span style="width:10px;height:10px;border-radius:5px;background:var(--paid-fill)"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:6px">
+            <h1 style="margin:0;font-size:26px;font-weight:500;letter-spacing:-0.02em">My Subscriptions</h1>
+            <span style="font-size:14px;color:var(--color-neutral-400)">{{ t.signSub }}</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:14px">
+          <div style="display:flex;align-items:center;gap:12px"><div style="width:36px;height:36px;flex:none;border-radius:10px;background:var(--color-accent-900);color:var(--color-accent-200);display:flex;align-items:center;justify-content:center;font-size:18px"><i class="ph ph-ticket"></i></div><span style="font-size:14px;line-height:1.45">{{ t.feat1 }}</span></div>
+          <div style="display:flex;align-items:center;gap:12px"><div style="width:36px;height:36px;flex:none;border-radius:10px;background:var(--color-accent-900);color:var(--color-accent-200);display:flex;align-items:center;justify-content:center;font-size:18px"><i class="ph ph-calendar-check"></i></div><span style="font-size:14px;line-height:1.45">{{ t.feat2 }}</span></div>
+          <div style="display:flex;align-items:center;gap:12px"><div style="width:36px;height:36px;flex:none;border-radius:10px;background:var(--color-accent-900);color:var(--color-accent-200);display:flex;align-items:center;justify-content:center;font-size:18px"><i class="ph ph-google-drive-logo"></i></div><span style="font-size:14px;line-height:1.45">{{ t.feat3 }}</span></div>
+        </div>
+        <div style="margin-top:auto;display:flex;flex-direction:column;gap:12px">
+          <sc-if value="{{ signMsg }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;align-items:flex-start;gap:10px;padding:12px 14px;border-radius:var(--radius-md);background:var(--color-surface);font-size:13px;line-height:1.45;animation:ms-in 240ms ease-out both"><i class="ph ph-warning" style="font-size:18px;color:var(--color-accent);flex:none"></i><span>{{ signMsgText }}</span></div>
+          </sc-if>
+          <button class="btn btn-primary btn-block" onClick="{{ signInClick }}" disabled="{{ signLoading }}" style="height:48px;gap:8px">
+            <sc-if value="{{ signLoading }}" hint-placeholder-val="{{ false }}">{{ spinner }}</sc-if>
+            <sc-if value="{{ signIdle }}" hint-placeholder-val="{{ true }}"><i class="ph ph-google-logo"></i></sc-if>
+            <span>{{ signBtnLabel }}</span>
+          </button>
+          <span style="font-size:12px;line-height:1.5;color:var(--color-neutral-500)">{{ t.signInNote }}</span>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isHome }}" hint-placeholder-val="{{ true }}">
+      <div style="flex:1;min-height:0;overflow-y:auto;width:100%;max-width:480px;align-self:center;animation:ms-screen 240ms cubic-bezier(.2,.7,.2,1) both;padding:12px 20px 32px;display:flex;flex-direction:column;gap:16px">
+        <div style="display:flex;align-items:flex-end;justify-content:space-between;padding-top:12px">
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--color-neutral-400)">
+              <span>{{ t.today }}</span>
+              <sc-if value="{{ syncBad }}" hint-placeholder-val="{{ false }}"><i class="{{ syncIcon }}" style="font-size:14px;color:{{ syncIconColor }}"></i></sc-if>
+            </div>
+            <h1 style="margin:0;font-size:30px;font-weight:500;letter-spacing:-0.02em">{{ t.title }}</h1>
+          </div>
+          <div style="display:flex;gap:8px">
+            <button class="btn btn-ghost btn-icon" onClick="{{ openSettings }}" style="width:44px;height:44px;border-radius:22px;font-size:20px"><i class="ph ph-gear-six"></i></button>
+            <button class="btn btn-primary btn-icon" onClick="{{ openCreate }}" style="width:44px;height:44px;border-radius:22px;font-size:20px"><i class="ph ph-plus"></i></button>
+          </div>
+        </div>
+
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:3px;border-radius:var(--radius-md);background:var(--color-surface);flex:none">
+          <sc-for list="{{ homeTabs }}" as="o" hint-placeholder-count="2">
+            <button onClick="{{ o.pick }}" style="all:unset;cursor:pointer;height:38px;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;background:{{ o.bg }};border:{{ o.border }};color:{{ o.color }}"><i class="{{ o.icon }}"></i>{{ o.label }}</button>
+          </sc-for>
+        </div>
+
+        <sc-if value="{{ tabCal }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:10px;animation:ms-fade 220ms ease-out both">
+            <div style="display:flex;align-items:center;justify-content:space-between">
+              <span style="font-size:16px;font-weight:500">{{ gcal.month }}</span>
+              <div style="display:flex;gap:4px">
+                <button class="btn btn-ghost btn-icon" onClick="{{ gcal.prev }}"><i class="ph ph-caret-left"></i></button>
+                <button class="btn btn-ghost btn-icon" onClick="{{ gcal.next }}"><i class="ph ph-caret-right"></i></button>
+              </div>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;font-size:11px;color:var(--color-neutral-500);text-align:center">
+              <sc-for list="{{ weekHead }}" as="w" hint-placeholder-count="7"><span>{{ w }}</span></sc-for>
+            </div>
+            <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px">
+              <sc-for list="{{ gcal.cells }}" as="c" hint-placeholder-count="35">
+                <div onClick="{{ c.pick }}" style="cursor:pointer;height:48px;border-radius:var(--radius-md);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:5px;font-size:14px;background:{{ c.bg }};border:{{ c.border }};color:{{ c.color }};opacity:{{ c.op }}">
+                  <span style="line-height:1">{{ c.num }}</span>
+                  <div style="display:flex;gap:3px;height:10px;align-items:center">
+                    <sc-if value="{{ c.hasDot }}" hint-placeholder-val="{{ false }}">
+                      <span style="width:6px;height:6px;border-radius:3px;background:{{ c.dot.bg }};border:{{ c.dot.border }};box-sizing:border-box"></span>
+                    </sc-if>
+                    <sc-if value="{{ c.hasCount }}" hint-placeholder-val="{{ false }}">
+                      <span style="font-size:10px;line-height:1;font-weight:500;color:var(--color-neutral-300)">{{ c.count }}</span>
+                    </sc-if>
+                  </div>
+                </div>
+              </sc-for>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--color-neutral-400);padding-top:2px">
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:3px;background:var(--paid-line)"></span>{{ t.paid }}</span>
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:3px;border:1px solid var(--color-neutral-500);box-sizing:border-box"></span>{{ t.unpaid }}</span>
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:3px;border:1px solid var(--paid-line);box-sizing:border-box"></span>{{ t.attended }}</span>
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:3px;background:var(--color-accent)"></span>{{ t.legendPending }}</span>
+              <span style="display:flex;align-items:center;gap:6px"><span style="width:6px;height:6px;border-radius:3px;background:var(--color-neutral-700)"></span>{{ t.missed }}</span>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:16px;font-weight:500;padding-bottom:8px">{{ gcal.dayLabel }}</span>
+            <sc-for list="{{ gcal.rows }}" as="s" hint-placeholder-count="2">
+              <div onClick="{{ s.open }}" style="cursor:pointer;display:flex;align-items:center;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider)">
+                <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                  <span style="font-size:15px">{{ s.name }}</span>
+                  <span style="font-size:12px;color:var(--color-neutral-500)">{{ s.time }}</span>
+                </div>
+                <span style="font-size:12px;font-weight:500;padding:4px 10px;border-radius:12px;white-space:nowrap;background:{{ s.tagBg }};color:{{ s.tagColor }};border:{{ s.tagBorder }}">{{ s.tag }}</span>
+                <i class="ph ph-caret-right" style="font-size:14px;color:var(--color-neutral-500)"></i>
+              </div>
+            </sc-for>
+            <sc-if value="{{ gcal.empty }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:14px;color:var(--color-neutral-500);padding:4px 0">{{ t.noSessionsDay }}</span>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showInstall }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:10px;padding:14px 12px 14px 16px;border-radius:var(--radius-lg);background:var(--color-surface);box-shadow:var(--shadow-sm);overflow:hidden;animation:{{ anim.install }}">
+            <div style="display:flex;align-items:center;gap:12px">
+              <div style="width:36px;height:36px;flex:none;border-radius:10px;background:var(--color-accent-900);color:var(--color-accent-200);display:flex;align-items:center;justify-content:center;font-size:18px"><i class="ph ph-download-simple"></i></div>
+              <span style="flex:1;font-size:15px;font-weight:500">{{ t.install }}</span>
+              <button class="btn btn-ghost btn-icon" onClick="{{ dismissInstall }}" style="width:36px;height:36px"><i class="ph ph-x"></i></button>
+            </div>
+            <sc-if value="{{ installIOS }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:5px;font-size:13px;color:var(--color-neutral-300)"><span>{{ t.installIOSa }}</span><i class="ph ph-share-network" style="font-size:16px;color:var(--color-accent)"></i><span>{{ t.installIOSb }}</span></div>
+            </sc-if>
+            <sc-if value="{{ installBtnMode }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:13px;line-height:1.45;color:var(--color-neutral-300)">{{ t.installDesk }}</span>
+              <button class="btn btn-primary" onClick="{{ installNow }}" style="align-self:flex-start;height:40px;gap:6px"><i class="ph ph-download-simple"></i>{{ t.installBtn }}</button>
+            </sc-if>
+          </div>
+        </sc-if>
+
+        <sc-if value="{{ showEmpty }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;align-items:flex-start;gap:14px;padding:56px 0 0">
+            <div style="width:88px;height:88px;border-radius:44px;background:var(--color-accent-900);color:var(--color-accent);display:flex;align-items:center;justify-content:center;font-size:48px"><i class="ph ph-ticket"></i></div>
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:18px;font-weight:500">{{ t.emptyTitle }}</span>
+              <span style="font-size:14px;line-height:1.5;color:var(--color-neutral-400);text-wrap:pretty">{{ t.emptyBody }}</span>
+            </div>
+            <button class="btn btn-primary" onClick="{{ openCreate }}" style="height:44px;gap:8px;white-space:nowrap"><i class="ph ph-plus"></i>{{ t.addHobby }}</button>
+          </div>
+        </sc-if>
+
+        <sc-for list="{{ listCards }}" as="h" hint-placeholder-count="2">
+          <div onClick="{{ h.open }}" style="cursor:pointer;display:flex;flex-direction:column;gap:14px;padding:18px;border-radius:var(--radius-lg);background:var(--color-surface);box-shadow:var(--shadow-sm)">
+            <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:12px">
+              <div style="display:flex;flex-direction:column;gap:4px;min-width:0">
+                <span style="font-size:18px;font-weight:500">{{ h.name }}</span>
+                <span style="font-size:13px;color:var(--color-neutral-400)">{{ h.schedule }}</span>
+              </div>
+              <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;flex:none">
+                <sc-if value="{{ h.hasPend }}" hint-placeholder-val="{{ false }}">
+                  <span class="tag tag-accent" onClick="{{ h.openPend }}" style="white-space:nowrap;cursor:pointer;display:inline-flex;align-items:center;gap:4px"><i class="ph ph-clock-countdown"></i>{{ h.pendTag }}</span>
+                </sc-if>
+                <sc-if value="{{ h.low }}" hint-placeholder-val="{{ false }}">
+                  <span class="tag tag-accent" style="white-space:nowrap">{{ t.renewSoon }}</span>
+                </sc-if>
+              </div>
+            </div>
+            <div style="display:flex;align-items:baseline;gap:6px">
+              <span style="font-size:34px;font-weight:500;letter-spacing:-0.02em">{{ h.remaining }}</span>
+              <span style="font-size:14px;color:var(--color-neutral-400)">{{ h.remainingLabel }}</span>
+            </div>
+            <div style="display:flex;flex-wrap:wrap;gap:4px;min-height:6px">
+              <sc-for list="{{ h.segs }}" as="s" hint-placeholder-count="8">
+                <div style="width:18px;height:6px;border-radius:3px;background:var(--paid-text)"></div>
+              </sc-for>
+            </div>
+            <div style="display:flex;align-items:center;gap:8px;font-size:13px;color:var(--color-neutral-300)">
+              <i class="ph ph-clock" style="font-size:15px"></i><span>{{ h.next }}</span>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isSettings }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;min-height:0;overflow-y:auto;width:100%;max-width:480px;align-self:center;animation:ms-screen 240ms cubic-bezier(.2,.7,.2,1) both;padding:4px 20px 30px;display:flex;flex-direction:column;gap:18px">
+        <div style="display:flex;align-items:center;height:44px">
+          <button class="btn btn-ghost" onClick="{{ goHome }}" style="padding-left:0;gap:4px"><i class="ph ph-caret-left"></i>{{ t.title }}</button>
+        </div>
+        <h1 style="margin:0;font-size:28px;font-weight:500;letter-spacing:-0.02em">{{ t.settings }}</h1>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label style="font-size:13px;color:var(--color-neutral-400)">{{ t.themeL }}</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:3px;border-radius:var(--radius-md);background:var(--color-surface)">
+            <sc-for list="{{ modeOpts }}" as="o" hint-placeholder-count="2">
+              <button onClick="{{ o.pick }}" style="all:unset;cursor:pointer;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;gap:6px;font-size:14px;background:{{ o.bg }};border:{{ o.border }};color:{{ o.color }}"><i class="{{ o.icon }}"></i>{{ o.label }}</button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label style="font-size:13px;color:var(--color-neutral-400)">{{ t.schemeL }}</label>
+          <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px">
+            <sc-for list="{{ schemeOpts }}" as="o" hint-placeholder-count="4">
+              <button onClick="{{ o.pick }}" style="all:unset;cursor:pointer;display:flex;flex-direction:column;gap:8px;padding:8px;border-radius:var(--radius-lg);background:var(--color-surface);border:{{ o.border }}">
+                <div style="height:64px;border-radius:var(--radius-md);background:{{ o.bg }};padding:8px;display:flex;flex-direction:column;justify-content:space-between;box-shadow:0 0 0 1px {{ o.edge }}">
+                  <div style="display:flex;gap:4px">
+                    <span style="width:18px;height:6px;border-radius:3px;background:{{ o.paid }}"></span>
+                    <span style="width:18px;height:6px;border-radius:3px;background:{{ o.paid }}"></span>
+                    <span style="width:18px;height:6px;border-radius:3px;border:1px dashed {{ o.muted }}"></span>
+                  </div>
+                  <div style="display:flex;align-items:center;justify-content:space-between">
+                    <span style="width:44px;height:8px;border-radius:4px;background:{{ o.surface }}"></span>
+                    <span style="width:22px;height:22px;border-radius:11px;border:1.5px solid {{ o.accent }}"></span>
+                  </div>
+                </div>
+                <div style="display:flex;align-items:center;justify-content:space-between;padding:0 4px 2px">
+                  <span style="font-size:14px">{{ o.label }}</span>
+                  <i class="{{ o.check }}" style="font-size:18px;color:var(--color-accent)"></i>
+                </div>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label style="font-size:13px;color:var(--color-neutral-400)">{{ t.language }}</label>
+          <div style="display:flex;flex-direction:column;border-radius:var(--radius-lg);background:var(--color-surface);overflow:hidden">
+            <sc-for list="{{ langOpts }}" as="o" hint-placeholder-count="3">
+              <button onClick="{{ o.pick }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-bottom:1px solid var(--color-divider)">
+                <div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px">{{ o.label }}</span><span style="font-size:12px;color:var(--color-neutral-500)">{{ o.sub }}</span></div>
+                <i class="{{ o.check }}" style="font-size:20px;color:var(--color-accent)"></i>
+              </button>
+            </sc-for>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label style="font-size:13px;color:var(--color-neutral-400)">{{ t.account }}</label>
+          <div style="display:flex;flex-direction:column;border-radius:var(--radius-lg);background:var(--color-surface);overflow:hidden">
+            <div style="display:flex;align-items:center;gap:12px;padding:12px 16px;border-bottom:1px solid var(--color-divider)">
+              <div style="width:32px;height:32px;flex:none;border-radius:16px;background:var(--color-accent-900);color:var(--color-accent-200);display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:500">IK</div>
+              <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:15px">Ihor Korenets</span>
+                <span style="font-size:12px;color:var(--color-neutral-400)">user@gmail.com</span>
+                <span style="font-size:12px;color:var(--color-neutral-500)">{{ lastSyncLabel }}</span>
+              </div>
+            </div>
+            <button onClick="{{ syncNow }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-bottom:1px solid var(--color-divider)">
+              <sc-if value="{{ sync.syncing }}" hint-placeholder-val="{{ false }}"><span style="font-size:20px;color:var(--color-accent);display:flex">{{ spinner }}</span></sc-if>
+              <sc-if value="{{ syncNotBusy }}" hint-placeholder-val="{{ true }}"><i class="ph ph-arrows-clockwise" style="font-size:20px;color:var(--color-accent)"></i></sc-if>
+              <span style="flex:1;font-size:15px">{{ t.syncNow }}</span>
+            </button>
+            <button onClick="{{ signOut }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px">
+              <i class="ph ph-sign-out" style="font-size:20px;color:var(--color-accent)"></i>
+              <span style="flex:1;font-size:15px">{{ t.signOut }}</span>
+            </button>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label style="font-size:13px;color:var(--color-neutral-400)">Google Calendar</label>
+          <div style="display:flex;flex-direction:column;border-radius:var(--radius-lg);background:var(--color-surface);overflow:hidden">
+            <div style="display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-bottom:1px solid var(--color-divider)">
+              <i class="ph ph-calendar-blank" style="font-size:20px"></i>
+              <span style="flex:1;font-size:15px">{{ t.calRow }}</span>
+              <span style="font-size:14px;color:var(--color-neutral-400)">My Subscriptions</span>
+            </div>
+            <button onClick="{{ toggleRem }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:60px;padding:0 16px">
+              <i class="ph ph-bell" style="font-size:20px"></i>
+              <div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px">{{ t.reminderL }}</span><span style="font-size:12px;color:var(--color-neutral-500)">{{ t.reminderSub }}</span></div>
+              <div style="width:44px;height:26px;border-radius:13px;flex:none;position:relative;background:{{ remSw.track }};border:{{ remSw.border }}">
+                <div style="position:absolute;top:3px;left:{{ remSw.left }};width:18px;height:18px;border-radius:9px;background:{{ remSw.knob }}"></div>
+              </div>
+            </button>
+            <sc-if value="{{ remOn }}" hint-placeholder-val="{{ false }}">
+              <div style="padding:0 16px 14px;overflow:hidden;animation:ms-in 240ms cubic-bezier(.2,.7,.2,1) both">
+                <div style="display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:3px;border-radius:var(--radius-md);background:var(--color-bg)">
+                  <sc-for list="{{ remOpts }}" as="o" hint-placeholder-count="3">
+                    <button onClick="{{ o.pick }}" style="all:unset;cursor:pointer;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:13px;background:{{ o.bg }};border:{{ o.border }};color:{{ o.color }}">{{ o.label }}</button>
+                  </sc-for>
+                </div>
+              </div>
+            </sc-if>
+          </div>
+        </div>
+
+        <sc-if value="{{ notInstalled }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ openInstall }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-radius:var(--radius-lg);background:var(--color-surface)">
+            <i class="ph ph-download-simple" style="font-size:20px"></i>
+            <span style="flex:1;font-size:15px">{{ t.installRow }}</span>
+            <i class="ph ph-caret-right" style="font-size:14px;color:var(--color-neutral-500)"></i>
+          </button>
+        </sc-if>
+        <button onClick="{{ openAbout }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-radius:var(--radius-lg);background:var(--color-surface)">
+          <i class="ph ph-info" style="font-size:20px"></i>
+          <span style="flex:1;font-size:15px">{{ t.about }}</span>
+          <span style="font-size:13px;color:var(--color-neutral-500)">1.0.0</span>
+          <i class="ph ph-caret-right" style="font-size:14px;color:var(--color-neutral-500)"></i>
+        </button>
+        <button class="btn btn-ghost" onClick="{{ openWipe }}" style="align-self:flex-start;padding-left:0;gap:6px"><i class="ph ph-trash"></i>{{ t.wipe }}</button>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isAbout }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;min-height:0;overflow-y:auto;width:100%;max-width:480px;align-self:center;animation:ms-screen 240ms cubic-bezier(.2,.7,.2,1) both;padding:4px 20px 30px;display:flex;flex-direction:column;gap:22px">
+        <div style="display:flex;align-items:center;height:44px">
+          <button class="btn btn-ghost" onClick="{{ openSettings }}" style="padding-left:0;gap:4px"><i class="ph ph-caret-left"></i>{{ t.settings }}</button>
+        </div>
+        <div style="display:flex;flex-direction:column;align-items:flex-start;gap:12px">
+          <div style="width:72px;height:72px;border-radius:17px;overflow:hidden;box-shadow:var(--shadow-sm)">
+            <div style="transform:scale(0.4);transform-origin:0 0;width:180px;height:180px;background:var(--color-accent-900);display:flex;align-items:center;justify-content:center">
+              <div style="width:132px;height:86px;border-radius:14px;background:var(--color-accent);position:relative;transform:rotate(-12deg);display:flex;align-items:center">
+                <div style="position:absolute;left:-11px;top:32px;width:22px;height:22px;border-radius:11px;background:var(--color-accent-900)"></div>
+                <div style="position:absolute;right:-11px;top:32px;width:22px;height:22px;border-radius:11px;background:var(--color-accent-900)"></div>
+                <div style="width:92px;display:flex;align-items:center;justify-content:center;font-size:46px;color:var(--color-accent-900)"><i class="ph ph-check" style="font-weight:700"></i></div>
+                <div style="height:62px;border-left:3px dashed var(--color-accent-700)"></div>
+                <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+                  <span style="width:10px;height:10px;border-radius:5px;background:var(--paid-fill)"></span><span style="width:10px;height:10px;border-radius:5px;background:var(--paid-fill)"></span><span style="width:10px;height:10px;border-radius:5px;background:var(--paid-fill)"></span>
+                </div>
+              </div>
+            </div>
+          </div>
+          <div style="display:flex;flex-direction:column;gap:4px">
+            <h1 style="margin:0;font-size:26px;font-weight:500;letter-spacing:-0.02em">My Subscriptions</h1>
+            <span style="font-size:14px;color:var(--color-neutral-400)">{{ t.version }} 1.0.0</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;border-radius:var(--radius-lg);background:var(--color-surface);overflow:hidden">
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:0 16px;border-bottom:1px solid var(--color-divider)">
+            <span style="font-size:15px;color:var(--color-neutral-400)">{{ t.author }}</span><span style="font-size:15px">Ihor Korenets</span>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;min-height:52px;padding:0 16px">
+            <span style="font-size:15px;color:var(--color-neutral-400)">{{ t.licenseL }}</span><span style="font-size:15px">{{ t.proprietary }}</span>
+          </div>
+        </div>
+        <div style="display:flex;flex-direction:column;border-radius:var(--radius-lg);background:var(--color-surface);overflow:hidden">
+          <a href="mailto:vik753@gmail.com" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-bottom:1px solid var(--color-divider)">
+            <i class="ph ph-envelope-simple" style="font-size:20px;color:var(--color-accent)"></i>
+            <div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px">{{ t.support }}</span><span style="font-size:12px;color:var(--color-neutral-500)">vik753@gmail.com</span></div>
+            <i class="ph ph-caret-right" style="font-size:14px;color:var(--color-neutral-500)"></i>
+          </a>
+          <a href="https://github.com/vik753?tab=repositories" target="_blank" rel="noopener" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px;border-bottom:1px solid var(--color-divider)">
+            <i class="ph ph-github-logo" style="font-size:20px;color:var(--color-accent)"></i>
+            <div style="flex:1;display:flex;flex-direction:column;gap:2px"><span style="font-size:15px">GitHub</span><span style="font-size:12px;color:var(--color-neutral-500)">github.com/vik753</span></div>
+            <i class="ph ph-arrow-up-right" style="font-size:14px;color:var(--color-neutral-500)"></i>
+          </a>
+          <button onClick="{{ shareApp }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;min-height:52px;padding:0 16px">
+            <i class="ph ph-share-network" style="font-size:20px;color:var(--color-accent)"></i>
+            <span style="flex:1;font-size:15px">{{ t.share }}</span>
+            <i class="ph ph-caret-right" style="font-size:14px;color:var(--color-neutral-500)"></i>
+          </button>
+        </div>
+        <span style="font-size:12px;line-height:1.5;color:var(--color-neutral-500)">© 2026 Ihor Korenets. {{ t.rights }}</span>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isDetail }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;min-height:0;overflow-y:auto;width:100%;max-width:480px;align-self:center;animation:ms-screen 240ms cubic-bezier(.2,.7,.2,1) both;padding:4px 20px 40px;display:flex;flex-direction:column;gap:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;height:44px">
+          <button class="btn btn-ghost" onClick="{{ goHome }}" style="padding-left:0;gap:4px"><i class="ph ph-caret-left"></i>{{ t.title }}</button>
+          <button class="btn btn-ghost btn-icon" onClick="{{ openEdit }}"><i class="ph ph-pencil-simple"></i></button>
+        </div>
+        <div style="display:flex;flex-direction:column;gap:6px">
+          <h1 style="margin:0;font-size:28px;font-weight:500;letter-spacing:-0.02em">{{ d.name }}</h1>
+          <span style="font-size:14px;color:var(--color-neutral-400)">{{ d.schedule }}</span>
+          <div style="display:flex;align-items:center;gap:6px;font-size:13px;color:var(--color-neutral-400);min-height:28px">
+            <sc-if value="{{ sync.ok }}" hint-placeholder-val="{{ true }}"><i class="ph ph-calendar-check"></i></sc-if>
+            <sc-if value="{{ sync.syncing }}" hint-placeholder-val="{{ false }}"><span style="display:flex;color:var(--color-accent)">{{ spinner }}</span></sc-if>
+            <sc-if value="{{ sync.offline }}" hint-placeholder-val="{{ false }}"><i class="ph ph-cloud-slash"></i></sc-if>
+            <sc-if value="{{ sync.reauth }}" hint-placeholder-val="{{ false }}"><i class="ph ph-warning" style="color:var(--color-accent)"></i></sc-if>
+            <span>{{ sync.label }}</span>
+            <sc-if value="{{ sync.reauth }}" hint-placeholder-val="{{ false }}"><button class="btn btn-ghost" onClick="{{ reauthNow }}" style="height:28px;padding:0 8px;font-size:13px;white-space:nowrap">{{ t.reauthBtn }}</button></sc-if>
+          </div>
+        </div>
+        <button class="btn btn-primary btn-block" onClick="{{ openRenew }}" style="height:44px;gap:8px"><i class="ph ph-plus"></i>{{ t.addPayment }}</button>
+        <div style="display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px">
+          <div style="padding:12px;border-radius:var(--radius-md);background:var(--color-surface);display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:22px;font-weight:500;color:var(--paid-text)">{{ d.remaining }}</span><span style="font-size:12px;color:var(--color-neutral-400)">{{ t.statLeft }}</span>
+          </div>
+          <div style="padding:12px;border-radius:var(--radius-md);background:var(--color-surface);display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:22px;font-weight:500">{{ d.attended }}</span><span style="font-size:12px;color:var(--color-neutral-400)">{{ t.statAttended }}</span>
+          </div>
+          <div style="padding:12px;border-radius:var(--radius-md);background:var(--color-surface);display:flex;flex-direction:column;gap:4px">
+            <span style="font-size:22px;font-weight:500">{{ d.perSession }}</span><span style="font-size:12px;color:var(--color-neutral-400)">{{ t.statPer }}</span>
+          </div>
+        </div>
+
+        <div style="display:flex;flex-direction:column;gap:10px">
+          <div style="display:flex;align-items:center;justify-content:space-between">
+            <span style="font-size:16px;font-weight:500">{{ monthLabel }}</span>
+            <div style="display:flex;gap:4px">
+              <button class="btn btn-ghost btn-icon" onClick="{{ prevMonth }}"><i class="ph ph-caret-left"></i></button>
+              <button class="btn btn-ghost btn-icon" onClick="{{ nextMonth }}"><i class="ph ph-caret-right"></i></button>
+            </div>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px;font-size:11px;color:var(--color-neutral-500);text-align:center">
+            <sc-for list="{{ weekHead }}" as="w" hint-placeholder-count="7"><span>{{ w }}</span></sc-for>
+          </div>
+          <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:4px">
+            <sc-for list="{{ cells }}" as="c" hint-placeholder-count="35">
+              <div onClick="{{ c.onClick }}" style="cursor:{{ c.cursor }};height:44px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;flex-direction:column;gap:0;font-size:14px;position:relative;background:{{ c.bg }};border:{{ c.border }};color:{{ c.color }};opacity:{{ c.op }}">
+                <span style="text-decoration:{{ c.deco }};line-height:1.1">{{ c.num }}</span>
+                <span style="font-size:9px;line-height:1.1;opacity:0.8">{{ c.time }}</span>
+                <sc-if value="{{ c.pend }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;top:4px;right:4px;width:5px;height:5px;border-radius:3px;background:var(--color-accent)"></span></sc-if>
+                <sc-if value="{{ c.today }}" hint-placeholder-val="{{ false }}"><span style="position:absolute;bottom:3px;width:4px;height:4px;border-radius:2px;background:var(--color-accent)"></span></sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-wrap:wrap;gap:12px;font-size:12px;color:var(--color-neutral-400);padding-top:4px">
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;background:var(--paid-fill)"></span>{{ t.paid }}</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;border:1px dashed var(--color-neutral-600)"></span>{{ t.unpaid }}</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;border:1px solid var(--paid-line)"></span>{{ t.attended }}</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="width:10px;height:10px;border-radius:3px;border:1px solid var(--color-accent);position:relative"><span style="position:absolute;top:1px;right:1px;width:3px;height:3px;border-radius:2px;background:var(--color-accent)"></span></span>{{ t.legendPending }}</span>
+            <span style="display:flex;align-items:center;gap:6px"><span style="text-decoration:line-through">12</span>{{ t.missed }}</span>
+          </div>
+        </div>
+
+        <sc-if value="{{ detailPend.has }}" hint-placeholder-val="{{ false }}">
+          <button onClick="{{ detailPend.open }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--radius-md);background:var(--color-accent-900);color:var(--color-accent-200);font-size:14px">
+            <i class="ph ph-clock-countdown" style="font-size:18px"></i>
+            <span style="flex:1">{{ detailPend.label }}</span>
+            <i class="ph ph-caret-right" style="font-size:14px"></i>
+          </button>
+        </sc-if>
+
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="font-size:16px;font-weight:500;padding-bottom:8px">{{ t.upcoming }}</span>
+          <sc-for list="{{ upcoming }}" as="s" hint-placeholder-count="6">
+            <div onClick="{{ s.onClick }}" style="cursor:pointer;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 0;border-bottom:1px solid var(--color-divider)">
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:15px">{{ s.label }}</span>
+                <span style="font-size:12px;color:var(--color-neutral-500)">{{ s.time }}</span>
+              </div>
+              <span style="font-size:12px;font-weight:500;padding:4px 10px;border-radius:12px;white-space:nowrap;background:{{ s.tagBg }};color:{{ s.tagColor }};border:{{ s.tagBorder }};margin-left:auto">{{ s.tag }}</span>
+              <i class="ph ph-caret-right" style="font-size:14px;color:var(--color-neutral-500)"></i>
+            </div>
+          </sc-for>
+        </div>
+        <sc-if value="{{ hasHistory }}" hint-placeholder-val="{{ false }}">
+          <div style="display:flex;flex-direction:column;gap:2px">
+            <span style="font-size:16px;font-weight:500;padding-bottom:8px">{{ t.history }}</span>
+            <sc-for list="{{ history }}" as="s" hint-placeholder-count="3">
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--color-divider);color:var(--color-neutral-400)">
+                <span style="font-size:14px">{{ s.label }}</span>
+                <span style="font-size:12px">{{ s.tag }}</span>
+              </div>
+            </sc-for>
+          </div>
+        </sc-if>
+        <div style="display:flex;flex-direction:column;gap:2px">
+          <span style="font-size:16px;font-weight:500;padding-bottom:8px">{{ t.payments }}</span>
+          <sc-for list="{{ payments }}" as="p" hint-placeholder-count="1">
+            <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;padding:10px 0;border-bottom:1px solid var(--color-divider)">
+              <div style="display:flex;flex-direction:column;gap:2px">
+                <span style="font-size:14px">{{ p.label }}</span>
+                <span style="font-size:12px;color:var(--color-neutral-500)">{{ p.sub }}</span>
+              </div>
+              <span style="font-size:14px">{{ p.amount }}</span>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ isCreate }}" hint-placeholder-val="{{ false }}">
+      <div style="flex:1;min-height:0;overflow-y:auto;width:100%;max-width:480px;align-self:center;animation:ms-screen 240ms cubic-bezier(.2,.7,.2,1) both;padding:4px 20px 30px;display:flex;flex-direction:column;gap:18px">
+        <div style="display:flex;align-items:center;justify-content:space-between;height:44px">
+          <button class="btn btn-ghost" onClick="{{ cancelForm }}" style="padding-left:0">{{ t.cancel }}</button>
+          <span style="font-size:15px;font-weight:500">{{ formTitle }}</span>
+          <span style="width:60px"></span>
+        </div>
+        <div class="field" style="display:flex;flex-direction:column;gap:6px">
+          <label style="font-size:13px;color:var(--color-neutral-400)">{{ t.fName }}</label>
+          <input class="input" value="{{ f.name }}" onChange="{{ onName }}" placeholder="{{ t.fNamePh }}" style="height:44px;font-size:16px">
+        </div>
+        <div style="display:flex;flex-direction:column;gap:8px">
+          <label style="font-size:13px;color:var(--color-neutral-400)">{{ t.fDays }}</label>
+          <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:6px">
+            <sc-for list="{{ dayChips }}" as="c" hint-placeholder-count="7">
+              <button onClick="{{ c.toggle }}" style="all:unset;cursor:pointer;height:44px;border-radius:var(--radius-md);display:flex;align-items:center;justify-content:center;font-size:14px;background:{{ c.bg }};border:{{ c.border }};color:{{ c.color }}">{{ c.label }}</button>
+            </sc-for>
+          </div>
+          <div style="display:flex;flex-direction:column;border-radius:var(--radius-md);background:var(--color-surface);overflow:hidden">
+            <sc-for list="{{ dayTimes }}" as="r" hint-placeholder-count="2">
+              <div style="display:flex;flex-direction:column;border-bottom:1px solid var(--color-divider);overflow:hidden;animation:ms-in 260ms cubic-bezier(.2,.7,.2,1) both">
+                <div style="display:flex;align-items:center;gap:6px;min-height:52px;padding:4px 8px 4px 14px">
+                  <span style="font-size:15px;flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis">{{ r.label }}</span>
+                  <input class="input" type="time" value="{{ r.time }}" onChange="{{ r.onChange }}" style="height:40px;width:100px;font-size:16px">
+                  <div style="display:flex;align-items:center;height:40px;border-radius:var(--radius-md);box-shadow:inset 0 0 0 1px var(--color-divider);background:var(--color-bg)">
+                    <input type="number" value="{{ r.dur }}" onChange="{{ r.onDur }}" placeholder="60" style="all:unset;width:36px;height:40px;font-size:16px;text-align:right;padding-left:6px">
+                    <span style="font-size:12px;color:var(--color-neutral-500);padding:0 2px 0 4px">{{ t.min }}</span>
+                    <button onClick="{{ r.toggleDur }}" style="all:unset;cursor:pointer;width:26px;height:40px;display:flex;align-items:center;justify-content:center;color:var(--color-accent);font-size:14px"><i class="{{ r.caret }}"></i></button>
+                  </div>
+                </div>
+                <sc-if value="{{ r.durOpen }}" hint-placeholder-val="{{ false }}">
+                  <div style="display:grid;grid-template-columns:repeat(5,minmax(0,1fr));gap:6px;padding:0 8px 10px 14px;animation:ms-in 200ms ease-out both">
+                    <sc-for list="{{ r.durOpts }}" as="o" hint-placeholder-count="5">
+                      <button onClick="{{ o.pick }}" style="all:unset;cursor:pointer;height:34px;border-radius:17px;display:flex;align-items:center;justify-content:center;font-size:14px;background:{{ o.bg }};border:{{ o.border }};color:{{ o.color }}">{{ o.label }}</button>
+                    </sc-for>
+                  </div>
+                </sc-if>
+              </div>
+            </sc-for>
+          </div>
+          <sc-if value="{{ canApplyAll }}" hint-placeholder-val="{{ false }}">
+            <button class="btn btn-ghost" onClick="{{ applyAll }}" style="align-self:flex-start;padding-left:0;gap:6px;font-size:13px"><i class="ph ph-copy"></i>{{ t.applyAll }}</button>
+          </sc-if>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+          <div class="field" style="display:flex;flex-direction:column;gap:6px;grid-column:1 / -1">
+            <label style="font-size:13px;color:var(--color-neutral-400)">{{ dateLabel }}</label>
+            <input class="input" type="date" value="{{ dateVal }}" onChange="{{ onDate }}" style="height:44px;font-size:16px">
+          </div>
+          <div class="field" style="display:flex;flex-direction:column;gap:6px">
+            <label style="font-size:13px;color:var(--color-neutral-400)">{{ t.fPaid }}</label>
+            <input class="input" type="number" value="{{ f.paid }}" onChange="{{ onPaid }}" placeholder="8" style="height:44px;font-size:16px">
+          </div>
+          <div class="field" style="display:flex;flex-direction:column;gap:6px;grid-column:1 / -1">
+            <label style="font-size:13px;color:var(--color-neutral-400)">{{ t.fPrice }}</label>
+            <div style="display:flex;gap:8px">
+              <input class="input" type="number" value="{{ f.price }}" onChange="{{ onPrice }}" placeholder="8000" style="height:44px;font-size:16px;flex:1;min-width:0">
+              <select class="input" value="{{ f.cur }}" onChange="{{ onCur }}" style="height:44px;width:88px;font-size:16px;flex:none">
+                <option value="UAH">{{ uahLabel }}</option>
+                <option value="USD">USD</option>
+                <option value="EUR">EUR</option>
+              </select>
+            </div>
+          </div>
+        </div>
+        <div style="display:flex;align-items:center;gap:10px;padding:12px 14px;border-radius:var(--radius-md);background:var(--color-surface);font-size:13px;color:var(--color-neutral-300)"><i class="ph ph-google-logo" style="font-size:18px;flex:none"></i><span>{{ calInfo }}</span></div>
+        <div style="padding:12px 14px;border-radius:var(--radius-md);background:var(--color-accent-900);font-size:13px;line-height:1.5;color:var(--color-accent-200)">{{ createSummary }}</div>
+        <button class="btn btn-primary btn-block" onClick="{{ create }}" style="height:48px">{{ formBtn }}</button>
+        <sc-if value="{{ isEdit }}" hint-placeholder-val="{{ false }}">
+          <button class="btn btn-ghost btn-block" onClick="{{ deleteHobby }}" style="height:44px;gap:6px;color:var(--color-neutral-400)"><i class="ph ph-trash"></i>{{ t.del }}</button>
+        </sc-if>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ hasSheet }}" hint-placeholder-val="{{ false }}">
+      <div onClick="{{ backdropClose }}" style="position:absolute;inset:0;background:rgba(10,11,18,0.6);z-index:4;display:flex;align-items:flex-end;justify-content:center;padding-top:24px;animation:{{ anim.backdrop }}">
+        <div onClick="{{ stopProp }}" style="width:100%;max-width:480px;max-height:100%;min-height:0;overflow-y:auto;padding:10px 20px 34px;border-radius:28px 28px 0 0;background:var(--color-surface);box-shadow:var(--shadow-lg);display:flex;flex-direction:column;gap:16px;animation:{{ anim.sheet }}">
+          <div style="width:36px;height:5px;flex:none;border-radius:3px;background:var(--color-neutral-700);align-self:center"></div>
+
+          <sc-if value="{{ sheetPrompt }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:13px;color:var(--color-neutral-400)">{{ prompt.meta }}</span>
+              <span style="font-size:22px;font-weight:500">{{ t.promptTitle }}</span>
+              <span style="font-size:14px;line-height:1.5;color:var(--color-neutral-300)">{{ t.promptBody }}</span>
+            </div>
+            <button class="btn btn-primary btn-block" onClick="{{ markAttended }}" style="height:48px;gap:8px;flex:none"><i class="ph ph-check"></i>{{ t.yes }}</button>
+            <button class="btn btn-secondary btn-block" onClick="{{ markMissed }}" style="height:48px;gap:8px;flex:none"><i class="ph ph-arrow-bend-up-right"></i>{{ t.no }}</button>
+            <button class="btn btn-ghost btn-block" onClick="{{ pendLater }}" style="height:44px;flex:none">{{ t.later }}</button>
+          </sc-if>
+
+          <sc-if value="{{ sheetPending }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:4px;flex:none">
+              <span style="font-size:22px;font-weight:500">{{ t.pendingTitle }}</span>
+              <span style="font-size:14px;color:var(--color-neutral-400)">{{ pendCountLabel }}</span>
+            </div>
+            <button class="btn btn-ghost" onClick="{{ markAllPend }}" style="align-self:flex-start;padding-left:0;gap:6px;font-size:13px;flex:none;white-space:nowrap"><i class="ph ph-checks"></i>{{ t.markAll }}</button>
+            <div style="flex:1 1 auto;min-height:0;overflow-y:auto;display:flex;flex-direction:column;gap:14px">
+              <sc-for list="{{ pendGroups }}" as="g" hint-placeholder-count="2">
+                <div style="display:flex;flex-direction:column">
+                  <span style="font-size:13px;color:var(--color-accent-300);padding-bottom:4px">{{ g.name }}</span>
+                  <sc-for list="{{ g.rows }}" as="p" hint-placeholder-count="2">
+                    <div style="display:flex;align-items:center;gap:8px;padding:10px 0;border-bottom:1px solid var(--color-divider)">
+                      <div style="flex:1;min-width:0;display:flex;flex-direction:column;gap:2px">
+                        <span style="font-size:15px">{{ p.label }}</span>
+                        <span style="font-size:12px;color:var(--color-neutral-500)">{{ p.time }}</span>
+                      </div>
+                      <button onClick="{{ p.onWas }}" style="all:unset;cursor:pointer;height:36px;padding:0 10px;border-radius:6px;display:flex;align-items:center;gap:4px;font-size:13px;white-space:nowrap;background:{{ p.was.bg }};border:{{ p.was.border }};color:{{ p.was.color }}"><i class="ph ph-check"></i>{{ t.was }}</button>
+                      <button onClick="{{ p.onWasnt }}" style="all:unset;cursor:pointer;height:36px;padding:0 10px;border-radius:6px;display:flex;align-items:center;gap:4px;font-size:13px;white-space:nowrap;background:{{ p.wasnt.bg }};border:{{ p.wasnt.border }};color:{{ p.wasnt.color }}"><i class="ph ph-x"></i>{{ t.wasnt }}</button>
+                    </div>
+                  </sc-for>
+                </div>
+              </sc-for>
+            </div>
+            <button class="btn btn-primary btn-block" onClick="{{ savePend }}" disabled="{{ pendSaveOff }}" style="height:48px;flex:none">{{ t.saveBtn }}</button>
+            <button class="btn btn-ghost btn-block" onClick="{{ pendLater }}" style="height:44px;flex:none">{{ t.later }}</button>
+          </sc-if>
+
+          <sc-if value="{{ sheetSession }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:13px;color:var(--color-accent-300)">{{ sess.kicker }}</span>
+              <span style="font-size:22px;font-weight:500">{{ sess.title }}</span>
+              <div style="display:flex;align-items:center;gap:10px">
+                <span style="font-size:14px;color:var(--color-neutral-300)">{{ sess.meta }}</span>
+                <span style="font-size:12px;font-weight:500;padding:3px 10px;border-radius:12px;white-space:nowrap;background:{{ sess.tagBg }};color:{{ sess.tagColor }};border:{{ sess.tagBorder }}">{{ sess.tag }}</span>
+              </div>
+              <sc-if value="{{ sess.hasMoved }}" hint-placeholder-val="{{ false }}">
+                <span style="font-size:13px;color:var(--color-neutral-500)">{{ sess.movedFrom }}</span>
+              </sc-if>
+            </div>
+            <sc-if value="{{ sessView }}" hint-placeholder-val="{{ true }}">
+              <button class="btn btn-secondary btn-block" onClick="{{ openMove }}" style="height:48px;gap:8px"><i class="ph ph-calendar-dots"></i>{{ t.moveBtn }}</button>
+              <sc-if value="{{ sess.isPaid }}" hint-placeholder-val="{{ false }}">
+                <button onClick="{{ toggleCx }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius-md);background:var(--color-bg)">
+                  <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0">
+                    <span style="font-size:14px">{{ t.cxL }}</span>
+                    <span style="font-size:12px;color:var(--color-neutral-500)">{{ cxSub }}</span>
+                  </div>
+                  <div style="width:44px;height:26px;border-radius:13px;flex:none;position:relative;background:{{ cxSw.track }};border:{{ cxSw.border }}">
+                    <div style="position:absolute;top:3px;left:{{ cxSw.left }};width:18px;height:18px;border-radius:9px;background:{{ cxSw.knob }}"></div>
+                  </div>
+                </button>
+              </sc-if>
+              <button class="btn btn-secondary btn-block" onClick="{{ cancelSession }}" style="height:48px;gap:8px"><i class="ph ph-x-circle"></i>{{ t.cancelBtn }}</button>
+              <button class="btn btn-ghost btn-block" onClick="{{ closeSheet }}" style="height:44px">{{ t.close }}</button>
+            </sc-if>
+            <sc-if value="{{ sessMove }}" hint-placeholder-val="{{ false }}">
+              <div style="display:flex;flex-direction:column;gap:6px;animation:ms-in 260ms cubic-bezier(.2,.7,.2,1) both">
+                <div style="display:flex;align-items:center;justify-content:space-between">
+                  <span style="font-size:15px;font-weight:500">{{ mvMonthLabel }}</span>
+                  <div style="display:flex;gap:4px">
+                    <button class="btn btn-ghost btn-icon" onClick="{{ mvPrev }}"><i class="ph ph-caret-left"></i></button>
+                    <button class="btn btn-ghost btn-icon" onClick="{{ mvNext }}"><i class="ph ph-caret-right"></i></button>
+                  </div>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px;font-size:11px;color:var(--color-neutral-500);text-align:center">
+                  <sc-for list="{{ weekHead }}" as="w" hint-placeholder-count="7"><span>{{ w }}</span></sc-for>
+                </div>
+                <div style="display:grid;grid-template-columns:repeat(7,minmax(0,1fr));gap:2px">
+                  <sc-for list="{{ mvCells }}" as="c" hint-placeholder-count="35">
+                    <div onClick="{{ c.onClick }}" style="height:38px;border-radius:19px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;font-size:14px;cursor:{{ c.cursor }};background:{{ c.bg }};color:{{ c.color }};opacity:{{ c.op }};border:{{ c.border }}">
+                      <span style="line-height:1">{{ c.num }}</span>
+                      <span style="width:4px;height:4px;border-radius:2px;background:{{ c.dot }}"></span>
+                    </div>
+                  </sc-for>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;justify-content:space-between;gap:12px">
+                <span style="font-size:14px;color:var(--color-neutral-300)">{{ mvSummary }}</span>
+                <input class="input" type="time" value="{{ mv.time }}" onChange="{{ onMvTime }}" style="height:44px;width:120px;font-size:16px;flex:none">
+              </div>
+              <button onClick="{{ toggleMvAll }}" style="all:unset;cursor:pointer;display:flex;align-items:center;gap:12px;padding:10px 12px;border-radius:var(--radius-md);background:var(--color-bg)">
+                <div style="flex:1;display:flex;flex-direction:column;gap:2px;min-width:0">
+                  <span style="font-size:14px">{{ t.moveAll }}</span>
+                  <span style="font-size:12px;color:var(--color-neutral-500)">{{ mvAllSub }}</span>
+                </div>
+                <div style="width:44px;height:26px;border-radius:13px;flex:none;position:relative;background:{{ mvSw.track }};border:{{ mvSw.border }}">
+                  <div style="position:absolute;top:3px;left:{{ mvSw.left }};width:18px;height:18px;border-radius:9px;background:{{ mvSw.knob }}"></div>
+                </div>
+              </button>
+              <button class="btn btn-primary btn-block" onClick="{{ saveMove }}" style="height:48px">{{ t.saveMove }}</button>
+              <button class="btn btn-ghost btn-block" onClick="{{ backMove }}" style="height:44px">{{ t.back }}</button>
+            </sc-if>
+            <sc-if value="{{ sessCancelled }}" hint-placeholder-val="{{ false }}">
+              <button class="btn btn-primary btn-block" onClick="{{ restoreSession }}" style="height:48px;gap:8px"><i class="ph ph-arrow-counter-clockwise"></i>{{ t.restore }}</button>
+              <button class="btn btn-ghost btn-block" onClick="{{ closeSheet }}" style="height:44px">{{ t.close }}</button>
+            </sc-if>
+          </sc-if>
+
+          <sc-if value="{{ sheetReminder }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:13px;color:var(--color-accent-300)">{{ reminder.kicker }}</span>
+              <span style="font-size:22px;font-weight:500">{{ reminder.title }}</span>
+              <span style="font-size:14px;line-height:1.5;color:var(--color-neutral-300)">{{ reminder.body }}</span>
+            </div>
+            <button class="btn btn-primary btn-block" onClick="{{ renewFromReminder }}" style="height:48px">{{ t.buyNew }}</button>
+            <button class="btn btn-ghost btn-block" onClick="{{ remindLater }}" style="height:44px">{{ t.remindLater }}</button>
+          </sc-if>
+
+          <sc-if value="{{ sheetRenew }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:22px;font-weight:500">{{ t.payTitle }}</span>
+              <span style="font-size:14px;color:var(--color-neutral-400)">{{ renewSub }}</span>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:4px;padding:3px;border-radius:var(--radius-md);background:var(--color-bg)">
+              <sc-for list="{{ payModes }}" as="o" hint-placeholder-count="2">
+                <button onClick="{{ o.pick }}" style="all:unset;cursor:pointer;height:40px;border-radius:6px;display:flex;align-items:center;justify-content:center;font-size:14px;background:{{ o.bg }};border:{{ o.border }};color:{{ o.color }}">{{ o.label }}</button>
+              </sc-for>
+            </div>
+            <div style="display:grid;grid-template-columns:1fr 1fr;gap:12px">
+              <sc-if value="{{ payMany }}" hint-placeholder-val="{{ true }}">
+                <div class="field" style="display:flex;flex-direction:column;gap:6px">
+                  <label style="font-size:13px;color:var(--color-neutral-400)">{{ t.rSessions }}</label>
+                  <input class="input" type="number" value="{{ r.paid }}" onChange="{{ onRPaid }}" placeholder="{{ payPaidPh }}" style="height:44px;font-size:16px">
+                </div>
+              </sc-if>
+              <div class="field" style="display:flex;flex-direction:column;gap:6px;grid-column:{{ priceCol }}">
+                <label style="font-size:13px;color:var(--color-neutral-400);white-space:nowrap;overflow:hidden;text-overflow:ellipsis">{{ renewPriceLabel }}</label>
+                <input class="input" type="number" value="{{ r.price }}" onChange="{{ onRPrice }}" placeholder="{{ payPricePh }}" style="height:44px;font-size:16px">
+              </div>
+            </div>
+            <span style="font-size:13px;line-height:1.5;color:var(--color-neutral-400)">{{ payHint }}</span>
+            <button class="btn btn-primary btn-block" onClick="{{ renew }}" style="height:48px">{{ t.paidBtn }}</button>
+            <button class="btn btn-ghost btn-block" onClick="{{ closeSheet }}" style="height:44px">{{ t.cancel }}</button>
+          </sc-if>
+
+          <sc-if value="{{ sheetInstall }}" hint-placeholder-val="{{ false }}">
+            <span style="font-size:22px;font-weight:500">{{ t.install }}</span>
+            <sc-if value="{{ installIOS }}" hint-placeholder-val="{{ true }}">
+              <div style="display:flex;flex-wrap:wrap;align-items:center;gap:5px;font-size:14px;color:var(--color-neutral-300)"><span>{{ t.installIOSa }}</span><i class="ph ph-share-network" style="font-size:18px;color:var(--color-accent)"></i><span>{{ t.installIOSb }}</span></div>
+              <button class="btn btn-ghost btn-block" onClick="{{ closeSheet }}" style="height:44px">{{ t.close }}</button>
+            </sc-if>
+            <sc-if value="{{ installBtnMode }}" hint-placeholder-val="{{ false }}">
+              <span style="font-size:14px;line-height:1.5;color:var(--color-neutral-300)">{{ t.installDesk }}</span>
+              <button class="btn btn-primary btn-block" onClick="{{ installNow }}" style="height:48px;gap:8px"><i class="ph ph-download-simple"></i>{{ t.installBtn }}</button>
+              <button class="btn btn-ghost btn-block" onClick="{{ closeSheet }}" style="height:44px">{{ t.cancel }}</button>
+            </sc-if>
+          </sc-if>
+
+          <sc-if value="{{ sheetWipe }}" hint-placeholder-val="{{ false }}">
+            <div style="display:flex;flex-direction:column;gap:6px">
+              <span style="font-size:22px;font-weight:500">{{ t.wipeTitle }}</span>
+              <span style="font-size:14px;line-height:1.5;color:var(--color-neutral-300)">{{ t.wipeBody }}</span>
+            </div>
+            <button class="btn btn-primary btn-block" onClick="{{ wipeAll }}" style="height:48px;gap:8px"><i class="ph ph-trash"></i>{{ t.wipeBtn }}</button>
+            <button class="btn btn-ghost btn-block" onClick="{{ closeSheet }}" style="height:44px">{{ t.cancel }}</button>
+          </sc-if>
+        </div>
+      </div>
+    </sc-if>
+
+    <sc-if value="{{ hasToast }}" hint-placeholder-val="{{ false }}">
+      <div style="position:absolute;left:20px;right:20px;bottom:96px;max-width:440px;margin:0 auto;padding:12px 14px;border-radius:var(--radius-md);background:var(--color-neutral-800);box-shadow:var(--shadow-md);font-size:13px;line-height:1.4;display:flex;gap:10px;align-items:center;z-index:6;animation:{{ anim.toast }}">
+        <i class="ph ph-check-circle" style="font-size:18px;color:var(--paid-line)"></i><span>{{ toast }}</span>
+      </div>
+    </sc-if>
+    <sc-if value="{{ isPhone }}" hint-placeholder-val="{{ true }}">
+      <div style="position:absolute;bottom:8px;left:128px;width:134px;height:5px;border-radius:3px;background:var(--color-neutral-300);z-index:7"></div>
+    </sc-if>
+  </div>
+  </div>
+
+  <div style="max-width:320px;display:flex;flex-direction:column;gap:14px;padding-top:24px;font-size:14px;line-height:1.55;color:var(--color-neutral-300)">
+    <span style="font-size:13px;color:var(--color-neutral-500)">Демо · сегодня чт, 24 сентября, 10:02</span>
+    <span>1. Нажмите «Войти через Google». После входа приложение проверит прошедшие занятия: 3 без отметки — откроется список.</span>
+    <span>2. «Позже» — неотмеченные видны на карточке (тег) и в календаре хобби (контур с точкой).</span>
+    <span>3. Статус синхронизации, установку, устройство и число неотмеченных занятий меняйте в Tweaks.</span>
+    <div style="display:flex;flex-direction:column;align-items:flex-start;gap:2px">
+      <button class="btn btn-ghost" onClick="{{ demo.reopen }}" style="padding-left:0;gap:6px"><i class="ph ph-arrow-clockwise"></i>Открыть приложение заново</button>
+      <button class="btn btn-ghost" onClick="{{ demo.signInScreen }}" style="padding-left:0;gap:6px"><i class="ph ph-sign-in"></i>Экран входа</button>
+      <button class="btn btn-ghost" onClick="{{ demo.signError }}" style="padding-left:0;gap:6px"><i class="ph ph-warning"></i>Вход: ошибка</button>
+      <button class="btn btn-ghost" onClick="{{ demo.signDenied }}" style="padding-left:0;gap:6px"><i class="ph ph-lock"></i>Вход: нет доступа</button>
+      <button class="btn btn-ghost" onClick="{{ demo.empty }}" style="padding-left:0;gap:6px"><i class="ph ph-ticket"></i>Пустой список</button>
+      <button class="btn btn-ghost" onClick="{{ demo.device }}" style="padding-left:0;gap:6px"><i class="ph ph-devices"></i>Телефон / компьютер</button>
+      <div style="display:flex;flex-wrap:wrap;gap:4px 12px;align-items:center;font-size:13px">
+        <span style="color:var(--color-neutral-500)">Синхронизация:</span>
+        <button class="btn btn-ghost" onClick="{{ demo.syncOk }}" style="padding:0 4px;height:32px">ок</button>
+        <button class="btn btn-ghost" onClick="{{ demo.syncOff }}" style="padding:0 4px;height:32px">офлайн</button>
+        <button class="btn btn-ghost" onClick="{{ demo.syncRe }}" style="padding:0 4px;height:32px">нужен вход</button>
+      </div>
+      <button class="btn btn-ghost" onClick="{{ reset }}" style="padding-left:0;gap:6px"><i class="ph ph-arrow-counter-clockwise"></i>Сбросить демо</button>
+    </div>
+  </div>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props="{&quot;signedIn&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Демо&quot;},&quot;installed&quot;:{&quot;editor&quot;:&quot;boolean&quot;,&quot;default&quot;:false,&quot;tsType&quot;:&quot;boolean&quot;,&quot;section&quot;:&quot;Демо&quot;},&quot;syncState&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ok&quot;,&quot;syncing&quot;,&quot;offline&quot;,&quot;reauth&quot;],&quot;default&quot;:&quot;ok&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Демо&quot;},&quot;pendingCount&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;0&quot;,&quot;1&quot;,&quot;3&quot;],&quot;default&quot;:&quot;3&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Демо&quot;},&quot;device&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;phone&quot;,&quot;desktop&quot;],&quot;default&quot;:&quot;phone&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Демо&quot;},&quot;defaultLanguage&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;ru&quot;,&quot;uk&quot;,&quot;en&quot;],&quot;default&quot;:&quot;en&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Оформление&quot;},&quot;defaultScheme&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;nocturne&quot;,&quot;sea&quot;,&quot;clay&quot;,&quot;graphite&quot;],&quot;default&quot;:&quot;nocturne&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Оформление&quot;},&quot;defaultMode&quot;:{&quot;editor&quot;:&quot;enum&quot;,&quot;options&quot;:[&quot;dark&quot;,&quot;light&quot;],&quot;default&quot;:&quot;dark&quot;,&quot;tsType&quot;:&quot;string&quot;,&quot;section&quot;:&quot;Оформление&quot;},&quot;weeksAhead&quot;:{&quot;editor&quot;:&quot;int&quot;,&quot;default&quot;:12,&quot;min&quot;:4,&quot;max&quot;:52,&quot;tsType&quot;:&quot;number&quot;,&quot;section&quot;:&quot;Календарь&quot;}}">
+const TODAY = new Date(2026, 8, 24);
+const NOW = new Date(2026, 8, 24, 10, 2);
+const TODAY_KEY = '2026-09-24', TOMORROW_KEY = '2026-09-25';
+const APP_URL = 'https://my-subscriptions.app';
+const EMAIL = 'user@gmail.com';
+const G = { fill: 'var(--paid-fill)', line: 'var(--paid-line)', text: 'var(--paid-text)' };
+const SCHEMES = {
+  nocturne: { n: [280, 0.022], a: [289, 0.12], name: { ru: 'Ноктюрн', uk: 'Ноктюрн', en: 'Nocturne' } },
+  sea: { n: [235, 0.026], a: [222, 0.11], name: { ru: 'Море', uk: 'Море', en: 'Sea' } },
+  clay: { n: [60, 0.016], a: [42, 0.13], name: { ru: 'Глина', uk: 'Глина', en: 'Clay' } },
+  graphite: { n: [0, 0], a: [5, 0.14], name: { ru: 'Графит', uk: 'Графіт', en: 'Graphite' } }
+};
+const LS = [0.97, 0.93, 0.87, 0.79, 0.68, 0.57, 0.47, 0.37, 0.27];
+const ok = (l, c, h) => 'oklch(' + l + ' ' + c.toFixed(3) + ' ' + h + ')';
+const themeVars = (key, mode) => {
+  const s = SCHEMES[key] || SCHEMES.nocturne, dark = mode !== 'light', v = {};
+  LS.forEach((l, i) => {
+    const L = dark ? l : LS[8 - i], edge = L > 0.9 || L < 0.3 ? 0.55 : 1;
+    v['--color-neutral-' + (i + 1) * 100] = ok(L, s.n[1] * edge, s.n[0]);
+    v['--color-accent-' + (i + 1) * 100] = ok(L, s.a[1] * edge, s.a[0]);
+  });
+  Object.assign(v, dark ? {
+    '--color-bg': ok(0.2, s.n[1], s.n[0]), '--color-surface': ok(0.25, s.n[1], s.n[0]), '--color-text': ok(0.94, s.n[1] * 0.3, s.n[0]),
+    '--color-accent': ok(0.68, s.a[1], s.a[0]),
+    '--shadow-sm': '0 0 0 1px ' + ok(0.37, s.n[1], s.n[0]), '--shadow-md': '0 0 0 1px ' + ok(0.47, s.n[1], s.n[0]) + ', 0 6px 18px rgba(0,0,0,0.55)', '--shadow-lg': '0 0 0 1px ' + ok(0.57, s.n[1], s.n[0]) + ', 0 16px 40px rgba(0,0,0,0.65)',
+    '--paid-fill': 'oklch(0.36 0.08 155)', '--paid-line': 'oklch(0.6 0.1 155)', '--paid-text': 'oklch(0.88 0.09 155)'
+  } : {
+    '--color-bg': ok(0.965, s.n[1] * 0.6, s.n[0]), '--color-surface': ok(0.995, s.n[1] * 0.2, s.n[0]), '--color-text': ok(0.23, s.n[1], s.n[0]),
+    '--color-accent': ok(0.52, s.a[1], s.a[0]),
+    '--shadow-sm': '0 0 0 1px ' + ok(0.9, s.n[1], s.n[0]), '--shadow-md': '0 0 0 1px ' + ok(0.87, s.n[1], s.n[0]) + ', 0 6px 18px rgba(0,0,0,0.10)', '--shadow-lg': '0 0 0 1px ' + ok(0.85, s.n[1], s.n[0]) + ', 0 16px 40px rgba(0,0,0,0.16)',
+    '--paid-fill': 'oklch(0.9 0.07 155)', '--paid-line': 'oklch(0.58 0.12 155)', '--paid-text': 'oklch(0.36 0.09 155)'
+  });
+  v['--color-divider'] = 'color-mix(in srgb, var(--color-text) ' + (dark ? 16 : 12) + '%, transparent)';
+  return v;
+};
+const ymd = d => d.getFullYear() + '-' + String(d.getMonth() + 1).padStart(2, '0') + '-' + String(d.getDate()).padStart(2, '0');
+const dayIdx = d => (d.getDay() + 6) % 7;
+const endOf = s => { const [hh, mm] = s.time.split(':').map(Number); return new Date(s.date.getFullYear(), s.date.getMonth(), s.date.getDate(), hh, mm + s.dur); };
+const CUR = { UAH: { sym: '₴', label: 'грн' }, USD: { sym: '$', label: 'USD' }, EUR: { sym: '€', label: 'EUR' } };
+const money = (n, c = 'UAH') => { const v = (Math.round(n * 100) / 100).toLocaleString('ru-RU', { maximumFractionDigits: 2 }).replace(/[\u00a0\u202f]/g, ' '); return c === 'USD' ? '$' + v : v + ' ' + CUR[c].sym; };
+const slav = (n, a, b, c) => { const m10 = n % 10, m100 = n % 100; return m10 === 1 && m100 !== 11 ? a : m10 >= 2 && m10 <= 4 && (m100 < 10 || m100 >= 20) ? b : c; };
+const en = (n, a, b) => n === 1 ? a : b;
+
+const L = {
+  ru: {
+    days: ['Пн','Вт','Ср','Чт','Пт','Сб','Вс'], daysS: ['пн','вт','ср','чт','пт','сб','вс'],
+    daysF: ['Понедельник','Вторник','Среда','Четверг','Пятница','Суббота','Воскресенье'],
+    monG: ['января','февраля','марта','апреля','мая','июня','июля','августа','сентября','октября','ноября','декабря'],
+    monN: ['Январь','Февраль','Март','Апрель','Май','Июнь','Июль','Август','Сентябрь','Октябрь','Ноябрь','Декабрь'],
+    date: (L, d) => L.daysS[dayIdx(d)] + ', ' + d.getDate() + ' ' + L.monG[d.getMonth()],
+    todayF: (L, d) => L.daysF[dayIdx(d)] + ', ' + d.getDate() + ' ' + L.monG[d.getMonth()],
+    tabList: 'Абонементы', tabCal: 'Общий календарь', noSessionsDay: 'В этот день занятий нет',
+    title: 'Абонементы', renewSoon: 'Пора продлить', settings: 'Настройки', language: 'Язык',
+    themeL: 'Тема', schemeL: 'Цветовая схема', light: 'Светлая', dark: 'Тёмная',
+    about: 'О приложении', version: 'Версия', author: 'Автор', licenseL: 'Лицензия', proprietary: 'Проприетарная',
+    support: 'Написать в поддержку', share: 'Поделиться приложением', rights: 'Все права защищены.', tShare: 'Ссылка на приложение скопирована',
+    signIn: 'Войти через Google', signSub: 'Учёт абонементов и оплаченных занятий',
+    signInNote: 'Приложение видит только свой календарь «My Subscriptions» и свою скрытую папку в Google Drive. Другие события и файлы недоступны.',
+    feat1: 'Абонементы и остаток оплаченных занятий', feat2: 'Занятия в Google Calendar, оплаченные — зелёные', feat3: 'Данные хранятся в вашем Google Drive',
+    signErr: 'Не удалось войти. Попробуйте ещё раз', signDenied: 'Без доступа к календарю приложение не сможет создавать занятия', grant: 'Дать доступ',
+    install: 'Установите на экран «Домой»', installIOSa: 'Нажмите «Поделиться»', installIOSb: '→ «На экран Домой»',
+    installDesk: 'Приложение будет открываться в отдельном окне, как обычная программа.', installBtn: 'Установить', installRow: 'Установить приложение', tInstalled: 'Приложение установлено',
+    pendingTitle: 'Отметьте прошедшие занятия', pendingCount: n => n + ' ' + slav(n, 'занятие без отметки', 'занятия без отметки', 'занятий без отметки'),
+    markAll: 'Отметить все как посещённые', was: 'Был', wasnt: 'Не было', later: 'Позже', saveBtn: 'Сохранить', tMarkedN: n => 'Отмечено: ' + n,
+    tagPending: n => 'Не отмечено: ' + n, legendPending: 'Без отметки',
+    pendingRow: n => n + ' ' + slav(n, 'занятие ждёт', 'занятия ждут', 'занятий ждут') + ' отметки',
+    syncedL: 'Синхронизировано с Google Calendar', syncing: 'Синхронизация…', offline: 'Нет сети — изменения отправятся позже', reauth: 'Нужно войти снова', reauthBtn: 'Войти',
+    lastSync: t => 'Последняя синхронизация: сегодня, ' + t, tSynced: 'Синхронизировано', tOffline: 'Нет сети. Изменения сохранены на устройстве',
+    account: 'Аккаунт Google', syncNow: 'Синхронизировать сейчас', signOut: 'Выйти', calRow: 'Календарь',
+    reminderL: 'Напоминание перед занятием', reminderSub: 'Уведомление пришлёт Google Calendar', minBefore: n => 'за ' + n + ' мин',
+    emptyTitle: 'Пока нет абонементов', emptyBody: 'Добавьте первое хобби — занятия появятся в Google Calendar', addHobby: 'Добавить хобби',
+    wipe: 'Удалить все данные', wipeTitle: 'Удалить все данные?', wipeBody: 'Будут удалены все хобби, календарь «My Subscriptions» и резервная копия в Google Drive. Отменить нельзя.', wipeBtn: 'Удалить', tWiped: 'Все данные удалены',
+    lastPaidNote: 'Последнее оплаченное занятие — пора продлить абонемент', evDur: n => 'Длительность: ' + n + ' мин',
+    calInfo: e => 'Календарь «My Subscriptions» · ' + e,
+    moveBtn: 'Перенести на другой день', cancelBtn: 'Отменить занятие',
+    close: 'Закрыть', newDate: 'Новая дата', saveMove: 'Сохранить перенос', back: 'Назад',
+    movedFrom: d => 'Перенесено с ' + d, movedShort: 'перенесено', restore: 'Восстановить занятие', cancelledTag: 'Отменено',
+    histCancelled: 'Отменено · оплата перенесена',
+    tCancelled: d => d ? 'Занятие отменено. Оплата перешла на ' + d : 'Занятие отменено',
+    tMovedTo: d => 'Занятие перенесено на ' + d, tRestored: 'Занятие восстановлено',
+    moveAll: 'Перенести и все следующие занятия этого дня',
+    cxL: 'Перенести оплату на следующее занятие', cxOn: 'Оплата перейдёт на ближайшее неоплаченное', cxOff: 'Занятие будет списано из абонемента',
+    histForfeit: 'Отменено · списано', forfeitTag: 'Списано', tForfeit: 'Занятие отменено и списано из абонемента', tMovedAll: (a, b) => 'Расписание изменено: ' + a + ' → ' + b,
+    remOf: r => slav(r, 'оплаченное занятие осталось', 'оплаченных занятия осталось', 'оплаченных занятий осталось'),
+    next: 'Следующее: ', none: 'Нет запланированных', min: 'мин',
+    statLeft: 'осталось', statAttended: 'посещено', statPer: 'за занятие',
+    paid: 'Оплачено', unpaid: 'Не оплачено', attended: 'Посещено', missed: 'Не было',
+    upcoming: 'Ближайшие занятия', history: 'История', histMissed: 'Не было · перенесено',
+    cancel: 'Отмена', newHobby: 'Новое хобби', fName: 'Название', fNamePh: 'Тренировки в спортзале',
+    fDays: 'Дни и время', applyAll: 'Одно время для всех дней', fStart: 'Первое занятие',
+    fPaid: 'Занятий в абонементе', fPrice: 'Стоимость абонемента',
+    summary: (dt, n, per) => dt + '. Первые ' + n + ' ' + slav(n, 'занятие', 'занятия', 'занятий') + ' будут отмечены зелёным как оплаченные (' + per + ' за занятие), следующие — как не оплаченные.',
+    pickDay: 'Выберите хотя бы один день.', fillAll: 'Укажите время для каждого дня, количество занятий и дату первого занятия.', createBtn: 'Создать и добавить в календарь', defName: 'Новое хобби',
+    promptTitle: 'Вы были на занятии?', promptBody: 'Если занятия не было, оплата перенесётся на ближайшее неоплаченное.',
+    yes: 'Я был', no: 'Не состоялось — перенести оплату',
+    rem1: 'Осталось одно оплаченное занятие', rem0: 'Оплаченные занятия закончились',
+    remBody1: d => 'Последнее оплаченное — ' + d + '. Купите новый абонемент, чтобы продолжить.',
+    remBody0: 'Следующие занятия в календаре отмечены как не оплаченные.',
+    payAmount: 'Сумма', addPayment: 'Добавить оплату', payTitle: 'Новая оплата', payOne: 'Одно занятие', payManyL: 'Несколько занятий', payments: 'Оплаты',
+    payN: n => n + ' ' + slav(n, 'занятие', 'занятия', 'занятий'),
+    payHint: (n, d) => n === 1 ? 'Оплата покроет ближайшее неоплаченное занятие — ' + d + '.' : 'Оплата покроет ' + n + ' ближайших неоплаченных занятий, начиная с ' + d + '.',
+    buyNew: 'Добавить оплату', remindLater: 'Напомнить позже', rSessions: 'Занятий', paidBtn: 'Оплачено',
+    tMoved: d => 'Перенос: оплата переходит на ' + d,
+    tMarked: n => 'Отмечено. Осталось ' + n + ' ' + slav(n, 'оплаченное занятие', 'оплаченных занятия', 'оплаченных занятий'),
+    tAdded: n => 'Добавлено ' + n + ' ' + slav(n, 'событие', 'события', 'событий') + ' в Google Calendar',
+    tRenewed: n => '+' + n + ' ' + slav(n, 'занятие', 'занятия', 'занятий') + ' отмечены в календаре как оплаченные',
+    edit: 'Редактировать', save: 'Сохранить изменения', effFrom: 'Изменения действуют с', del: 'Удалить хобби',
+    editSummary: (dt, from) => 'С ' + from + ': ' + dt + '. Прошедшие занятия и отметки не изменятся, будущие события в календаре обновятся.',
+    tUpdated: n => 'Календарь обновлён: ' + n + ' ' + slav(n, 'будущее событие', 'будущих события', 'будущих событий'),
+    tDeleted: 'Хобби удалено, события убраны из календаря'
+  },
+  uk: {
+    days: ['Пн','Вт','Ср','Чт','Пт','Сб','Нд'], daysS: ['пн','вт','ср','чт','пт','сб','нд'],
+    daysF: ['Понеділок','Вівторок','Середа','Четвер','Пʼятниця','Субота','Неділя'],
+    monG: ['січня','лютого','березня','квітня','травня','червня','липня','серпня','вересня','жовтня','листопада','грудня'],
+    monN: ['Січень','Лютий','Березень','Квітень','Травень','Червень','Липень','Серпень','Вересень','Жовтень','Листопад','Грудень'],
+    date: (L, d) => L.daysS[dayIdx(d)] + ', ' + d.getDate() + ' ' + L.monG[d.getMonth()],
+    todayF: (L, d) => L.daysF[dayIdx(d)] + ', ' + d.getDate() + ' ' + L.monG[d.getMonth()],
+    tabList: 'Абонементи', tabCal: 'Спільний календар', noSessionsDay: 'Цього дня занять немає',
+    title: 'Абонементи', renewSoon: 'Час продовжити', settings: 'Налаштування', language: 'Мова',
+    themeL: 'Тема', schemeL: 'Колірна схема', light: 'Світла', dark: 'Темна',
+    about: 'Про застосунок', version: 'Версія', author: 'Автор', licenseL: 'Ліцензія', proprietary: 'Пропрієтарна',
+    support: 'Написати в підтримку', share: 'Поділитися застосунком', rights: 'Усі права захищено.', tShare: 'Посилання на застосунок скопійовано',
+    signIn: 'Увійти через Google', signSub: 'Облік абонементів і оплачених занять',
+    signInNote: 'Застосунок бачить лише свій календар «My Subscriptions» і свою приховану папку в Google Drive. Інші події та файли недоступні.',
+    feat1: 'Абонементи й залишок оплачених занять', feat2: 'Заняття в Google Calendar, оплачені — зелені', feat3: 'Дані зберігаються у вашому Google Drive',
+    signErr: 'Не вдалося увійти. Спробуйте ще раз', signDenied: 'Без доступу до календаря застосунок не зможе створювати заняття', grant: 'Надати доступ',
+    install: 'Встановіть на екран «Додому»', installIOSa: 'Натисніть «Поділитися»', installIOSb: '→ «На екран Додому»',
+    installDesk: 'Застосунок відкриватиметься в окремому вікні, як звичайна програма.', installBtn: 'Встановити', installRow: 'Встановити застосунок', tInstalled: 'Застосунок встановлено',
+    pendingTitle: 'Позначте минулі заняття', pendingCount: n => n + ' ' + slav(n, 'заняття без позначки', 'заняття без позначки', 'занять без позначки'),
+    markAll: 'Позначити всі як відвідані', was: 'Був', wasnt: 'Не було', later: 'Пізніше', saveBtn: 'Зберегти', tMarkedN: n => 'Позначено: ' + n,
+    tagPending: n => 'Без позначки: ' + n, legendPending: 'Без позначки',
+    pendingRow: n => n + ' ' + slav(n, 'заняття чекає', 'заняття чекають', 'занять чекають') + ' позначки',
+    syncedL: 'Синхронізовано з Google Calendar', syncing: 'Синхронізація…', offline: 'Немає мережі — зміни надішлемо пізніше', reauth: 'Потрібно увійти знову', reauthBtn: 'Увійти',
+    lastSync: t => 'Остання синхронізація: сьогодні, ' + t, tSynced: 'Синхронізовано', tOffline: 'Немає мережі. Зміни збережено на пристрої',
+    account: 'Акаунт Google', syncNow: 'Синхронізувати зараз', signOut: 'Вийти', calRow: 'Календар',
+    reminderL: 'Нагадування перед заняттям', reminderSub: 'Сповіщення надішле Google Calendar', minBefore: n => 'за ' + n + ' хв',
+    emptyTitle: 'Поки немає абонементів', emptyBody: 'Додайте перше хобі — заняття з\'являться в Google Calendar', addHobby: 'Додати хобі',
+    wipe: 'Видалити всі дані', wipeTitle: 'Видалити всі дані?', wipeBody: 'Буде видалено всі хобі, календар «My Subscriptions» і резервну копію в Google Drive. Скасувати не можна.', wipeBtn: 'Видалити', tWiped: 'Усі дані видалено',
+    lastPaidNote: 'Останнє оплачене заняття — час продовжити абонемент', evDur: n => 'Тривалість: ' + n + ' хв',
+    calInfo: e => 'Календар «My Subscriptions» · ' + e,
+    moveBtn: 'Перенести на інший день', cancelBtn: 'Скасувати заняття',
+    close: 'Закрити', newDate: 'Нова дата', saveMove: 'Зберегти перенесення', back: 'Назад',
+    movedFrom: d => 'Перенесено з ' + d, movedShort: 'перенесено', restore: 'Відновити заняття', cancelledTag: 'Скасовано',
+    histCancelled: 'Скасовано · оплату перенесено',
+    tCancelled: d => d ? 'Заняття скасовано. Оплата перейшла на ' + d : 'Заняття скасовано',
+    tMovedTo: d => 'Заняття перенесено на ' + d, tRestored: 'Заняття відновлено',
+    moveAll: 'Перенести й усі наступні заняття цього дня',
+    cxL: 'Перенести оплату на наступне заняття', cxOn: 'Оплата перейде на найближче неоплачене', cxOff: 'Заняття буде списано з абонемента',
+    histForfeit: 'Скасовано · списано', forfeitTag: 'Списано', tForfeit: 'Заняття скасовано й списано з абонемента', tMovedAll: (a, b) => 'Розклад змінено: ' + a + ' → ' + b,
+    remOf: r => slav(r, 'оплачене заняття залишилось', 'оплачені заняття залишилось', 'оплачених занять залишилось'),
+    next: 'Наступне: ', none: 'Немає запланованих', min: 'хв',
+    statLeft: 'залишилось', statAttended: 'відвідано', statPer: 'за заняття',
+    paid: 'Оплачено', unpaid: 'Не оплачено', attended: 'Відвідано', missed: 'Не було',
+    upcoming: 'Найближчі заняття', history: 'Історія', histMissed: 'Не було · перенесено',
+    cancel: 'Скасувати', newHobby: 'Нове хобі', fName: 'Назва', fNamePh: 'Тренування в спортзалі',
+    fDays: 'Дні та час', applyAll: 'Один час для всіх днів', fStart: 'Перше заняття',
+    fPaid: 'Занять в абонементі', fPrice: 'Вартість абонемента',
+    summary: (dt, n, per) => dt + '. Перші ' + n + ' ' + slav(n, 'заняття', 'заняття', 'занять') + ' будуть позначені зеленим як оплачені (' + per + ' за заняття), наступні — як не оплачені.',
+    pickDay: 'Оберіть хоча б один день.', fillAll: 'Вкажіть час для кожного дня, кількість занять і дату першого заняття.', createBtn: 'Створити й додати в календар', defName: 'Нове хобі',
+    promptTitle: 'Ви були на занятті?', promptBody: 'Якщо заняття не було, оплата перенесеться на найближче неоплачене.',
+    yes: 'Я був', no: 'Не відбулося — перенести оплату',
+    rem1: 'Залишилось одне оплачене заняття', rem0: 'Оплачені заняття закінчились',
+    remBody1: d => 'Останнє оплачене — ' + d + '. Купіть новий абонемент, щоб продовжити.',
+    remBody0: 'Наступні заняття в календарі позначені як не оплачені.',
+    payAmount: 'Сума', addPayment: 'Додати оплату', payTitle: 'Нова оплата', payOne: 'Одне заняття', payManyL: 'Кілька занять', payments: 'Оплати',
+    payN: n => n + ' ' + slav(n, 'заняття', 'заняття', 'занять'),
+    payHint: (n, d) => n === 1 ? 'Оплата покриє найближче неоплачене заняття — ' + d + '.' : 'Оплата покриє ' + n + ' найближчих неоплачених занять, починаючи з ' + d + '.',
+    buyNew: 'Додати оплату', remindLater: 'Нагадати пізніше', rSessions: 'Занять', paidBtn: 'Оплачено',
+    tMoved: d => 'Перенесення: оплата переходить на ' + d,
+    tMarked: n => 'Позначено. Залишилось ' + n + ' ' + slav(n, 'оплачене заняття', 'оплачені заняття', 'оплачених занять'),
+    tAdded: n => 'Додано ' + n + ' ' + slav(n, 'подію', 'події', 'подій') + ' в Google Calendar',
+    tRenewed: n => '+' + n + ' ' + slav(n, 'заняття', 'заняття', 'занять') + ' позначено в календарі як оплачені',
+    edit: 'Редагувати', save: 'Зберегти зміни', effFrom: 'Зміни діють з', del: 'Видалити хобі',
+    editSummary: (dt, from) => 'З ' + from + ': ' + dt + '. Минулі заняття й позначки не зміняться, майбутні події в календарі оновляться.',
+    tUpdated: n => 'Календар оновлено: ' + n + ' ' + slav(n, 'майбутня подія', 'майбутні події', 'майбутніх подій'),
+    tDeleted: 'Хобі видалено, події прибрано з календаря'
+  },
+  en: {
+    days: ['Mo','Tu','We','Th','Fr','Sa','Su'], daysS: ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'],
+    daysF: ['Monday','Tuesday','Wednesday','Thursday','Friday','Saturday','Sunday'],
+    monG: ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'],
+    monN: ['January','February','March','April','May','June','July','August','September','October','November','December'],
+    date: (L, d) => L.daysS[dayIdx(d)] + ', ' + L.monG[d.getMonth()] + ' ' + d.getDate(),
+    todayF: (L, d) => L.daysF[dayIdx(d)] + ', ' + L.monN[d.getMonth()] + ' ' + d.getDate(),
+    tabList: 'Subscriptions', tabCal: 'All sessions', noSessionsDay: 'No sessions on this day',
+    title: 'Subscriptions', renewSoon: 'Renew soon', settings: 'Settings', language: 'Language',
+    themeL: 'Theme', schemeL: 'Color scheme', light: 'Light', dark: 'Dark',
+    about: 'About', version: 'Version', author: 'Author', licenseL: 'License', proprietary: 'Proprietary',
+    support: 'Contact support', share: 'Share the app', rights: 'All rights reserved.', tShare: 'App link copied',
+    signIn: 'Sign in with Google', signSub: 'Track class passes and paid sessions',
+    signInNote: 'The app only sees its own "My Subscriptions" calendar and its hidden Google Drive folder. Your other events and files stay private.',
+    feat1: 'Passes and how many paid sessions are left', feat2: 'Sessions in Google Calendar, paid ones in green', feat3: 'Your data is stored in your Google Drive',
+    signErr: 'Couldn’t sign in. Please try again', signDenied: 'Without calendar access the app can’t create sessions', grant: 'Grant access',
+    install: 'Add to Home Screen', installIOSa: 'Tap Share', installIOSb: '→ Add to Home Screen',
+    installDesk: 'The app will open in its own window, like a regular app.', installBtn: 'Install', installRow: 'Install the app', tInstalled: 'App installed',
+    pendingTitle: 'Mark past sessions', pendingCount: n => n + ' ' + en(n, 'unmarked session', 'unmarked sessions'),
+    markAll: 'Mark all as attended', was: 'Attended', wasnt: 'Didn’t happen', later: 'Later', saveBtn: 'Save', tMarkedN: n => 'Marked: ' + n,
+    tagPending: n => 'Unmarked: ' + n, legendPending: 'Unmarked',
+    pendingRow: n => n + ' ' + en(n, 'session needs', 'sessions need') + ' marking',
+    syncedL: 'Synced with Google Calendar', syncing: 'Syncing…', offline: 'Offline — changes will sync later', reauth: 'Sign in again to sync', reauthBtn: 'Sign in',
+    lastSync: t => 'Last sync: today, ' + t, tSynced: 'Synced', tOffline: 'Offline. Changes are saved on this device',
+    account: 'Google account', syncNow: 'Sync now', signOut: 'Sign out', calRow: 'Calendar',
+    reminderL: 'Reminder before session', reminderSub: 'Sent by Google Calendar', minBefore: n => n + ' min before',
+    emptyTitle: 'No passes yet', emptyBody: 'Add your first hobby — sessions will appear in Google Calendar', addHobby: 'Add hobby',
+    wipe: 'Delete all data', wipeTitle: 'Delete all data?', wipeBody: 'All hobbies, the "My Subscriptions" calendar and the Google Drive backup will be deleted. This can’t be undone.', wipeBtn: 'Delete', tWiped: 'All data deleted',
+    lastPaidNote: 'Last paid session — time to renew your pass', evDur: n => 'Duration: ' + n + ' min',
+    calInfo: e => '"My Subscriptions" calendar · ' + e,
+    moveBtn: 'Move to another day', cancelBtn: 'Cancel session',
+    close: 'Close', newDate: 'New date', saveMove: 'Save', back: 'Back',
+    movedFrom: d => 'Moved from ' + d, movedShort: 'moved', restore: 'Restore session', cancelledTag: 'Cancelled',
+    histCancelled: 'Cancelled · payment moved',
+    tCancelled: d => d ? 'Session cancelled. Payment moved to ' + d : 'Session cancelled',
+    tMovedTo: d => 'Session moved to ' + d, tRestored: 'Session restored',
+    moveAll: 'Also move all following sessions on this day',
+    cxL: 'Carry the payment to the next session', cxOn: 'Payment moves to the next unpaid session', cxOff: 'The session will be deducted from your pass',
+    histForfeit: 'Cancelled · deducted', forfeitTag: 'Deducted', tForfeit: 'Session cancelled and deducted from your pass', tMovedAll: (a, b) => 'Schedule changed: ' + a + ' → ' + b,
+    remOf: r => en(r, 'paid session left', 'paid sessions left'),
+    next: 'Next: ', none: 'Nothing scheduled', min: 'min',
+    statLeft: 'left', statAttended: 'attended', statPer: 'per session',
+    paid: 'Paid', unpaid: 'Unpaid', attended: 'Attended', missed: 'Cancelled',
+    upcoming: 'Upcoming sessions', history: 'History', histMissed: 'Cancelled · moved',
+    cancel: 'Cancel', newHobby: 'New hobby', fName: 'Name', fNamePh: 'Gym workouts',
+    fDays: 'Days & times', applyAll: 'Same time for all days', fStart: 'First session',
+    fPaid: 'Sessions in pass', fPrice: 'Pass price',
+    summary: (dt, n, per) => dt + '. The first ' + n + ' ' + en(n, 'session', 'sessions') + ' will be marked green as paid (' + per + ' each); later ones as unpaid.',
+    pickDay: 'Pick at least one day.', fillAll: 'Set a time for each day, the number of sessions and the first session date.', createBtn: 'Create and add to calendar', defName: 'New hobby',
+    promptTitle: 'Did you attend the session?', promptBody: 'If the session didn’t happen, the payment moves to the next unpaid one.',
+    yes: 'I was there', no: 'Didn’t happen — carry payment over',
+    rem1: 'One paid session left', rem0: 'No paid sessions left',
+    remBody1: d => 'The last paid one is ' + d + '. Buy a new pass to keep going.',
+    remBody0: 'Upcoming sessions in your calendar are marked as unpaid.',
+    payAmount: 'Amount', addPayment: 'Add payment', payTitle: 'New payment', payOne: 'One session', payManyL: 'Several sessions', payments: 'Payments',
+    payN: n => n + ' ' + en(n, 'session', 'sessions'),
+    payHint: (n, d) => n === 1 ? 'Covers the next unpaid session — ' + d + '.' : 'Covers the next ' + n + ' unpaid sessions, starting ' + d + '.',
+    buyNew: 'Add payment', remindLater: 'Remind me later', rSessions: 'Sessions', paidBtn: 'Paid',
+    tMoved: d => 'Moved: payment now covers ' + d,
+    tMarked: n => 'Marked. ' + n + ' paid ' + en(n, 'session', 'sessions') + ' left',
+    tAdded: n => 'Added ' + n + ' ' + en(n, 'event', 'events') + ' to Google Calendar',
+    tRenewed: n => '+' + n + ' ' + en(n, 'session', 'sessions') + ' marked as paid in your calendar',
+    edit: 'Edit', save: 'Save changes', effFrom: 'Changes apply from', del: 'Delete hobby',
+    editSummary: (dt, from) => 'From ' + from + ': ' + dt + '. Past sessions and marks stay as they are; future calendar events will be updated.',
+    tUpdated: n => 'Calendar updated: ' + n + ' future ' + en(n, 'event', 'events'),
+    tDeleted: 'Hobby deleted, events removed from calendar'
+  }
+};
+
+const seed = pc => {
+  const gm = { '2026-09-07': 'attended', '2026-09-11': 'attended', '2026-09-14': 'attended', '2026-09-18': 'missed' };
+  const em = { '2026-09-01': 'attended', '2026-09-03': 'attended', '2026-09-08': 'attended', '2026-09-10': 'missed', '2026-09-15': 'attended' };
+  if (pc < 3) { em['2026-09-17'] = 'attended'; em['2026-09-22'] = 'attended'; }
+  if (pc < 1) gm['2026-09-21'] = 'attended';
+  return [
+    { id: 'gym', name: { ru: 'Спортзал', uk: 'Спортзал', en: 'Gym' }, times: { 0: '10:00', 4: '18:00' }, durs: { 0: 60, 4: 90 }, duration: 60, paid: 8, price: 8000, start: '2026-09-07',
+      payments: [{ date: '2026-09-05', n: 8, price: 8000 }], marks: gm },
+    { id: 'eng', name: { ru: 'Английский', uk: 'Англійська', en: 'English lessons' }, times: { 1: '19:00', 3: '18:30' }, durs: { 1: 90, 3: 60 }, duration: 90, paid: 12, price: 4800, start: '2026-09-01',
+      payments: [{ date: '2026-08-29', n: 12, price: 4800 }], marks: em }
+  ];
+};
+const daysOf = h => Object.keys(h.times).map(Number).sort((a, b) => a - b);
+const sw = on => on ? { track: 'var(--color-accent-900)', border: '1px solid var(--color-accent)', knob: 'var(--color-accent)', left: '22px' } : { track: 'transparent', border: '1px solid var(--color-neutral-600)', knob: 'var(--color-neutral-500)', left: '3px' };
+const segSt = on => ({ bg: on ? 'var(--color-accent-900)' : 'transparent', border: on ? '1px solid var(--color-accent)' : '1px solid transparent', color: on ? 'var(--color-accent-200)' : 'var(--color-neutral-300)' });
+const OFF = { bg: 'transparent', border: '1px solid var(--color-divider)', color: 'var(--color-neutral-300)' };
+
+class Component extends DCLogic {
+  state = { hobbies: null, auth: null, sync: null, lang: null, screen: 'home', cur: 'gym', view: null, sheet: null, toast: null, pending: null, f: null, r: { paid: '', price: '' }, pendSel: {}, snooze: {}, lastSync: '10:01', remMin: 0 };
+
+  get L() { return L[this.lang]; }
+  get lang() { return this.state.lang || this.props.defaultLanguage || 'ru'; }
+  get pc() { return Number(this.props.pendingCount ?? 3); }
+  hs() { return this.state.hobbies || seed(this.pc); }
+  upd(fn) { this.setState(s => ({ hobbies: fn(s.hobbies || seed(this.pc)) })); }
+  authEff() { return this.state.auth || (this.props.signedIn ? 'in' : 'out'); }
+  syncEff() { return this.state.sync || this.props.syncState || 'ok'; }
+  nm(h) { return typeof h.name === 'string' ? h.name : h.name[this.lang]; }
+  dl(d) { return this.L.date(this.L, d); }
+  dur(h, i) { return (h.durs && h.durs[i]) || h.duration || 60; }
+  firstDate(times) {
+    for (let k = 0; k < 14; k++) {
+      const x = new Date(TODAY); x.setDate(TODAY.getDate() + k);
+      const t = times[dayIdx(x)];
+      if (t != null && (k > 0 || t > '10:02')) return ymd(x);
+    }
+    return ymd(TODAY);
+  }
+  blankForm() { return { name: '', times: {}, durs: {}, duration: 60, paid: '', price: '', start: '', cur: 'UAH' }; }
+
+  sched(h) {
+    const L = this.L, ds = daysOf(h), groups = [];
+    const durSet = new Set(ds.map(i => this.dur(h, i)));
+    if (durSet.size <= 1) {
+      ds.forEach(i => { const g = groups.find(g => g.t === h.times[i]); g ? g.d.push(L.days[i]) : groups.push({ t: h.times[i], d: [L.days[i]] }); });
+      return groups.map(g => g.d.join(', ') + ' ' + g.t).join(' · ') + ' · ' + [...durSet][0] + ' ' + L.min;
+    }
+    ds.forEach(i => { const k = h.times[i] + '|' + this.dur(h, i); const g = groups.find(g => g.k === k); g ? g.d.push(L.days[i]) : groups.push({ k, t: h.times[i], m: this.dur(h, i), d: [L.days[i]] }); });
+    return groups.map(g => g.d.join(', ') + ' ' + g.t + ' (' + g.m + ' ' + L.min + ')').join(' · ');
+  }
+
+  sessions(h) {
+    const ds = daysOf(h), per = Math.max(1, ds.length);
+    const missed = Object.values(h.marks).filter(m => m !== 'attended').length;
+    const weeks = Math.max(this.props.weeksAhead ?? 12, Math.ceil((h.paid + missed) / per) + 4) + (h.sched ? h.sched.length * 2 : 0);
+    const start = new Date(h.start + 'T00:00'), out = [];
+    const segs = h.sched || [{ from: h.start, times: h.times, durs: h.durs }];
+    for (let i = 0; i < weeks * 7; i++) {
+      const x = new Date(start); x.setDate(start.getDate() + i);
+      const di = dayIdx(x), key = ymd(x);
+      let seg = null; segs.forEach(sg => { if (sg.from <= key) seg = sg; });
+      if (seg && seg.times[di] != null) out.push({ key, date: x, time: seg.times[di], dur: (seg.durs && seg.durs[di]) || h.duration || 60 });
+    }
+    out.forEach(s => { const mv = h.moves && h.moves[s.key]; if (mv) { s.orig = s.date; s.origTime = s.time; s.date = new Date(mv.date + 'T00:00'); s.time = mv.time; } s.dkey = ymd(s.date); });
+    out.sort((a, b) => (a.dkey + a.time).localeCompare(b.dkey + b.time));
+    let used = 0;
+    out.forEach(s => {
+      s.mark = h.marks[s.key];
+      if (s.mark === 'forfeit') { if (used < h.paid) used++; s.status = 'forfeit'; }
+      else if (s.mark === 'missed' || s.mark === 'cancelled') s.status = 'missed';
+      else if (used < h.paid) { used++; s.status = s.mark === 'attended' ? 'attended' : 'paid'; }
+      else s.status = s.mark === 'attended' ? 'attended' : 'unpaid';
+      s.pending = !s.mark && endOf(s) < NOW;
+    });
+    const attended = out.filter(s => s.mark === 'attended').length;
+    const forfeit = out.filter(s => s.mark === 'forfeit').length;
+    return { list: out, attended, remaining: Math.max(0, h.paid - attended - forfeit), next: out.find(s => !s.mark && !s.pending), pend: out.filter(s => s.pending) };
+  }
+
+  hobby(id) { return this.hs().find(h => h.id === (id || this.state.cur)); }
+  showToast(t) {
+    clearTimeout(this._tt); clearTimeout(this._tt2);
+    this.setState({ toast: t, toastOut: false });
+    this._tt = setTimeout(() => this.setState({ toastOut: true }), 2950);
+    this._tt2 = setTimeout(() => this.setState({ toast: null, toastOut: false }), 3200);
+  }
+  // Any object update that closes the open sheet plays the close animation first, then applies.
+  installSheetClose() {
+    if (this._wrapped) return; this._wrapped = true;
+    const orig = this.setState.bind(this);
+    this.setState = (u, cb) => {
+      if (u && typeof u === 'object' && 'sheet' in u && u.sheet == null && this.state && this.state.sheet && !this._closing) {
+        const from = this.state.sheet;
+        this._closing = true;
+        orig({ sheetClosing: true });
+        clearTimeout(this._ct);
+        this._ct = setTimeout(() => {
+          this._closing = false;
+          const rest = { ...u };
+          if (this.state.sheet !== from) delete rest.sheet;
+          orig({ ...rest, sheetClosing: false }, cb);
+        }, 210);
+        return;
+      }
+      return orig(u, cb);
+    };
+  }
+
+  allPending(hs, onlyId) {
+    const out = [];
+    hs.forEach(h => { if (onlyId && h.id !== onlyId) return; this.sessions(h).pend.forEach(s => out.push({ h, s, end: endOf(s) })); });
+    return out.sort((a, b) => a.end - b.end);
+  }
+  openPendingFlow(onlyId) {
+    const p = this.allPending(this.hs(), onlyId);
+    if (p.length === 1) this.setState({ sheet: 'prompt', pending: { id: p[0].h.id, key: p[0].s.key } });
+    else if (p.length > 1) this.setState({ sheet: 'pending', pendFilter: onlyId || null, pendSel: {} });
+    return p.length;
+  }
+  checkRenew(hs) {
+    const q = hs.filter(h => this.sessions(h).remaining <= 1 && !((this.state.snooze || {})[h.id] > TODAY_KEY)).map(h => h.id);
+    if (q.length) this.setState({ sheet: 'reminder', remId: q[0], renewQueue: q.slice(1) });
+  }
+  openCheck() {
+    if (this.authEff() !== 'in') return;
+    if (!this.openPendingFlow()) this.checkRenew(this.hs());
+  }
+
+  componentDidMount() { this.installSheetClose(); if (this.authEff() === 'in') this._oc = setTimeout(() => this.openCheck(), 500); }
+  componentWillUnmount() { [this._tt, this._tt2, this._ct, this._oc, this._st, this._at].forEach(clearTimeout); }
+  componentDidUpdate(pp) {
+    pp = pp || {};
+    const prevH = this._prevHobbies; this._prevHobbies = this.state.hobbies;
+    const ps = { hobbies: prevH };
+    if (!this._didInit) { this._didInit = true; return; }
+    if (pp.pendingCount !== this.props.pendingCount) { this.setState({ hobbies: null, sheet: null }); this._oc = setTimeout(() => this.openCheck(), 150); }
+    if (pp.signedIn !== this.props.signedIn) { this.setState({ auth: null, sheet: null }); if (this.props.signedIn) this._oc = setTimeout(() => this.openCheck(), 150); }
+    if (pp.syncState !== this.props.syncState) this.setState({ sync: null });
+    if (pp.device !== this.props.device) this.setState({ device: null });
+    if (pp.installed !== this.props.installed) this.setState({ installedNow: false, installDismissed: false });
+    if (ps.hobbies !== this.state.hobbies && this.state.hobbies && ps.hobbies && this.syncEff() === 'ok') {
+      this.setState({ sync: 'syncing' }); clearTimeout(this._st);
+      this._st = setTimeout(() => this.setState({ sync: null, lastSync: '10:02' }), 1100);
+    }
+  }
+
+  mark(kind) {
+    const p = this.state.pending; if (!p) return;
+    const h = this.hobby(p.id);
+    const nh = { ...h, marks: { ...h.marks, [p.key]: kind } };
+    const res = this.sessions(nh);
+    this.upd(hs => hs.map(x => x.id === h.id ? nh : x));
+    this.setState({ pending: null, sheet: null });
+    if (kind === 'missed') {
+      const lastPaid = res.list.filter(s => s.status === 'paid').pop();
+      this.showToast(this.L.tMoved(lastPaid ? this.dl(lastPaid.date) + ', ' + lastPaid.time : '—'));
+    } else if (res.remaining <= 1 && !((this.state.snooze || {})[h.id] > TODAY_KEY)) {
+      setTimeout(() => this.setState({ sheet: 'reminder', remId: h.id, renewQueue: [] }), 350);
+    } else {
+      this.showToast(this.L.tMarked(res.remaining));
+    }
+  }
+
+  renderVals() {
+    this.installSheetClose();
+    const st = this.state, L = this.L, HS = this.hs();
+    const auth = this.authEff(), syncE = this.syncEff();
+    const isPhone = (st.device || this.props.device || 'phone') !== 'desktop';
+    const f = st.f || this.blankForm();
+    const setF = k => e => { const v = e.target.value; this.setState(s => ({ f: { ...(s.f || this.blankForm()), [k]: ['duration','paid','price'].includes(k) && v !== '' ? Number(v) : v } })); };
+    const updF = fn => this.setState(s => ({ f: fn(s.f || this.blankForm()) }));
+    const spinner = React.createElement('i', { className: 'ph ph-circle-notch', style: { display: 'inline-block', animation: 'ms-spin 0.9s linear infinite' } });
+
+    const hobbyCards = HS.map(h => {
+      const r = this.sessions(h), segs = [];
+      for (let i = 0; i < Math.min(r.remaining, 24); i++) segs.push({ i });
+      return {
+        name: this.nm(h), schedule: this.sched(h), remaining: r.remaining, remainingLabel: L.remOf(r.remaining),
+        segs, low: r.remaining <= 1, hasPend: r.pend.length > 0, pendTag: L.tagPending(r.pend.length),
+        openPend: e => { e.stopPropagation(); this.openPendingFlow(h.id); },
+        next: r.next ? L.next + this.dl(r.next.date) + ', ' + r.next.time : L.none,
+        open: () => { const n = r.next ? r.next.date : TODAY; this.setState({ screen: 'detail', cur: h.id, view: { y: n.getFullYear(), m: n.getMonth() } }); }
+      };
+    });
+
+    const h = this.hobby() || HS[0] || seed(3)[0], r = this.sessions(h);
+    const view = st.view || { y: TODAY.getFullYear(), m: TODAY.getMonth() };
+    const byKey = {}; r.list.forEach(s => byKey[s.dkey] = s);
+    const openSess = key => this.setState({ sheet: 'session', sel: { id: h.id, key }, mv: null, cxMove: true });
+    const openPrompt = key => this.setState({ sheet: 'prompt', pending: { id: h.id, key } });
+    const off = dayIdx(new Date(view.y, view.m, 1));
+    const dim = new Date(view.y, view.m + 1, 0).getDate();
+    const total = Math.ceil((off + dim) / 7) * 7, cells = [];
+    for (let i = 0; i < total; i++) {
+      const d = new Date(view.y, view.m, 1 - off + i), s = byKey[ymd(d)];
+      const c = { num: d.getDate(), time: '', bg: 'transparent', border: '1px solid transparent', color: 'var(--color-neutral-500)', deco: 'none', op: d.getMonth() === view.m ? 1 : 0.3, today: ymd(d) === TODAY_KEY, pend: false, cursor: 'default' };
+      if (s) {
+        c.time = s.time;
+        if (s.pending) { Object.assign(c, { border: '1px solid var(--color-accent)', color: 'var(--color-text)', pend: true, cursor: 'pointer' }); c.onClick = () => openPrompt(s.key); }
+        else {
+          if (!s.mark || s.mark === 'cancelled' || s.mark === 'forfeit') { c.onClick = () => openSess(s.key); c.cursor = 'pointer'; }
+          if (s.status === 'paid') Object.assign(c, { bg: G.fill, color: G.text, border: '1px solid ' + G.fill });
+          else if (s.status === 'attended') Object.assign(c, { border: '1px solid ' + G.line, color: G.text });
+          else if (s.status === 'forfeit') Object.assign(c, { deco: 'line-through', border: '1px solid ' + G.line, color: G.text });
+          else if (s.status === 'missed') Object.assign(c, { deco: 'line-through', border: '1px solid var(--color-neutral-800)' });
+          else Object.assign(c, { border: '1px dashed var(--color-neutral-600)', color: 'var(--color-neutral-300)' });
+        }
+      }
+      cells.push(c);
+    }
+
+    const TAGS = {
+      paid: { tag: L.paid, tagBg: G.fill, tagColor: G.text, tagBorder: '1px solid ' + G.fill },
+      unpaid: { tag: L.unpaid, tagBg: 'transparent', tagColor: 'var(--color-neutral-400)', tagBorder: '1px dashed var(--color-neutral-600)' }
+    };
+    const upcoming = r.list.filter(s => !s.mark && !s.pending).slice(0, 12).map(s => ({ label: this.dl(s.date), time: s.time + ' · ' + s.dur + ' ' + L.min + (s.orig ? ' · ' + L.movedShort : ''), ...TAGS[s.status], onClick: () => openSess(s.key) }));
+    const history = r.list.filter(s => s.mark).reverse().map(s => ({ label: this.dl(s.date) + ', ' + s.time, tag: s.mark === 'attended' ? L.attended : s.mark === 'cancelled' ? L.histCancelled : s.mark === 'forfeit' ? L.histForfeit : L.histMissed }));
+    const selS = st.sel && st.sel.id === h.id ? r.list.find(s => s.key === st.sel.key) : null;
+    const cancelledTagSt = { tag: L.cancelledTag, tagBg: 'transparent', tagColor: 'var(--color-neutral-400)', tagBorder: '1px solid var(--color-neutral-700)' };
+    const sess = selS ? {
+      kicker: this.nm(h), title: this.dl(selS.date), meta: selS.time + ' · ' + selS.dur + ' ' + L.min,
+      ...(selS.mark === 'cancelled' ? cancelledTagSt : selS.mark === 'forfeit' ? { ...cancelledTagSt, tag: L.forfeitTag } : TAGS[selS.status] || cancelledTagSt),
+      hasMoved: !!selS.orig, movedFrom: selS.orig ? L.movedFrom(this.dl(selS.orig) + ', ' + selS.origTime) : '',
+      isPaid: selS.status === 'paid'
+    } : {};
+    const mvCells = [];
+    if (st.mv) {
+      const o2 = dayIdx(new Date(st.mv.y, st.mv.m, 1)), dm2 = new Date(st.mv.y, st.mv.m + 1, 0).getDate();
+      const tot2 = Math.ceil((o2 + dm2) / 7) * 7, busy = {};
+      r.list.forEach(s => { if (s.mark !== 'cancelled' && s.mark !== 'missed' && (!selS || s.key !== selS.key)) busy[s.dkey] = true; });
+      for (let i = 0; i < tot2; i++) {
+        const d = new Date(st.mv.y, st.mv.m, 1 - o2 + i), k = ymd(d), inM = d.getMonth() === st.mv.m, past = k < TODAY_KEY, sel = k === st.mv.date;
+        mvCells.push({
+          num: d.getDate(), op: !inM ? 0.25 : past ? 0.35 : 1,
+          bg: sel ? 'var(--color-accent-900)' : 'transparent', border: sel ? '1px solid var(--color-accent)' : k === TODAY_KEY ? '1px solid var(--color-neutral-700)' : '1px solid transparent',
+          color: sel ? 'var(--color-accent-200)' : 'var(--color-text)', dot: busy[k] ? 'var(--paid-line)' : 'transparent',
+          cursor: past ? 'default' : 'pointer',
+          onClick: past ? undefined : () => this.setState(s => ({ mv: { ...s.mv, date: k, y: d.getFullYear(), m: d.getMonth() } }))
+        });
+      }
+    }
+    const updMarksMoves = fn => { const nh = fn(h); this.upd(hs => hs.map(x => x.id === h.id ? nh : x)); this.setState({ sheet: null, sel: null, mv: null }); return nh; };
+
+    const fDays = daysOf(f);
+    const dayChips = L.days.map((l, i) => {
+      const on = f.times[i] != null;
+      return { label: l, ...segSt(on), bg: on ? 'var(--color-accent-900)' : 'var(--color-surface)',
+        toggle: () => updF(ff => { const t = { ...ff.times }, du = { ...(ff.durs || {}) }; if (t[i] != null) { delete t[i]; delete du[i]; } else if (ff.mode === 'edit') { const last = daysOf(ff), li = last[last.length - 1]; t[i] = last.length ? ff.times[li] : '10:00'; du[i] = last.length ? this.dur(ff, li) : 60; } else { t[i] = ''; du[i] = ''; } return ff.mode === 'edit' ? { ...ff, times: t, durs: du } : { ...ff, times: t, durs: du, start: Object.keys(t).length ? this.firstDate(t) : '' }; }) };
+    });
+    const dayTimes = fDays.map(i => ({ label: L.daysF[i], time: f.times[i], dur: f.durs && f.durs[i] != null ? f.durs[i] : '',
+      onChange: e => { const v = e.target.value; updF(ff => { const t = { ...ff.times, [i]: v }; return ff.mode === 'edit' ? { ...ff, times: t } : { ...ff, times: t, start: this.firstDate(t) }; }); },
+      onDur: e => { const v = e.target.value === '' ? '' : Number(e.target.value); updF(ff => ({ ...ff, durs: { ...(ff.durs || {}), [i]: v } })); },
+      durOpen: st.durOpen === i, caret: st.durOpen === i ? 'ph ph-caret-up' : 'ph ph-caret-down',
+      toggleDur: () => this.setState(s => ({ durOpen: s.durOpen === i ? null : i })),
+      durOpts: [30, 45, 60, 90, 120].map(n => { const on = Number(f.durs && f.durs[i]) === n; return { label: String(n), bg: on ? 'var(--color-accent-900)' : 'transparent', border: on ? '1px solid var(--color-accent)' : '1px solid var(--color-divider)', color: on ? 'var(--color-accent-200)' : 'var(--color-neutral-300)', pick: () => { updF(ff => ({ ...ff, durs: { ...(ff.durs || {}), [i]: n } })); this.setState({ durOpen: null }); } }; }) }));
+    const uniq = new Set(fDays.map(i => f.times[i] + '|' + this.dur(f, i)));
+    const isEdit = f.mode === 'edit';
+    const effD = new Date((f.eff || f.start) + 'T00:00');
+    const dtList = fDays.map(i => L.daysF[i] + ' ' + (f.times[i] || '—') + ' (' + this.dur(f, i) + ' ' + L.min + ')').join(', ');
+    const formOk = fDays.length > 0 && fDays.every(i => f.times[i]) && Number(f.paid) > 0 && f.start;
+    const createSummary = !fDays.length ? L.pickDay : !isEdit && !formOk ? L.fillAll : isEdit ? L.editSummary(dtList, this.dl(effD)) : L.summary(dtList, f.paid, money(f.price / Math.max(1, f.paid), f.cur || 'UAH'));
+
+    const remH = this.hobby(st.remId) || h, remR = this.sessions(remH);
+    const firstPaid = remR.list.find(s => s.status === 'paid');
+    const pays = h.payments || [{ date: h.start, n: h.paid, price: h.price }];
+    const lastPay = pays[pays.length - 1];
+    const payMode = (st.r && st.r.mode) || 'many';
+    const payN = payMode === 'one' ? 1 : (st.r && st.r.paid !== '' && st.r.paid != null ? Number(st.r.paid) : lastPay.n);
+    const unpaidNext = r.list.find(s => s.status === 'unpaid');
+    const langOpts = [['uk', 'Українська', 'Ukrainian'], ['en', 'English', 'English'], ['ru', 'Русский', 'Russian']].map(([k, label, sub]) => ({
+      label, sub, check: this.lang === k ? 'ph-fill ph-check-circle' : 'ph ph-circle', pick: () => this.setState({ lang: k })
+    }));
+
+    const scheme = st.scheme || this.props.defaultScheme || 'nocturne', mode = st.mode || this.props.defaultMode || 'dark';
+    const themeStyle = themeVars(scheme, mode);
+    const modeOpts = [['light', L.light, 'ph ph-sun'], ['dark', L.dark, 'ph ph-moon']].map(([k, label, icon]) => ({ label, icon, ...segSt(mode === k), pick: () => this.setState({ mode: k }) }));
+    const schemeOpts = Object.keys(SCHEMES).map(k => { const v = themeVars(k, mode), on = scheme === k; return { label: SCHEMES[k].name[this.lang], bg: v['--color-bg'], surface: v['--color-neutral-700'], accent: v['--color-accent'], paid: v['--paid-line'], muted: v['--color-neutral-500'], edge: v['--color-neutral-800'], border: on ? '1px solid var(--color-accent)' : '1px solid transparent', check: on ? 'ph-fill ph-check-circle' : 'ph ph-circle', pick: () => this.setState({ scheme: k }) }; });
+
+    const pendList = st.sheet === 'pending' ? this.allPending(HS, st.pendFilter) : [];
+    const sel = st.pendSel || {};
+    const groups = [];
+    pendList.forEach(({ h: ph, s }) => {
+      let g = groups.find(g => g.id === ph.id); if (!g) { g = { id: ph.id, name: this.nm(ph), rows: [] }; groups.push(g); }
+      const k = ph.id + '|' + s.key, v = sel[k];
+      const setSel = val => this.setState(x => { const n = { ...(x.pendSel || {}) }; if (n[k] === val) delete n[k]; else n[k] = val; return { pendSel: n }; });
+      g.rows.push({ label: this.dl(s.date), time: s.time + ' · ' + s.dur + ' ' + L.min,
+        was: v === 'attended' ? { bg: G.fill, border: '1px solid ' + G.fill, color: G.text } : OFF,
+        wasnt: v === 'missed' ? { bg: 'var(--color-neutral-800)', border: '1px solid var(--color-neutral-500)', color: 'var(--color-text)' } : OFF,
+        onWas: () => setSel('attended'), onWasnt: () => setSel('missed') });
+    });
+    const selCount = Object.keys(sel).length;
+    const dp = r.pend.length;
+    const installedEff = !!(st.installedNow || this.props.installed);
+    const syncLabel = { ok: L.syncedL, syncing: L.syncing, offline: L.offline, reauth: L.reauth }[syncE];
+
+    const tab = st.homeTab || 'list';
+    const gv = st.gcalView || { y: TODAY.getFullYear(), m: TODAY.getMonth() };
+    const gSel = st.gcalSel || TODAY_KEY;
+    const byDay = {};
+    HS.forEach(hh => this.sessions(hh).list.forEach(s => (byDay[s.dkey] = byDay[s.dkey] || []).push({ h: hh, s })));
+    Object.values(byDay).forEach(a => a.sort((x, y) => x.s.time.localeCompare(y.s.time)));
+    const dotOf = s => s.pending ? { bg: 'var(--color-accent)', border: 'none' }
+      : s.mark === 'attended' || s.mark === 'forfeit' ? { bg: 'transparent', border: '1px solid var(--paid-line)' }
+      : s.mark ? { bg: 'var(--color-neutral-700)', border: 'none' }
+      : s.status === 'paid' ? { bg: 'var(--paid-line)', border: 'none' } : { bg: 'transparent', border: '1px solid var(--color-neutral-500)' };
+    const tagOf = s => s.pending ? { tag: L.legendPending, tagBg: 'transparent', tagColor: 'var(--color-accent-200)', tagBorder: '1px solid var(--color-accent)' }
+      : s.mark === 'attended' ? { tag: L.attended, tagBg: 'transparent', tagColor: G.text, tagBorder: '1px solid ' + G.line }
+      : s.mark === 'forfeit' ? { ...cancelledTagSt, tag: L.forfeitTag }
+      : s.mark ? cancelledTagSt : TAGS[s.status];
+    const gOff = dayIdx(new Date(gv.y, gv.m, 1)), gDim = new Date(gv.y, gv.m + 1, 0).getDate();
+    const gCells = [];
+    for (let i = 0; i < Math.ceil((gOff + gDim) / 7) * 7; i++) {
+      const d = new Date(gv.y, gv.m, 1 - gOff + i), k = ymd(d), items = byDay[k] || [], isSel = k === gSel;
+      gCells.push({ num: d.getDate(), op: d.getMonth() === gv.m ? 1 : 0.3,
+        bg: isSel ? 'var(--color-accent-900)' : 'transparent',
+        border: isSel ? '1px solid var(--color-accent)' : k === TODAY_KEY ? '1px solid var(--color-neutral-700)' : '1px solid transparent',
+        color: isSel ? 'var(--color-accent-200)' : items.length ? 'var(--color-text)' : 'var(--color-neutral-500)',
+        hasDot: items.length > 0, hasCount: items.length > 1, count: items.length,
+        dot: items.length ? dotOf((items.find(x => x.s.pending) || items.find(x => !x.s.mark) || items.find(x => x.s.mark === 'attended' || x.s.mark === 'forfeit') || items[0]).s) : {},
+        pick: () => this.setState({ gcalSel: k, gcalView: { y: d.getFullYear(), m: d.getMonth() } }) });
+    }
+    const selD = new Date(gSel + 'T00:00'), selItems = byDay[gSel] || [];
+    const gcal = {
+      month: L.monN[gv.m] + ' ' + gv.y, cells: gCells,
+      prev: () => this.setState({ gcalView: gv.m === 0 ? { y: gv.y - 1, m: 11 } : { y: gv.y, m: gv.m - 1 } }),
+      next: () => this.setState({ gcalView: gv.m === 11 ? { y: gv.y + 1, m: 0 } : { y: gv.y, m: gv.m + 1 } }),
+      dayLabel: L.todayF(L, selD), empty: selItems.length === 0,
+      rows: selItems.map(({ h: hh, s }) => ({ name: this.nm(hh), time: s.time + ' · ' + s.dur + ' ' + L.min + (s.orig ? ' · ' + L.movedShort : ''), ...tagOf(s),
+        open: () => this.setState({ screen: 'detail', cur: hh.id, view: { y: s.date.getFullYear(), m: s.date.getMonth() } }) }))
+    };
+
+    return {
+      themeStyle, spinner, isPhone, isDesktop: !isPhone,
+      frame: isPhone ? { w: '390px', h: '844px', r: '52px' } : { w: '1120px', h: '720px', r: '14px' },
+      t: { ...L, today: L.todayF(L, TODAY) },
+      isSignIn: auth !== 'in', signLoading: auth === 'loading', signIdle: auth !== 'loading',
+      signMsg: auth === 'error' || auth === 'denied', signMsgText: auth === 'denied' ? L.signDenied : L.signErr,
+      signBtnLabel: auth === 'denied' ? L.grant : L.signIn,
+      signInClick: () => {
+        if (auth === 'loading') return;
+        this.setState({ auth: 'loading' }); clearTimeout(this._at);
+        this._at = setTimeout(() => { this.setState({ auth: 'in', screen: 'home' }); this._oc = setTimeout(() => this.openCheck(), 350); }, 1200);
+      },
+      isHome: auth === 'in' && st.screen === 'home', isDetail: auth === 'in' && st.screen === 'detail', isCreate: auth === 'in' && (st.screen === 'create' || st.screen === 'edit'),
+      isSettings: auth === 'in' && st.screen === 'settings', isAbout: auth === 'in' && st.screen === 'about',
+      isEmpty: HS.length === 0, hobbyCards,
+      tabCal: tab === 'cal', showEmpty: tab === 'list' && HS.length === 0, listCards: tab === 'list' ? hobbyCards : [], gcal,
+      homeTabs: [['list', L.tabList, 'ph ph-ticket'], ['cal', L.tabCal, 'ph ph-calendar-blank']].map(([k, label, icon]) => ({ label, icon, ...segSt(tab === k), pick: () => this.setState({ homeTab: k }) })),
+      showInstall: !installedEff && !st.installDismissed, notInstalled: !installedEff,
+      installIOS: isPhone, installBtnMode: !isPhone,
+      dismissInstall: () => { this.setState({ installClosing: true }); setTimeout(() => this.setState({ installDismissed: true, installClosing: false }), 220); },
+      anim: {
+        backdrop: st.sheetClosing ? 'ms-fadeout 210ms ease-in forwards' : 'ms-fade 220ms ease-out both',
+        sheet: st.sheetClosing ? 'ms-down 210ms cubic-bezier(.4,0,1,1) forwards' : 'ms-up 300ms cubic-bezier(.2,.8,.2,1) both',
+        toast: st.toastOut ? 'ms-toast-out 250ms ease-in forwards' : 'ms-toast-in 260ms cubic-bezier(.2,.8,.2,1) both',
+        install: st.installClosing ? 'ms-fadeout 220ms ease-in forwards' : 'ms-in 280ms cubic-bezier(.2,.7,.2,1) both'
+      },
+      backdropClose: () => { if (['session', 'renew', 'install', 'wipe'].includes(st.sheet)) this.setState({ sheet: null, pending: null, mv: null }); },
+      stopProp: e => e.stopPropagation(),
+      installNow: () => { this.setState({ installedNow: true, sheet: null }); this.showToast(L.tInstalled); },
+      openInstall: () => this.setState({ sheet: 'install' }),
+      sync: { ok: syncE === 'ok', syncing: syncE === 'syncing', offline: syncE === 'offline', reauth: syncE === 'reauth', label: syncLabel },
+      syncNotBusy: syncE !== 'syncing', syncBad: syncE === 'offline' || syncE === 'reauth',
+      syncIcon: syncE === 'offline' ? 'ph ph-cloud-slash' : 'ph ph-warning', syncIconColor: syncE === 'reauth' ? 'var(--color-accent)' : 'var(--color-neutral-400)',
+      reauthNow: () => { this.setState({ sync: 'syncing' }); clearTimeout(this._st); this._st = setTimeout(() => { this.setState({ sync: 'ok', lastSync: '10:02' }); this.showToast(L.tSynced); }, 1000); },
+      syncNow: () => {
+        if (syncE === 'offline') { this.showToast(L.tOffline); return; }
+        const wasReauth = syncE === 'reauth';
+        this.setState({ sync: 'syncing' }); clearTimeout(this._st);
+        this._st = setTimeout(() => { this.setState({ sync: wasReauth ? 'ok' : null, lastSync: '10:02' }); this.showToast(L.tSynced); }, 1000);
+      },
+      lastSyncLabel: L.lastSync(st.lastSync),
+      signOut: () => this.setState({ auth: 'out', screen: 'home', sheet: null }),
+      remOn: st.remMin > 0, remSw: sw(st.remMin > 0),
+      toggleRem: () => this.setState(s => ({ remMin: s.remMin > 0 ? 0 : 30 })),
+      remOpts: [15, 30, 60].map(n => ({ label: L.minBefore(n), ...segSt(st.remMin === n), pick: () => this.setState({ remMin: n }) })),
+      openWipe: () => this.setState({ sheet: 'wipe' }),
+      wipeAll: () => { this.setState({ hobbies: [], sheet: null, screen: 'home' }); this.showToast(L.tWiped); },
+      calInfo: L.calInfo(EMAIL),
+      langOpts, modeOpts, schemeOpts,
+      openAbout: () => this.setState({ screen: 'about' }),
+      shareApp: () => { if (navigator.share) navigator.share({ title: 'My Subscriptions', url: APP_URL }).catch(() => {}); else this.showToast(L.tShare); },
+      goHome: () => this.setState({ screen: 'home' }),
+      openSettings: () => this.setState({ screen: 'settings' }),
+      openCreate: () => this.setState({ screen: 'create', f: this.blankForm() }),
+
+      d: { name: this.nm(h), schedule: this.sched(h), remaining: r.remaining, attended: r.attended, perSession: money(lastPay.price / Math.max(1, lastPay.n), h.cur || 'UAH') },
+      detailPend: { has: dp > 0, label: L.pendingRow(dp), open: () => this.openPendingFlow(h.id) },
+      monthLabel: L.monN[view.m] + ' ' + view.y, cells, weekHead: L.days,
+      prevMonth: () => this.setState({ view: view.m === 0 ? { y: view.y - 1, m: 11 } : { y: view.y, m: view.m - 1 } }),
+      nextMonth: () => this.setState({ view: view.m === 11 ? { y: view.y + 1, m: 0 } : { y: view.y, m: view.m + 1 } }),
+      upcoming, history, hasHistory: history.length > 0,
+
+      hasSheet: auth === 'in' && !!st.sheet,
+      sheetPrompt: st.sheet === 'prompt' && !!st.pending, sheetPending: st.sheet === 'pending', sheetReminder: st.sheet === 'reminder', sheetRenew: st.sheet === 'renew',
+      sheetInstall: st.sheet === 'install', sheetWipe: st.sheet === 'wipe',
+      prompt: st.pending && this.hobby(st.pending.id) ? (() => { const ph = this.hobby(st.pending.id), s = this.sessions(ph).list.find(x => x.key === st.pending.key); return { meta: this.nm(ph) + ' · ' + (s ? this.dl(s.date) + ', ' + s.time : '') }; })() : {},
+      markAttended: () => this.mark('attended'), markMissed: () => this.mark('missed'),
+      pendLater: () => this.setState({ sheet: null, pending: null, pendSel: {} }),
+      pendCountLabel: L.pendingCount(pendList.length), pendGroups: groups, pendSaveOff: selCount === 0,
+      markAllPend: () => { const n = {}; pendList.forEach(({ h: ph, s }) => n[ph.id + '|' + s.key] = 'attended'); this.setState({ pendSel: n }); },
+      savePend: () => {
+        const keys = Object.keys(sel); if (!keys.length) return;
+        const nhs = HS.map(x => { const m = { ...x.marks }; let ch = false; keys.forEach(k => { const [id, sk] = k.split('|'); if (id === x.id) { m[sk] = sel[k]; ch = true; } }); return ch ? { ...x, marks: m } : x; });
+        this.setState({ hobbies: nhs, sheet: null, pendSel: {} });
+        this.showToast(L.tMarkedN(keys.length));
+        setTimeout(() => this.checkRenew(nhs), 450);
+      },
+
+      sheetSession: st.sheet === 'session' && !!selS, sess,
+      sessView: !!selS && !selS.mark && !st.mv, sessMove: !!selS && !!st.mv, sessCancelled: !!selS && (selS.mark === 'cancelled' || selS.mark === 'forfeit'),
+      toggleCx: () => this.setState(s => ({ cxMove: s.cxMove === false })),
+      cxSub: st.cxMove === false ? L.cxOff : L.cxOn, cxSw: sw(st.cxMove !== false),
+      mv: st.mv || {},
+      openMove: () => selS && this.setState({ mv: { date: selS.dkey, time: selS.time, y: selS.date.getFullYear(), m: selS.date.getMonth() } }),
+      mvMonthLabel: st.mv ? L.monN[st.mv.m] + ' ' + st.mv.y : '', mvCells,
+      mvSummary: st.mv && st.mv.date ? this.dl(new Date(st.mv.date + 'T00:00')) : L.newDate,
+      mvPrev: () => this.setState(s => ({ mv: { ...s.mv, ...(s.mv.m === 0 ? { y: s.mv.y - 1, m: 11 } : { m: s.mv.m - 1 }) } })),
+      mvNext: () => this.setState(s => ({ mv: { ...s.mv, ...(s.mv.m === 11 ? { y: s.mv.y + 1, m: 0 } : { m: s.mv.m + 1 }) } })),
+      backMove: () => this.setState({ mv: null }),
+      onMvTime: e => { const v = e.target.value; this.setState(s => ({ mv: { ...s.mv, time: v } })); },
+      toggleMvAll: () => this.setState(s => ({ mv: { ...s.mv, all: !s.mv.all } })),
+      mvAllSub: selS && st.mv ? L.daysS[dayIdx(selS.orig || selS.date)] + ' ' + (selS.origTime || selS.time) + ' → ' + (st.mv.date ? L.daysS[dayIdx(new Date(st.mv.date + 'T00:00'))] : '—') + ' ' + (st.mv.time || '') : '',
+      mvSw: sw(!!(st.mv && st.mv.all)),
+      saveMove: () => {
+        if (!selS || !st.mv || !st.mv.date || !st.mv.time) return;
+        const d = new Date(st.mv.date + 'T00:00');
+        if (st.mv.all) {
+          const X = dayIdx(selS.orig || selS.date), Y = dayIdx(d);
+          const from = selS.dkey < st.mv.date ? selS.dkey : st.mv.date;
+          updMarksMoves(x => {
+            const dX = this.dur(x, X), times = { ...x.times }, durs = Object.fromEntries(daysOf(x).map(i => [i, this.dur(x, i)]));
+            delete times[X]; delete durs[X]; times[Y] = st.mv.time; durs[Y] = dX;
+            const segs = (x.sched || [{ from: x.start, times: x.times, durs: x.durs }]).filter(sg => sg.from < from);
+            const moves = { ...(x.moves || {}) }; delete moves[selS.key];
+            return { ...x, times, durs, moves, sched: [...segs, { from, times, durs }] };
+          });
+          this.setState({ view: { y: d.getFullYear(), m: d.getMonth() } });
+          this.showToast(L.tMovedAll(L.daysS[X] + ' ' + (selS.origTime || selS.time), L.daysS[Y] + ' ' + st.mv.time));
+          return;
+        }
+        updMarksMoves(x => ({ ...x, moves: { ...(x.moves || {}), [selS.key]: { date: st.mv.date, time: st.mv.time } } }));
+        this.setState({ view: { y: d.getFullYear(), m: d.getMonth() } });
+        this.showToast(L.tMovedTo(this.dl(d) + ', ' + st.mv.time));
+      },
+      cancelSession: () => {
+        if (!selS) return;
+        const wasPaid = selS.status === 'paid';
+        if (wasPaid && st.cxMove === false) { updMarksMoves(x => ({ ...x, marks: { ...x.marks, [selS.key]: 'forfeit' } })); this.showToast(L.tForfeit); return; }
+        const nh = updMarksMoves(x => ({ ...x, marks: { ...x.marks, [selS.key]: 'cancelled' } }));
+        const lp = wasPaid ? this.sessions(nh).list.filter(s => s.status === 'paid').pop() : null;
+        this.showToast(L.tCancelled(lp ? this.dl(lp.date) + ', ' + lp.time : ''));
+      },
+      restoreSession: () => { if (!selS) return; updMarksMoves(x => { const m = { ...x.marks }; delete m[selS.key]; return { ...x, marks: m }; }); this.showToast(L.tRestored); },
+
+      f, onName: setF('name'), onPaid: setF('paid'), onPrice: setF('price'), onCur: setF('cur'), uahLabel: this.lang === 'en' ? 'UAH' : 'грн',
+      dayChips, dayTimes, createSummary,
+      canApplyAll: fDays.length > 1 && uniq.size > 1,
+      applyAll: () => updF(ff => { const ds = daysOf(ff), v = ff.times[ds[0]], m = this.dur(ff, ds[0]), t = {}, du = {}; ds.forEach(i => { t[i] = v; du[i] = m; }); return { ...ff, times: t, durs: du }; }),
+      isEdit, formTitle: isEdit ? L.edit : L.newHobby, formBtn: isEdit ? L.save : L.createBtn,
+      dateLabel: isEdit ? L.effFrom : L.fStart, dateVal: isEdit ? f.eff : f.start, onDate: setF(isEdit ? 'eff' : 'start'),
+      cancelForm: () => this.setState({ screen: isEdit ? 'detail' : 'home' }),
+      openEdit: () => this.setState({ screen: 'edit', f: { mode: 'edit', id: h.id, name: this.nm(h), times: { ...h.times }, durs: Object.fromEntries(daysOf(h).map(i => [i, this.dur(h, i)])), duration: h.duration, paid: h.paid, price: h.price, cur: h.cur || 'UAH', start: h.start, eff: TOMORROW_KEY } }),
+      deleteHobby: () => { const rest = HS.filter(x => x.id !== f.id); this.setState({ hobbies: rest, cur: rest[0] ? rest[0].id : null, screen: 'home' }); this.showToast(L.tDeleted); },
+      create: () => {
+        if (!formOk) { this.showToast(fDays.length ? L.fillAll : L.pickDay); return; }
+        if (isEdit) {
+          const old = this.hobby(f.id), eff = f.eff || TODAY_KEY;
+          const segs = (old.sched || [{ from: old.start, times: old.times, durs: old.durs }]).filter(sg => sg.from < eff);
+          const nd = Object.fromEntries(fDays.map(i => [i, this.dur(f, i)]));
+          const nh = { ...old, name: f.name && f.name !== this.nm(old) ? f.name : old.name, times: { ...f.times }, durs: nd, paid: f.paid || old.paid, price: f.price || 0, cur: f.cur || 'UAH', sched: [...segs, { from: eff, times: { ...f.times }, durs: nd }] };
+          const n = this.sessions(nh).list.filter(s => !s.mark && s.key >= eff).length;
+          this.upd(hs => hs.map(x => x.id === old.id ? nh : x)); this.setState({ screen: 'detail' });
+          this.showToast(L.tUpdated(n));
+          return;
+        }
+        const id = 'h' + Date.now();
+        const nh = { id, name: f.name || L.defName, times: { ...f.times }, durs: Object.fromEntries(fDays.map(i => [i, this.dur(f, i)])), duration: 60, paid: f.paid || 1, price: f.price || 0, cur: f.cur || 'UAH', start: f.start, marks: {}, payments: [{ date: TODAY_KEY, n: Number(f.paid) || 1, price: Number(f.price) || 0 }] };
+        const n = this.sessions(nh).list.length, sd = new Date(f.start + 'T00:00');
+        this.upd(hs => [...hs, nh]); this.setState({ cur: id, screen: 'detail', view: { y: sd.getFullYear(), m: sd.getMonth() } });
+        this.showToast(L.tAdded(n));
+      },
+
+      reminder: {
+        kicker: this.nm(remH),
+        title: remR.remaining === 0 ? L.rem0 : L.rem1,
+        body: remR.remaining === 0 ? L.remBody0 : L.remBody1(firstPaid ? this.dl(firstPaid.date) + ', ' + firstPaid.time : '')
+      },
+      renewFromReminder: () => this.setState({ cur: remH.id, sheet: 'renew', r: { mode: 'many', paid: '', price: '' } }),
+      remindLater: () => {
+        const q = st.renewQueue || [], snooze = { ...(st.snooze || {}), [remH.id]: TOMORROW_KEY };
+        this.setState(q.length ? { snooze, remId: q[0], renewQueue: q.slice(1) } : { snooze, sheet: null });
+      },
+      openRenew: () => this.setState({ sheet: 'renew', r: { mode: 'many', paid: '', price: '' } }),
+      closeSheet: () => this.setState({ sheet: null, pending: null }),
+      r: st.r, renewSub: this.nm(h) + ' · ' + this.sched(h),
+      renewPriceLabel: L.payAmount + ', ' + ((h.cur || 'UAH') === 'UAH' && this.lang === 'en' ? 'UAH' : CUR[h.cur || 'UAH'].label),
+      payModes: [['one', L.payOne], ['many', L.payManyL]].map(([k, label]) => ({ label, ...segSt(payMode === k), pick: () => this.setState(s => ({ r: { ...s.r, mode: k } })) })),
+      payMany: payMode === 'many', priceCol: payMode === 'many' ? 'auto' : '1 / -1',
+      payPaidPh: String(lastPay.n), payPricePh: String(payMode === 'one' ? Math.round(lastPay.price / lastPay.n) : lastPay.price),
+      payHint: unpaidNext ? L.payHint(payN, this.dl(unpaidNext.date) + ', ' + unpaidNext.time) : '',
+      payments: (h.payments || []).slice().reverse().map(p => ({ label: this.dl(new Date(p.date + 'T00:00')), sub: L.payN(p.n), amount: money(p.price, h.cur || 'UAH') })),
+      onRPaid: e => this.setState({ r: { ...st.r, paid: e.target.value === '' ? '' : Number(e.target.value) } }),
+      onRPrice: e => this.setState({ r: { ...st.r, price: e.target.value === '' ? '' : Number(e.target.value) } }),
+      renew: () => {
+        const add = payN;
+        const price = st.r.price !== '' && st.r.price != null ? Number(st.r.price) : Number(payMode === 'one' ? Math.round(lastPay.price / lastPay.n) : lastPay.price);
+        if (!(add > 0)) return;
+        const pay = { date: TODAY_KEY, n: add, price };
+        this.upd(hs => hs.map(x => x.id === h.id ? { ...x, paid: x.paid + add, price: x.price + price, payments: [...(x.payments || [{ date: x.start, n: x.paid, price: x.price }]), pay] } : x));
+        this.setState({ sheet: null });
+        this.showToast(L.tRenewed(add));
+      },
+      hasToast: !!st.toast && auth === 'in', toast: st.toast,
+
+      demo: {
+        reopen: () => { this.setState({ sheet: null, pending: null, screen: 'home' }); this._oc = setTimeout(() => this.openCheck(), 250); },
+        signInScreen: () => this.setState({ auth: 'out', sheet: null }),
+        signError: () => this.setState({ auth: 'error', sheet: null }),
+        signDenied: () => this.setState({ auth: 'denied', sheet: null }),
+        empty: () => this.setState({ hobbies: [], screen: 'home', sheet: null }),
+        device: () => this.setState({ device: isPhone ? 'desktop' : 'phone' }),
+        syncOk: () => this.setState({ sync: 'ok' }), syncOff: () => this.setState({ sync: 'offline' }), syncRe: () => this.setState({ sync: 'reauth' })
+      },
+      reset: () => { [this._oc, this._st, this._at].forEach(clearTimeout); this.setState({ hobbies: null, auth: null, sync: null, screen: 'home', cur: 'gym', view: null, sheet: null, pending: null, f: null, pendSel: {}, snooze: {}, installedNow: false, installDismissed: false, lastSync: '10:01' }); if (this.props.signedIn) this._oc = setTimeout(() => this.openCheck(), 300); }
+    };
+  }
+}
+</script>
+</body>
+</html>

@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<script src="./support.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<meta name="design_doc_mode" content="canvas">
+<link rel="stylesheet" href="_ds/nocturne-85349a81-e2cd-4417-9684-943753bcfada/styles.css">
+<script src="_ds/nocturne-85349a81-e2cd-4417-9684-943753bcfada/_ds_bundle.js"></script>
+<link rel="stylesheet" href="https://unpkg.com/@phosphor-icons/web@2.1.1/src/bold/style.css">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<style>
+body{margin:0;background:var(--color-neutral-900);font-family:var(--font-body);color:var(--color-text)}
+a{color:var(--color-accent-300)}a:hover{color:var(--color-accent-200)}
+*{box-sizing:border-box}
+</style>
+</helmet>
+<section style="padding:48px;display:flex;flex-direction:column;gap:24px">
+  <div style="display:flex;flex-direction:column;gap:6px">
+    <h1 style="margin:0;font-size:28px;font-weight:500">Иконка My Subscriptions — билет-абонемент</h1>
+    <span style="font-size:14px;color:var(--color-neutral-400)">Один знак в четырёх цветовых схемах приложения, каждая в тёмной и светлой теме.</span>
+  </div>
+  <div style="display:flex;flex-wrap:wrap;gap:24px">
+    <sc-for list="{{ schemes }}" as="s" hint-placeholder-count="4">
+      <div id="{{ s.id }}" style="padding:24px;border-radius:var(--radius-lg);background:var(--color-surface);display:flex;flex-direction:column;gap:18px">
+        <div style="display:flex;align-items:center;gap:10px"><span class="tag tag-accent">{{ s.id }}</span><span style="font-size:17px;font-weight:500">{{ s.name }}</span></div>
+        <div style="display:flex;gap:24px">
+          <sc-for list="{{ s.variants }}" as="v" hint-placeholder-count="2">
+            <div style="display:flex;flex-direction:column;gap:10px;align-items:center">
+              <div style="width:180px;height:180px;border-radius:40px;background:{{ v.bg }};display:flex;align-items:center;justify-content:center;box-shadow:{{ v.shadow }}">
+                <div style="width:132px;height:86px;border-radius:14px;background:{{ v.ticket }};position:relative;transform:rotate(-12deg);display:flex;align-items:center">
+                  <div style="position:absolute;left:-11px;top:32px;width:22px;height:22px;border-radius:11px;background:{{ v.notch }}"></div>
+                  <div style="position:absolute;right:-11px;top:32px;width:22px;height:22px;border-radius:11px;background:{{ v.notch }}"></div>
+                  <div style="width:92px;display:flex;align-items:center;justify-content:center;font-size:44px;color:{{ v.check }}"><i class="ph-bold ph-check"></i></div>
+                  <div style="height:62px;border-left:3px dashed {{ v.dash }}"></div>
+                  <div style="flex:1;display:flex;flex-direction:column;align-items:center;gap:6px">
+                    <span style="width:10px;height:10px;border-radius:5px;background:{{ v.dot }}"></span><span style="width:10px;height:10px;border-radius:5px;background:{{ v.dot }}"></span><span style="width:10px;height:10px;border-radius:5px;background:{{ v.dot }}"></span>
+                  </div>
+                </div>
+              </div>
+              <div style="display:flex;align-items:center;gap:12px">
+                <div style="width:60px;height:60px;border-radius:14px;overflow:hidden">
+                  <div style="transform:scale(0.3333);transform-origin:0 0;width:180px;height:180px;background:{{ v.bg }};display:flex;align-items:center;justify-content:center">
+                    <div style="width:132px;height:86px;border-radius:14px;background:{{ v.ticket }};position:relative;transform:rotate(-12deg);display:flex;align-items:center;justify-content:center;font-size:52px;color:{{ v.check }}">
+                      <div style="position:absolute;left:-12px;top:31px;width:24px;height:24px;border-radius:12px;background:{{ v.notch }}"></div>
+                      <div style="position:absolute;right:-12px;top:31px;width:24px;height:24px;border-radius:12px;background:{{ v.notch }}"></div>
+                      <i class="ph-bold ph-check"></i>
+                    </div>
+                  </div>
+                </div>
+                <span style="font-size:12px;color:var(--color-neutral-500)">{{ v.label }}</span>
+              </div>
+            </div>
+          </sc-for>
+        </div>
+      </div>
+    </sc-for>
+  </div>
+</section>
+</x-dc>
+<script type="text/x-dc" data-dc-script>
+const ok = (l, c, h) => 'oklch(' + l + ' ' + c.toFixed(3) + ' ' + h + ')';
+const S = [
+  ['1a', 'Ноктюрн', [280, 0.022], [289, 0.12]],
+  ['1b', 'Море', [235, 0.026], [222, 0.11]],
+  ['1c', 'Глина', [60, 0.016], [42, 0.13]],
+  ['1d', 'Графит', [0, 0], [5, 0.14]]
+];
+class Component extends DCLogic {
+  renderVals() {
+    return {
+      schemes: S.map(([id, name, n, a]) => ({
+        id, name,
+        variants: [
+          { label: 'Тёмная', bg: 'radial-gradient(120% 120% at 20% 0%, ' + ok(0.34, n[1] * 2.6, n[0]) + ', ' + ok(0.2, n[1] * 1.8, n[0]) + ')', shadow: '0 10px 30px rgba(0,0,0,0.4)',
+            ticket: ok(0.72, a[1], a[0]), notch: ok(0.28, n[1] * 2.3, n[0]), check: ok(0.22, a[1] * 0.5, a[0]), dash: ok(0.42, a[1] * 0.6, a[0]), dot: 'oklch(0.3 0.08 155)' },
+          { label: 'Светлая', bg: 'radial-gradient(120% 120% at 20% 0%, ' + ok(0.995, n[1] * 0.2, n[0]) + ', ' + ok(0.92, n[1] * 1.2, n[0]) + ')', shadow: '0 10px 30px rgba(0,0,0,0.25)',
+            ticket: ok(0.52, a[1] * 1.15, a[0]), notch: ok(0.96, n[1] * 0.6, n[0]), check: ok(0.98, a[1] * 0.1, a[0]), dash: ok(0.76, a[1] * 0.6, a[0]), dot: 'oklch(0.85 0.12 155)' }
+        ]
+      }))
+    };
+  }
+}
+</script>
+</body>
+</html>
