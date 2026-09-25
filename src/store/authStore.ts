@@ -7,7 +7,6 @@ import {
   parseAuthResponse,
   type GoogleUser,
 } from '../services/googleAuth'
-import { checkCalendar, checkDrive } from '../services/googleSpike'
 
 // Access token + user live in sessionStorage (survive the OAuth redirect, gone when the app is killed).
 // The email is a tiny pref in localStorage — the `login_hint` that makes silent renewal possible.
@@ -33,13 +32,10 @@ interface AuthState {
   error: string | null
   /** How the current token was obtained — spike diagnostics. */
   lastGrant: 'interactive' | 'silent' | 'restored' | null
-  checks: string[]
   init: () => Promise<void>
   resume: () => void
   signIn: () => void
   signOut: () => void
-  forgetToken: () => void
-  runChecks: () => Promise<void>
 }
 
 const safe = <T>(fn: () => T, fallback: T): T => {
@@ -66,7 +62,6 @@ const readJson = <T>(k: string): T | null =>
 /** Seam for tests: jsdom can't navigate. */
 export const authNavigation = {
   go: (url: string) => window.location.assign(url),
-  reload: () => window.location.reload(),
 }
 
 const redirect = (prompt?: 'none') => {
@@ -168,7 +163,6 @@ export const useAuth = create<AuthState>((set) => ({
   expiresAt: null,
   error: null,
   lastGrant: null,
-  checks: [],
 
   init: () => {
     running ??= runInit(set).finally(() => {
@@ -197,31 +191,7 @@ export const useAuth = create<AuthState>((set) => ({
       user: null,
       expiresAt: null,
       lastGrant: null,
-      checks: [],
       error: null,
-    })
-  },
-
-  /** Spike: drop the token but keep the hint, then reload → exercises silent renewal. */
-  forgetToken: () => {
-    clearSession()
-    session.del(SILENT_KEY)
-    authNavigation.reload()
-  },
-
-  runChecks: async () => {
-    const token = readJson<StoredToken>(TOKEN_KEY)
-    if (!token) return
-    set({ checks: ['running…'] })
-    const results = await Promise.allSettled([
-      checkCalendar(token.accessToken),
-      checkDrive(token.accessToken),
-    ])
-    set({
-      checks: results.map(
-        (r, i) =>
-          `${i === 0 ? 'Calendar' : 'Drive'}: ${r.status === 'fulfilled' ? '✅ ' + r.value : '❌ ' + String(r.reason)}`,
-      ),
     })
   },
 }))

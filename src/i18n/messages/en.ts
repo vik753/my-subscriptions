@@ -194,6 +194,10 @@ export const en = {
     '. Past sessions and marks stay as they are; future calendar events will be updated.',
   tUpdated: (n: number) => 'Calendar updated: ' + n + ' future ' + pluralEn(n, 'event', 'events'),
   tDeleted: 'Hobby deleted, events removed from calendar',
+  // Added after generation (design-review 11).
+  delTitle: 'Delete hobby?',
+  delBody:
+    'Its sessions and payments will be deleted and its events removed from the calendar. This can’t be undone.',
 }
 
 export type Messages = typeof en

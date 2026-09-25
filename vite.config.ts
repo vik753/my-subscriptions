@@ -1,15 +1,24 @@
 /// <reference types="vitest/config" />
 import react from '@vitejs/plugin-react'
-import { defineConfig } from 'vite'
+import { copyFileSync } from 'node:fs'
+import { defineConfig, type Plugin } from 'vite'
 import { VitePWA } from 'vite-plugin-pwa'
 
 // GitHub Pages serves the app from /<repo>/; dev always runs at /.
 const PAGES_BASE = '/my-subscriptions/'
 
+// GitHub Pages serves 404.html for unknown paths — make it the SPA so deep links work.
+const spaFallback = (): Plugin => ({
+  name: 'spa-404-fallback',
+  apply: 'build',
+  closeBundle: () => copyFileSync('dist/index.html', 'dist/404.html'),
+})
+
 export default defineConfig(({ command }) => ({
   base: process.env.BASE_PATH ?? (command === 'build' ? PAGES_BASE : '/'),
   plugins: [
     react(),
+    spaFallback(),
     VitePWA({
       registerType: 'autoUpdate',
       includeAssets: ['icons/apple-touch-icon.png'],

@@ -1,0 +1,122 @@
+.screen {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+  padding: 12px 0 40px;
+  animation: ms-screen 240ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.header {
+  display: grid;
+  grid-template-columns: 1fr auto 1fr;
+  align-items: center;
+  margin: 0 -8px;
+}
+
+.header > :first-child {
+  justify-self: start;
+}
+
+.title {
+  margin: 0;
+  font-size: 15px;
+  font-weight: 500;
+}
+
+.block {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.label {
+  font-size: 13px;
+  color: var(--color-neutral-400);
+}
+
+.rows {
+  overflow: hidden;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+}
+
+.dayRow {
+  display: grid;
+  grid-template-columns: 1fr 104px 92px;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 8px 8px 16px;
+  border-bottom: 1px solid var(--color-divider);
+  animation: ms-in 260ms cubic-bezier(0.2, 0.7, 0.2, 1) both;
+}
+
+.dayRow:last-child {
+  border-bottom: none;
+}
+
+.dayName {
+  overflow: hidden;
+  font-size: 15px;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.time {
+  padding: 0 8px;
+}
+
+.dur {
+  min-width: 0;
+}
+
+.applyAll {
+  align-self: flex-start;
+  font-size: 14px;
+}
+
+.half {
+  width: 50%;
+}
+
+.priceRow {
+  display: grid;
+  grid-template-columns: 1fr 88px;
+  gap: 8px;
+}
+
+.currency {
+  min-width: 0;
+}
+
+.info {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-surface);
+  font-size: 13px;
+}
+
+.summary {
+  margin: 0;
+  padding: 12px 14px;
+  border-radius: var(--radius-md);
+  background: var(--color-accent-900);
+  color: var(--color-accent-200);
+  font-size: 13px;
+  line-height: 1.5;
+}
+
+.sheetTitle {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 500;
+}
+
+.sheetBody {
+  margin: 0;
+  font-size: 14px;
+  color: var(--color-neutral-400);
+}

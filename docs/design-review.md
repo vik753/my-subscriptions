@@ -23,6 +23,8 @@ All items of `docs/design-brief-pwa.md` are covered. The brief is now historical
 7. **Home tabs.** Tabs are shown whenever at least one hobby exists (`01-home` / `12-home-light` were captured without them — `22-home-calendar` and README are correct). Hidden on the empty state.
 8. **Move all following — base schedule.** The new segment is built from the segment in effect on the moved session's original date (the prototype used the latest schedule).
 9. **Missing duration.** A weekday with a time but no duration defaults to 60 minutes (defensive; the form always sets one).
+10. **Edit form without pass fields.** Edit hides _Sessions in pass_ and _Pass price_ (screenshot 07 shows them): payments are a history, new ones go through _Add payment_. Currency is editable only while the hobby has a single payment. (User-approved 2026-09-25.)
+11. **Delete hobby asks for confirmation** in a sheet (the prototype deletes immediately). (User-approved 2026-09-25.)
 
 ## Visual defects to fix during implementation
 
