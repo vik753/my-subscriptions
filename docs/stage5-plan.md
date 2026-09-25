@@ -29,7 +29,7 @@ Prepared 2026-09-25 at the end of a session; screenshots 01, 02, 03, 07, 08, 12,
    Sheets (payment, session, prompt, pending list) are **stage 6** — leave those buttons/cells without handlers.
 4. **Create / Edit** (`07`, `08`): Cancel ghost + centered title; `Field`s; `DayChips` + animated rows (full weekday name · time input 104px · `DurationField`); "Same time for all days" (`applyAll`) when rows differ; create: `fStart` auto-filled by `firstSessionDate` whenever days/times change; edit: `effFrom` default tomorrow → `editSchedule`; sessions + price (major units → ×100) + currency `SelectInput` 88px (`currencyLabel`); Google info row `calInfo(email)`; summary box (`summary` / `editSummary`, accent-900 bg, accent-200 text); primary `createBtn` / `save`; edit: ghost `del` (trash). Validation → toast `pickDay` / `fillAll`. Placeholders from `fNamePh`, "8", "8000", "60".
 
-## Open question for the user (ask before implementing Edit)
+## Decided (design-review 10–11): Edit hides pass fields; delete asks for confirmation
 
 Screenshot 07 shows **Sessions in pass** and **Pass price** in the Edit form, but payments are a history (`payments[]`) — editing a total there conflicts with design-review decision 2. Proposal: in Edit, hide sessions/price (changes go through "Add payment"); currency editable only while there is one payment. Also: "Delete hobby" deletes immediately in the prototype — propose a confirm sheet.
 
