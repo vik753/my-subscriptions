@@ -16,11 +16,13 @@ All items of `docs/design-brief-pwa.md` are covered. The brief is now historical
 
 1. **Attended beyond paid.** README rule 3 says "else → unpaid"; the prototype (`sessions()`) keeps a session marked `attended` as status **attended** even when no paid slot is left. Follow the prototype. Remaining stays floored at 0.
 2. **Derived totals.** `Hobby.paid` / `Hobby.price` are not stored — computed from `payments`. Money stored in minor units.
-3. **Generation window.** Always generate until at least `today + 12 weeks` (README rule 1 counts from `hobby.start`, which stops producing future sessions over time).
+3. **Generation window.** Sessions are generated from `start` until `max(start + weeks, today + 12 weeks)`, where `weeks = max(12, ceil((paid + non-attended marks) / weekdays in the latest segment) + 4) + 2 × segments` (README rule 1 counts from `hobby.start` only, which stops producing future sessions over time).
 4. **Per-hobby merge on Drive sync.** Add `updatedAt` (ISO) to `Hobby` and keep tombstones (`deletedHobbies: Record<id, ISO>`) so a hobby deleted on one device is not resurrected by a merge from another.
 5. **Manifest colors.** Manifest `theme_color` / `background_color` are static (Nocturne dark). The current scheme is applied at runtime via `<meta name="theme-color">`.
-6. **Hosting.** GitHub Pages (per CLAUDE.md), not Vercel as ИНСТРУКЦИЯ.md step 9 suggests. Pending final repo visibility decision.
+6. **Hosting.** GitHub Pages (per CLAUDE.md), not Vercel as ИНСТРУКЦИЯ.md step 9 suggests. Repo is public (free branch protection + Pages).
 7. **Home tabs.** Tabs are shown whenever at least one hobby exists (`01-home` / `12-home-light` were captured without them — `22-home-calendar` and README are correct). Hidden on the empty state.
+8. **Move all following — base schedule.** The new segment is built from the segment in effect on the moved session's original date (the prototype used the latest schedule).
+9. **Missing duration.** A weekday with a time but no duration defaults to 60 minutes (defensive; the form always sets one).
 
 ## Visual defects to fix during implementation
 
@@ -34,5 +36,6 @@ All items of `docs/design-brief-pwa.md` are covered. The brief is now historical
 
 ## Open questions (non-blocking)
 
+- After "move all following" / schedule edits, marks and moves on old-weekday keys from the edit date on become orphaned: ignored by `summarize`, but still counted as non-attended marks when sizing the generation window (same as the prototype). Clean up later if it matters.
+
 - Session attended while unpaid (debt): show anything on the card? Default: no, as in the prototype.
-- Repo visibility (public → free branch protection + Pages).

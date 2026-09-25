@@ -10,6 +10,7 @@ PWA for tracking prepaid class passes (gym, lessons, any hobby). Users are famil
 
 - Product spec (source of truth): `design_handoff_my_subscriptions/README.md` (PWA handoff, **approved 2026-09-25**) + `docs/design-review.md` (decisions and fixes — overrides the README where they differ). `docs/design-brief-pwa.md` is historical only. If unclear, ask — don't invent behavior.
 - `design_handoff_my_subscriptions/` is read-only reference. Never edit it.
+- Work follows `docs/roadmap.md` stage by stage; update its checkboxes and status line when a stage ships.
 
 ## Stack
 
