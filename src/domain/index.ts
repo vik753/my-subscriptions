@@ -1,6 +1,6 @@
 export type * from './types'
 export { summarize, collectPending } from './sessions'
-export { firstSessionDate } from './schedule'
+export { firstSessionDate, segmentAt } from './schedule'
 export {
   addPayment,
   cancelSession,
