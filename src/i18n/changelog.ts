@@ -12,27 +12,42 @@ export interface Release {
 /** The in-app "What's new", newest first. Keep in step with CHANGELOG.md (English). */
 export const CHANGELOG: readonly Release[] = [
   {
+    version: '1.3.1',
+    date: '2026-09-26',
+    notes: {
+      en: [
+        'Session length is picked with the phone’s own picker, like the currency — the form no longer stretches.',
+      ],
+      uk: [
+        'Тривалість заняття обирається системним списком телефона, як валюта, — форма більше не розтягується.',
+      ],
+      ru: [
+        'Длительность занятия выбирается системным списком телефона, как валюта, — форма больше не растягивается.',
+      ],
+    },
+  },
+  {
     version: '1.3.0',
     date: '2026-09-26',
     notes: {
       en: [
         'Choose which session a new payment starts from.',
         'Pay for a single session right from its card.',
-        'Session length is picked with the phone’s own picker, like the currency.',
+        'Session length presets open as a list.',
         'This “What’s new” page, and a note after each update.',
         'Guests see whose sessions these are: your name is in the calendar name and the event.',
       ],
       uk: [
         'Можна вибрати, з якого заняття починається нова оплата.',
         'Оплата одного заняття прямо з його картки.',
-        'Тривалість заняття обирається системним списком телефона, як валюта.',
+        'Тривалість заняття обирається зі списку.',
         'Сторінка «Що нового» і повідомлення після кожного оновлення.',
         'Гості бачать, чиї це заняття: ваше імʼя — у назві календаря і в події.',
       ],
       ru: [
         'Можно выбрать, с какого занятия начинается новая оплата.',
         'Оплата одного занятия прямо из его карточки.',
-        'Длительность занятия выбирается системным списком телефона, как валюта.',
+        'Длительность занятия выбирается из списка.',
         'Страница «Что нового» и сообщение после каждого обновления.',
         'Гости видят, чьи это занятия: ваше имя — в названии календаря и в событии.',
       ],

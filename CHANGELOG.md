@@ -4,11 +4,16 @@ User-facing changes, newest first. Versions follow [Semantic Versioning](https:/
 a new feature bumps the minor number, a fix the patch number. The app shows the same list in
 three languages under **About → What's new** (`src/i18n/changelog.ts`) — keep both in step.
 
+## [1.3.1] — 2026-09-26
+
+- Session length presets open in the phone's native picker, like the currency; the schedule
+  row no longer stretches.
+
 ## [1.3.0] — 2026-09-26
 
 - Choose which session a new payment starts from (_First paid session_ in _Add payment_).
 - _Pay for this session_ in the session sheet of an unpaid session.
-- Session length presets open in the phone's native picker (like the currency).
+- Session length presets open as a vertical list.
 - _What's new_ page in About, and an "Updated to …" note once after each update.
 - The calendar is named after its owner ("My Subscriptions · Name") and events with guests say
   "Organizer: Name (email)" — Google shows the calendar, not the person, as the organizer.
