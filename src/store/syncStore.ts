@@ -35,7 +35,11 @@ import type { MetaStorage } from './persistence/storage'
 import { useToast } from './toastStore'
 
 // Google Calendar event colors.
-const COLOR = { paid: '10', unpaid: '8', attended: '2' } as const
+// A forfeit session is inactive: Graphite like unpaid, told apart by its crossed-out title.
+const COLOR = { paid: '10', unpaid: '8', attended: '2', forfeit: '8' } as const
+
+/** Crossed-out text for event titles (Google Calendar titles have no formatting). */
+const strike = (text: string) => Array.from(text, (c) => `${c}\u0336`).join('')
 const DEBOUNCE_MS = 1500
 
 /** Local-only bookkeeping: which calendar, and the fingerprint of every event last written. */
@@ -91,9 +95,14 @@ export const eventBody = (
   options: { paidColor: string; guests: readonly string[] } = { paidColor: COLOR.paid, guests: [] },
 ): EventBody => {
   const t = messages[lang]
-  const label = { paid: t.paid, unpaid: t.unpaid, attended: t.attended }[e.status]
+  const label = {
+    paid: t.paid,
+    unpaid: t.unpaid,
+    attended: t.attended,
+    forfeit: t.histForfeit,
+  }[e.status]
   return {
-    summary: `${e.name} · ${label}`,
+    summary: `${e.status === 'forfeit' ? strike(e.name) : e.name} · ${label}`,
     description: [label, t.evDur(e.dur), ...(e.lastPaid ? [t.lastPaidNote] : []), appUrl].join(
       '\n',
     ),

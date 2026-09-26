@@ -12,8 +12,8 @@ export interface CalendarEventModel {
   date: ISODate
   time: HHMM
   dur: number
-  /** Forfeit shows like attended (Sage). */
-  status: 'paid' | 'unpaid' | 'attended'
+  /** `forfeit`: cancelled without carrying the payment over — shown crossed out, not as attended. */
+  status: 'paid' | 'unpaid' | 'attended' | 'forfeit'
   /** The last paid session of the hobby — its event asks to renew. */
   lastPaid: boolean
 }
@@ -32,7 +32,9 @@ export const calendarEvents = (
     const sessions = summarize(hobby, now).sessions
     const lastPaid = sessions.filter((s) => s.status === 'paid').pop()
     return sessions
-      .filter((s) => s.date <= until && s.status !== 'missed')
+      .flatMap(({ status, ...s }) =>
+        s.date > until || status === 'missed' ? [] : [{ ...s, status }],
+      )
       .map((s) => ({
         key: `${hobby.id}|${s.key}`,
         hobbyId: hobby.id,
@@ -41,8 +43,8 @@ export const calendarEvents = (
         date: s.date,
         time: s.time,
         dur: s.dur,
-        status: s.status === 'paid' || s.status === 'unpaid' ? s.status : 'attended',
-        lastPaid: s === lastPaid,
+        status: s.status,
+        lastPaid: s.key === lastPaid?.key,
       }))
   })
 }

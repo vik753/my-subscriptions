@@ -95,10 +95,29 @@ describe('calendarEvents — status mapping', () => {
     expect(at(events, '2026-09-24').status).toBe('attended')
   })
 
-  it('maps a forfeit session (consumes a paid slot, no carry-over) to status "attended"', () => {
+  it('maps a forfeit session (consumes a paid slot, no carry-over) to status "forfeit", not "attended"', () => {
     const h = cancelSession(makeHobby({ sessions: 1, price: 1000 }), '2026-09-24', false, NOW)
     const events = calendarEvents([h], NOW)
-    expect(at(events, '2026-09-24').status).toBe('attended')
+    expect(at(events, '2026-09-24').status).toBe('forfeit')
+  })
+
+  it('keeps an event for a forfeit session (crossed out, not deleted) while an attended session keeps status "attended"', () => {
+    const forfeited = cancelSession(
+      makeHobby({ sessions: 2, price: 2000 }),
+      '2026-09-24',
+      false,
+      NOW,
+    )
+    const attended = markSession(
+      makeHobby({ sessions: 2, price: 2000, id: 'h2' }),
+      '2026-09-24',
+      'attended',
+    )
+    const forfeitEvents = calendarEvents([forfeited], NOW)
+    const attendedEvents = calendarEvents([attended], NOW)
+    expect(forfeitEvents.some((e) => e.sessionKey === '2026-09-24')).toBe(true)
+    expect(at(forfeitEvents, '2026-09-24').status).toBe('forfeit')
+    expect(at(attendedEvents, '2026-09-24').status).toBe('attended')
   })
 
   it('keeps a pending (unmarked, already ended) session on its paid/unpaid status', () => {
@@ -134,6 +153,12 @@ describe('calendarEvents — lastPaid', () => {
     expect(at(events, '2026-09-24').lastPaid).toBe(false)
     expect(at(events, '2026-10-01').lastPaid).toBe(true)
     expect(at(events, '2026-10-08').lastPaid).toBe(false) // unpaid
+  })
+
+  it('never marks a forfeit session as lastPaid, even if it was the last paid slot before cancelling', () => {
+    const h = cancelSession(makeHobby({ sessions: 1, price: 1000 }), '2026-09-24', false, NOW)
+    const events = calendarEvents([h], NOW)
+    expect(at(events, '2026-09-24').lastPaid).toBe(false)
   })
 
   it('leaves every event lastPaid=false when the hobby has no paid session', () => {
