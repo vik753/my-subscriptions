@@ -6,13 +6,15 @@ const MIN_WEEKS_AHEAD = 12
 
 /** Last date (exclusive) to generate sessions for. */
 const generationEnd = (hobby: Hobby, paidTotal: number, today: ISODate): ISODate => {
+  // A payment starting far ahead still needs its sessions generated.
+  const base = hobby.payments.reduce((d, p) => (p.from ? maxDate(d, p.from) : d), hobby.start)
   const lastSegment = hobby.sched[hobby.sched.length - 1]
   const perWeek = Math.max(1, lastSegment ? activeWeekdays(lastSegment.times).length : 1)
   const notAttended = Object.values(hobby.marks).filter((m) => m !== 'attended').length
   const weeksFromStart =
     Math.max(MIN_WEEKS_AHEAD, Math.ceil((paidTotal + notAttended) / perWeek) + 4) +
     hobby.sched.length * 2
-  return maxDate(addDays(hobby.start, weeksFromStart * 7), addDays(today, MIN_WEEKS_AHEAD * 7 + 1))
+  return maxDate(addDays(base, weeksFromStart * 7), addDays(today, MIN_WEEKS_AHEAD * 7 + 1))
 }
 
 const generate = (hobby: Hobby, end: ISODate): Omit<Session, 'status' | 'pending'>[] => {
@@ -43,23 +45,34 @@ export const summarize = (hobby: Hobby, now: LocalDateTime): HobbySummary => {
   const priceTotal = hobby.payments.reduce((sum, p) => sum + p.price, 0)
   const { date: today } = splitDateTime(now)
 
-  let used = 0
+  // Slots become available when the walk reaches a payment's `from` (older payments: at once);
+  // each consuming session takes one if any is available.
+  const anchored = hobby.payments
+    .flatMap((p) => (p.from === undefined ? [] : [{ from: p.from, n: p.n }]))
+    .sort((a, b) => a.from.localeCompare(b.from))
+  let available = hobby.payments.reduce((sum, p) => (p.from === undefined ? sum + p.n : sum), 0)
+  let usedByMarked = 0
+  const take = (date: ISODate): boolean => {
+    for (let first = anchored[0]; first && first.from <= date; first = anchored[0]) {
+      available += first.n
+      anchored.shift()
+    }
+    if (available <= 0) return false
+    available--
+    return true
+  }
+
   const sessions: Session[] = generate(hobby, generationEnd(hobby, paidTotal, today)).map((s) => {
     const pending = !s.mark && addMinutes(s.date, s.time, s.dur) < now
     if (s.mark === 'missed' || s.mark === 'cancelled') return { ...s, status: 'missed', pending }
-    if (s.mark === 'forfeit') {
-      if (used < paidTotal) used++
-      return { ...s, status: 'forfeit', pending }
-    }
-    if (used < paidTotal) {
-      used++
-      return { ...s, status: s.mark === 'attended' ? 'attended' : 'paid', pending }
-    }
-    return { ...s, status: s.mark === 'attended' ? 'attended' : 'unpaid', pending }
+    const paid = take(s.date)
+    if (paid && s.mark) usedByMarked++
+    if (s.mark === 'forfeit') return { ...s, status: 'forfeit', pending }
+    if (s.mark === 'attended') return { ...s, status: 'attended', pending }
+    return { ...s, status: paid ? 'paid' : 'unpaid', pending }
   })
 
   const attended = sessions.filter((s) => s.mark === 'attended').length
-  const forfeit = sessions.filter((s) => s.mark === 'forfeit').length
   const last = hobby.payments[hobby.payments.length - 1]
 
   return {
@@ -67,7 +80,7 @@ export const summarize = (hobby: Hobby, now: LocalDateTime): HobbySummary => {
     paidTotal,
     priceTotal,
     attended,
-    remaining: Math.max(0, paidTotal - attended - forfeit),
+    remaining: paidTotal - usedByMarked,
     pricePerSession: last && last.n > 0 ? Math.round(last.price / last.n) : null,
     next: sessions.find((s) => !s.mark && !s.pending) ?? null,
     pending: sessions.filter((s) => s.pending),

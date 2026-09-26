@@ -19,12 +19,15 @@ export function PaymentList({ hobby }: { hobby: Hobby }) {
           <button
             type="button"
             className={styles.row}
-            aria-label={`${t.editPayTitle}: ${formatDate(lang, p.date)}, ${t.payN(p.n)}, ${formatMoney(p.price, hobby.currency)}`}
+            aria-label={`${t.editPayTitle}: ${formatDate(lang, p.date)}, ${t.payN(p.n)}${p.from ? `, ${t.payStarts(formatDate(lang, p.from))}` : ''}, ${formatMoney(p.price, hobby.currency)}`}
             onClick={() => open({ kind: 'editPayment', hobbyId: hobby.id, index: last - i })}
           >
             <span className={styles.text}>
               <span className={styles.title}>{formatDate(lang, p.date)}</span>
-              <span className={styles.sub}>{t.payN(p.n)}</span>
+              <span className={styles.sub}>
+                {t.payN(p.n)}
+                {p.from && ` · ${t.payStarts(formatDate(lang, p.from))}`}
+              </span>
             </span>
             <span className={styles.amount}>{formatMoney(p.price, hobby.currency)}</span>
             <CaretRight size={14} className={styles.chevron} aria-hidden="true" />

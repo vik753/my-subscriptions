@@ -35,7 +35,11 @@ export function EditPayment({ hobby, index }: { hobby: Hobby; index: number }) {
   const unchanged = (h: Hobby) => {
     const p = h.payments[index]
     return (
-      p !== undefined && p.date === payment.date && p.n === payment.n && p.price === payment.price
+      p !== undefined &&
+      p.date === payment.date &&
+      p.n === payment.n &&
+      p.price === payment.price &&
+      p.from === payment.from
     )
   }
   // Applies the change only if the payment is still where it was; otherwise says so.
@@ -49,7 +53,7 @@ export function EditPayment({ hobby, index }: { hobby: Hobby; index: number }) {
 
   const save = () => {
     if (!(n > 0) || minor === null || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return toast(t.fillAll)
-    apply((h) => editPayment(h, index, { date, n, price: minor }), t.tPayUpdated)
+    apply((h) => editPayment(h, index, { ...payment, date, n, price: minor }), t.tPayUpdated)
   }
 
   const remove = () => apply((h) => removePayment(h, index), t.tPayDeleted)

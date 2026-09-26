@@ -246,7 +246,7 @@ function Form({
                     onChange={(m) => changeSchedule(times, { ...durs, [d]: m })}
                     minLabel={t.min}
                     label={`${t.daysF[d]}, ${t.min}`}
-                    presetsLabel={t.min}
+                    presetsLabel={`${t.daysF[d]}, ${t.min}`}
                   />
                 </div>
               </div>

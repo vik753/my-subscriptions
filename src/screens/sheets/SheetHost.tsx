@@ -51,7 +51,15 @@ export function SheetHost() {
       case 'reminder':
         return <RenewalReminder key={hobby.id} hobby={hobby} queue={shown.queue} />
       case 'payment':
-        return <AddPayment key={hobby.id} hobby={hobby} queue={shown.queue} />
+        return (
+          <AddPayment
+            key={`${hobby.id}-${shown.from ?? ''}`}
+            hobby={hobby}
+            queue={shown.queue}
+            from={shown.from}
+            one={shown.one}
+          />
+        )
       case 'editPayment':
         // Payment gone meanwhile (e.g. merged from another device): nothing to edit.
         if (!(shown.index in hobby.payments)) return null

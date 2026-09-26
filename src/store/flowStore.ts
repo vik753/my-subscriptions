@@ -10,7 +10,8 @@ export type FlowSheet =
   | { kind: 'pending'; hobbyId: string | null }
   /** `queue`: hobbies still waiting for their reminder after this one. */
   | { kind: 'reminder'; hobbyId: string; queue: string[] }
-  | { kind: 'payment'; hobbyId: string; queue: string[] }
+  /** `from`: preselected first paid session (its key); `one`: open in "One session" mode. */
+  | { kind: 'payment'; hobbyId: string; queue: string[]; from?: SessionKey; one?: boolean }
   | { kind: 'session'; hobbyId: string; key: SessionKey }
   /** Correct or delete a recorded payment (`index` into `hobby.payments`). */
   | { kind: 'editPayment'; hobbyId: string; index: number }
