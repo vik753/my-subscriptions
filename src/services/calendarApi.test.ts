@@ -115,6 +115,15 @@ describe('events', () => {
     expect(new URL(calls[1]?.url ?? '').searchParams.get('pageToken')).toBe('p2')
   })
 
+  it('sends small requests with keepalive and every request with a timeout', async () => {
+    await deleteEvent('tok', 'c', 'ms00ab')
+    const init = vi.mocked(googleHttp.fetch).mock.calls[0]?.[1]
+    expect(init?.keepalive).toBe(true)
+    expect(init?.signal).toBeInstanceOf(AbortSignal)
+    await upsertEvent('tok', 'c', 'id', { summary: 'x'.repeat(40_000) } as EventBody)
+    expect(vi.mocked(googleHttp.fetch).mock.calls[1]?.[1]?.keepalive).toBe(false)
+  })
+
   it('surfaces network failures', async () => {
     vi.mocked(googleHttp.fetch).mockRejectedValueOnce(new TypeError('Failed to fetch'))
     await expect(upsertEvent('tok', 'c', 'id', BODY)).rejects.toBeInstanceOf(TypeError)

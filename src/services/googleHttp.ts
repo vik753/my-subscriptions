@@ -1,6 +1,11 @@
 import { GoogleHttpError } from './googleAuth'
 
 const MAX_ATTEMPTS = 5
+// A request frozen by a suspended app (iOS stops PWAs in the background) must fail, not hang.
+const TIMEOUT_MS = 20_000
+// `keepalive` lets a small request finish even if the app goes to the background right after it
+// starts; browsers cap keepalive bodies at 64 KB, so large uploads go without it.
+const KEEPALIVE_MAX = 32_000
 
 /** Seams for tests: no real waiting, no real network. */
 export const googleHttp = {
@@ -32,16 +37,22 @@ export const googleRequest = async <T>(
   init: { method?: string; body?: unknown; headers?: Record<string, string> } = {},
 ): Promise<{ status: number; data: T | null }> => {
   for (let attempt = 1; ; attempt++) {
+    const body =
+      init.body === undefined
+        ? undefined
+        : typeof init.body === 'string'
+          ? init.body
+          : JSON.stringify(init.body)
     const res = await googleHttp.fetch(url, {
       method: init.method ?? 'GET',
       headers: {
         Authorization: `Bearer ${token}`,
-        ...(init.body !== undefined && { 'Content-Type': 'application/json' }),
+        ...(body !== undefined && { 'Content-Type': 'application/json' }),
         ...init.headers,
       },
-      ...(init.body !== undefined && {
-        body: typeof init.body === 'string' ? init.body : JSON.stringify(init.body),
-      }),
+      ...(body !== undefined && { body }),
+      keepalive: (body?.length ?? 0) < KEEPALIVE_MAX,
+      signal: AbortSignal.timeout(TIMEOUT_MS),
     })
     if (res.ok) {
       const text = await res.text()

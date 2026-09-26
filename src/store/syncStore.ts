@@ -100,13 +100,28 @@ interface SyncState {
   /** Sync over all hobbies; resolves when done (or skipped: offline, no session, already running). */
   run: () => Promise<boolean>
   /** Debounced run after local changes. */
-  schedule: () => void
+  schedule: (delay?: number) => void
 }
 
 /** No valid token locally — not a Google rejection; renewal is up to the auth store. */
 class TokenMissing extends Error {}
 
+const PARALLEL = 4
+const RETRY_MS = [5_000, 15_000, 60_000, 300_000]
+
+/** Runs `fn` over `items`, at most PARALLEL at a time; rejects on the first failure. */
+const inParallel = async <T>(items: readonly T[], fn: (item: T) => Promise<void>) => {
+  const queue = [...items]
+  const worker = async () => {
+    for (let item = queue.shift(); item !== undefined; item = queue.shift()) await fn(item)
+  }
+  await Promise.all(Array.from({ length: Math.min(PARALLEL, queue.length) }, worker))
+}
+
 let meta: MetaStorage | null = null
+// Failed runs retry by themselves (5 s, 15 s, 1 min, then every 5 min) until one succeeds.
+let failures = 0
+let retryTimer: number | undefined
 // One immediate retry after a 404 (vanished calendar); a lasting 404 waits for the next trigger.
 let retried404 = false
 // The "backup is from a newer app" toast is shown once per launch.
@@ -203,6 +218,31 @@ const sync = async (store: MetaStorage): Promise<void> => {
       m.synced,
     )
 
+    // Deletions first and in parallel: deleting a hobby should empty the calendar within
+    // seconds, before the user can switch apps (a backgrounded PWA is frozen mid-sync).
+    // A deleted hobby loses every event, not only the ones this device remembers writing
+    // (another device may have written later sessions, or the bookkeeping may be gone).
+    const tombstones = useApp.getState().data.deletedHobbies
+    for (const [hobbyId, deletedAt] of Object.entries(tombstones)) {
+      if (m.purged[hobbyId] === deletedAt) continue
+      const ids = await listHobbyEventIds(token, calendarId, hobbyId)
+      await inParallel(ids, (id) => deleteEvent(token, calendarId, id))
+      m.synced = Object.fromEntries(
+        Object.entries(m.synced).filter(([k]) => !k.startsWith(`${hobbyId}|`)),
+      )
+      m.purged[hobbyId] = deletedAt
+      await save()
+    }
+    await inParallel(
+      remove.filter((key) => key in m.synced),
+      async (key) => {
+        const [hobbyId = '', sessionKey = ''] = key.split('|')
+        await deleteEvent(token, calendarId, eventId(hobbyId, sessionKey))
+        m.synced = Object.fromEntries(Object.entries(m.synced).filter(([k]) => k !== key))
+        await save()
+      },
+    )
+
     // Bookkeeping is saved after every write: a crash never loses more than one op, and
     // deterministic ids make redoing that op harmless.
     for (const key of upsert) {
@@ -215,23 +255,6 @@ const sync = async (store: MetaStorage): Promise<void> => {
         item.body,
       )
       m.synced[key] = item.hash
-      await save()
-    }
-    for (const key of remove) {
-      const [hobbyId = '', sessionKey = ''] = key.split('|')
-      await deleteEvent(token, calendarId, eventId(hobbyId, sessionKey))
-      m.synced = Object.fromEntries(Object.entries(m.synced).filter(([k]) => k !== key))
-      await save()
-    }
-
-    // A deleted hobby loses every event, not only the ones this device remembers writing
-    // (another device may have written later sessions, or the bookkeeping may be gone).
-    const tombstones = useApp.getState().data.deletedHobbies
-    for (const [hobbyId, deletedAt] of Object.entries(tombstones)) {
-      if (m.purged[hobbyId] === deletedAt) continue
-      for (const id of await listHobbyEventIds(token, calendarId, hobbyId))
-        await deleteEvent(token, calendarId, id)
-      m.purged[hobbyId] = deletedAt
       await save()
     }
   }
@@ -279,7 +302,10 @@ export const useSync = create<SyncState>((set, get) => ({
       } while (rerun)
       ok = true
       retried404 = false
+      failures = 0
+      window.clearTimeout(retryTimer)
     } catch (e) {
+      rerun = false
       if (e instanceof GoogleHttpError && e.status === 401) useAuth.getState().expire()
       // The calendar vanished mid-sync: check again (and recreate it) on a fresh run.
       else if (e instanceof GoogleHttpError && e.status === 404) {
@@ -294,16 +320,23 @@ export const useSync = create<SyncState>((set, get) => ({
           useToast.getState().show(messages[useApp.getState().data.settings.language].syncNewer)
         }
       }
-      // Network errors, TokenMissing: nothing to do — the diff is recomputed on the next run.
+      // Network failures, timeouts, rate limits: the work is still pending in the diff, so try
+      // again by itself — the user must never have to press "Sync now".
+      else if (!(e instanceof TokenMissing)) {
+        const delay = RETRY_MS[Math.min(failures, RETRY_MS.length - 1)] ?? 300_000
+        failures++
+        window.clearTimeout(retryTimer)
+        retryTimer = window.setTimeout(() => void get().run(), delay)
+      }
     } finally {
       set({ running: false })
     }
     return ok
   },
 
-  schedule: () => {
+  schedule: (delay = DEBOUNCE_MS) => {
     window.clearTimeout(timer)
-    timer = window.setTimeout(() => void get().run(), DEBOUNCE_MS)
+    timer = window.setTimeout(() => void get().run(), delay)
   },
 }))
 
@@ -321,7 +354,9 @@ export const startSync = (store: MetaStorage): (() => void) => {
   const unApp = useApp.subscribe((s, prev) => {
     const a = s.data
     const b = prev.data
-    if (
+    // A deleted hobby syncs at once: its events should vanish while the user still looks.
+    if (a.deletedHobbies !== b.deletedHobbies) schedule(0)
+    else if (
       a.hobbies !== b.hobbies ||
       a.settings.language !== b.settings.language ||
       a.settings.reminderMinutes !== b.settings.reminderMinutes
@@ -352,6 +387,8 @@ export const startSync = (store: MetaStorage): (() => void) => {
     window.removeEventListener('offline', onOffline)
     document.removeEventListener('visibilitychange', onVisible)
     window.clearTimeout(timer)
+    window.clearTimeout(retryTimer)
+    failures = 0
     meta = null
   }
 }

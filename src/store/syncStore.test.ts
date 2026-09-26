@@ -401,6 +401,35 @@ describe('calendar sync', () => {
     expect(google.calendars.get('cal1')?.size).toBe(13)
   })
 
+  it('deleting a hobby syncs at once and removes every event even if the app was interrupted', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    try {
+      addGym()
+      signIn()
+      stop = startSync(meta)
+      await vi.waitFor(() => expect(google.live('cal1')).toHaveLength(13))
+      await vi.waitFor(() => expect(useSync.getState().running).toBe(false))
+
+      // The app is frozen mid-sync (user switched to Google Calendar): the 3rd delete fails.
+      let n = 0
+      vi.mocked(googleHttp.fetch).mockImplementation((url, init) => {
+        if (init?.method === 'DELETE' && ++n === 3)
+          return Promise.reject(new DOMException('timed out', 'TimeoutError'))
+        return Promise.resolve(google.handle(url, init))
+      })
+      useApp.getState().deleteHobby('gym')
+      await vi.advanceTimersByTimeAsync(0)
+      await vi.waitFor(() => expect(useSync.getState().running).toBe(false))
+      expect(google.live('cal1').length).toBeGreaterThan(0)
+
+      // No "Sync now" needed: the failed run retries by itself.
+      await vi.advanceTimersByTimeAsync(5_000)
+      await vi.waitFor(() => expect(google.live('cal1')).toEqual([]))
+    } finally {
+      vi.useRealTimers()
+    }
+  })
+
   it('re-syncs after local changes (debounced)', async () => {
     vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
     try {
