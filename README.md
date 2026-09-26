@@ -194,8 +194,12 @@ Tap ⚙️ on the Home screen:
 - **Google account:** **Sign in with Google**, or, once signed in, the time of the last sync,
   **Sync now** and **Sign out**.
 - **Reminder before session:** a Google Calendar popup 15, 30 or 60 minutes before each session.
-- **Install the app** (if it isn't installed yet), **About**, and **Delete all data**, which
-  removes your hobbies, the "My Subscriptions" calendar and the Drive backup.
+- **Install the app** (if it isn't installed yet), **About**, and **Delete data…**, which asks what
+  to delete:
+  - **Delete everything:** hobbies on this phone, the "My Subscriptions" calendar (guests' copies
+    too) and the Drive backup.
+  - **Delete only from Google:** the calendar and the backup go; the hobbies stay on the phone
+    with their Google options switched off. Needs an internet connection and a Google sign-in.
 
 <br clear="right">
 

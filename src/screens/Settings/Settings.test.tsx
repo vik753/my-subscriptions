@@ -98,7 +98,7 @@ describe('Settings', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Install the app' }))
     expect(useFlow.getState().sheet).toEqual({ kind: 'install' })
     useFlow.setState({ sheet: null })
-    await userEvent.click(screen.getByRole('button', { name: 'Delete all data' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Delete data…' }))
     expect(useFlow.getState().sheet).toEqual({ kind: 'wipe' })
     await userEvent.click(screen.getByRole('button', { name: /About/ }))
     expect(screen.getByText('about')).toBeInTheDocument()

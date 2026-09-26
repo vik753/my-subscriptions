@@ -209,6 +209,26 @@ describe('Edit payment', () => {
   })
 })
 
+describe('Delete data', () => {
+  it('a local-only user just deletes everything', async () => {
+    show({ kind: 'wipe' })
+    expect(screen.queryByRole('button', { name: 'Delete only from Google' })).toBeNull()
+    await userEvent.click(screen.getByRole('button', { name: 'Delete everything' }))
+    await vi.waitFor(() => expect(useApp.getState().data.hobbies).toEqual([]))
+    expect(toast).toHaveBeenCalledWith('All data deleted')
+  })
+
+  it('offers "only from Google" when a hobby uses Google; it needs a sign-in', async () => {
+    useApp.getState().updateHobby('gym', (h) => ({ ...h, google: { ...h.google, calendar: true } }))
+    show({ kind: 'wipe' })
+    await userEvent.click(screen.getByRole('button', { name: 'Delete only from Google' }))
+    await vi.waitFor(() =>
+      expect(toast).toHaveBeenCalledWith('Needs an internet connection and a Google sign-in'),
+    )
+    expect(useApp.getState().data.hobbies[0]?.google.calendar).toBe(true)
+  })
+})
+
 describe('Session sheet', () => {
   it('asks about the payment when cancelling a paid session — carry it over', async () => {
     show({ kind: 'session', hobbyId: 'gym', key: '2026-09-28' })
