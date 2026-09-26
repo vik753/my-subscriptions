@@ -23,6 +23,8 @@ export interface Payment {
   date: ISODate
   n: number
   price: number
+  /** First session this payment covers (its date); absent on older payments = from the start. */
+  from?: ISODate
 }
 
 /**
