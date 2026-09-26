@@ -16,3 +16,9 @@ test('the homepage describes the app and links the privacy policy', async ({ pag
   await page.getByRole('link', { name: 'Privacy Policy' }).click()
   await expect(page).toHaveURL(/privacy\.html$/)
 })
+
+test('the Search Console verification file is served as is', async ({ request }) => {
+  const res = await request.get('./google4aaee23d012c9b90.html')
+  expect(res.ok()).toBe(true)
+  expect(await res.text()).toContain('google-site-verification: google4aaee23d012c9b90.html')
+})

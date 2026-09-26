@@ -4,3 +4,5 @@ coverage
 playwright-report
 test-results
 package-lock.json
+# Google Search Console verification: must stay byte-for-byte as Google issued it
+public/google*.html
