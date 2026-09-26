@@ -6,7 +6,7 @@ import { useAuth } from './authStore'
 import { useToast } from './toastStore'
 import { localClock } from './clock'
 import { createMemoryMeta, createMemoryStorage } from './persistence/storage'
-import { eventBody, startSync, syncEnv, useSync, wipeAllData } from './syncStore'
+import { announceDeletion, eventBody, startSync, syncEnv, useSync, wipeAllData } from './syncStore'
 
 /** In-memory Google Calendar: enough of calendars + events to exercise the sync. */
 const server = () => {
@@ -118,18 +118,18 @@ const signIn = (email = 'me@gmail.com') => {
   useAuth.setState({ status: 'signedIn', user: { email, name: 'Me' }, known: true })
 }
 
-const addGym = (sessions = 2) =>
-  useApp.getState().addHobby({
-    id: 'gym',
-    name: 'Gym',
-    start: '2026-09-21',
-    times: { 0: '10:00' },
-    durs: { 0: 60 },
-    currency: 'UAH',
-    sessions,
-    price: 200_000,
-    paymentDate: '2026-09-20',
-  })
+const gymInput = {
+  id: 'gym',
+  name: 'Gym',
+  start: '2026-09-21',
+  times: { 0: '10:00' },
+  durs: { 0: 60 },
+  currency: 'UAH' as const,
+  sessions: 2,
+  price: 200_000,
+  paymentDate: '2026-09-20',
+}
+const addGym = (sessions = 2) => useApp.getState().addHobby({ ...gymInput, sessions })
 
 beforeEach(async () => {
   stop = () => {}
@@ -278,6 +278,48 @@ describe('calendar sync', () => {
     })
   })
 
+  it('confirms "Deleted successfully" once the calendar is clean, only for deletions made here', async () => {
+    const show = vi.spyOn(useToast.getState(), 'show')
+    addGym()
+    signIn()
+    stop = startSync(meta)
+    await run()
+    announceDeletion('gym')
+    useApp.getState().deleteHobby('gym')
+    await vi.waitFor(() => expect(show).toHaveBeenCalledWith('Deleted successfully'))
+    expect(google.live('cal1')).toEqual([])
+
+    // Deletions arriving from another device (merge) stay silent.
+    show.mockClear()
+    useApp.getState().addHobby({ ...gymInput, id: 'swim', name: 'Swim' })
+    await run()
+    const doc = [...google.drive.values()][0] as { deletedHobbies: Record<string, string> }
+    google.drive.set('file1', {
+      ...doc,
+      hobbies: [],
+      deletedHobbies: { ...doc.deletedHobbies, swim: '2099-01-01T00:00:00.000Z' },
+    })
+    await run()
+    expect(useApp.getState().data.hobbies).toEqual([])
+    expect(show).not.toHaveBeenCalledWith('Deleted successfully')
+  })
+
+  it('does not confirm while the deletion could not reach the calendar', async () => {
+    const show = vi.spyOn(useToast.getState(), 'show')
+    addGym()
+    signIn()
+    stop = startSync(meta)
+    await run()
+    google.fail(503)
+    announceDeletion('gym')
+    useApp.getState().deleteHobby('gym')
+    await run()
+    expect(show).not.toHaveBeenCalledWith('Deleted successfully')
+    google.fail(null)
+    await run()
+    expect(show).toHaveBeenCalledWith('Deleted successfully')
+  })
+
   it('a deleted hobby loses events this device never wrote (other device, lost bookkeeping)', async () => {
     addGym()
     signIn()
@@ -399,6 +441,35 @@ describe('calendar sync', () => {
     expect(google.live('cal1').length).toBeLessThan(13)
     expect(await run()).toBe(true)
     expect(google.calendars.get('cal1')?.size).toBe(13)
+  })
+
+  it('deleting a hobby syncs at once and removes every event even if the app was interrupted', async () => {
+    vi.useFakeTimers({ toFake: ['setTimeout', 'clearTimeout'] })
+    try {
+      addGym()
+      signIn()
+      stop = startSync(meta)
+      await vi.waitFor(() => expect(google.live('cal1')).toHaveLength(13))
+      await vi.waitFor(() => expect(useSync.getState().running).toBe(false))
+
+      // The app is frozen mid-sync (user switched to Google Calendar): the 3rd delete fails.
+      let n = 0
+      vi.mocked(googleHttp.fetch).mockImplementation((url, init) => {
+        if (init?.method === 'DELETE' && ++n === 3)
+          return Promise.reject(new DOMException('timed out', 'TimeoutError'))
+        return Promise.resolve(google.handle(url, init))
+      })
+      useApp.getState().deleteHobby('gym')
+      await vi.advanceTimersByTimeAsync(0)
+      await vi.waitFor(() => expect(useSync.getState().running).toBe(false))
+      expect(google.live('cal1').length).toBeGreaterThan(0)
+
+      // No "Sync now" needed: the failed run retries by itself.
+      await vi.advanceTimersByTimeAsync(5_000)
+      await vi.waitFor(() => expect(google.live('cal1')).toEqual([]))
+    } finally {
+      vi.useRealTimers()
+    }
   })
 
   it('re-syncs after local changes (debounced)', async () => {
