@@ -10,10 +10,14 @@ see it.
 
 ## 1. Install
 
-**iPhone / iPad (Safari):**
+**iPhone / iPad (Safari or Chrome):**
 
-1. Open the link in **Safari** (not in Telegram/Instagram/other in-app browsers — use "Open in Safari").
-2. Tap **Share** (square with an arrow) → **Add to Home Screen** → **Add**.
+1. Open the link in **Safari** or **Chrome** (not in Telegram/Instagram/other in-app browsers —
+   open it in the browser first).
+2. Tap **Share** (square with an arrow), scroll down to **Add to Home Screen**, then **Add**:
+
+   <img src="screenshots/install-add-to-home-screen.png" width="260" alt="Share menu with Add to Home Screen highlighted">
+
 3. Open the app from the new icon on the Home Screen.
 
 **Android (Chrome):**

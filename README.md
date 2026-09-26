@@ -46,12 +46,17 @@ the Home Screen, and it runs full screen like a regular app, offline too.
 
 ## Install
 
-### iPhone / iPad (Safari)
+### iPhone / iPad (Safari or Chrome)
 
-1. Open https://vik753.github.io/my-subscriptions/ in **Safari**. If the link opened inside
-   Telegram, Instagram or another app, choose **Open in Safari** first.
-2. Tap **Share** (the square with an arrow) → **Add to Home Screen** → **Add**.
+<img src="docs/screenshots/install-add-to-home-screen.png" width="240" align="right" alt="Share menu with Add to Home Screen highlighted">
+
+1. Open https://vik753.github.io/my-subscriptions/ in **Safari** or **Chrome**. If the link
+   opened inside Telegram, Instagram or another app, open it in the browser first.
+2. Tap **Share** (the square with an arrow), scroll down and tap **Add to Home Screen** (see the
+   picture), then **Add**.
 3. Start the app from its new icon on the Home Screen.
+
+<br clear="right">
 
 ### Android (Chrome)
 
