@@ -195,7 +195,7 @@ describe('HobbyForm — create', () => {
     useAuth.setState({ status: 'signedIn', user: { email: 'me@gmail.com', name: 'Me' } })
     const signIn = vi.spyOn(useAuth.getState(), 'signIn').mockImplementation(() => {})
     renderAt('/new')
-    expect(screen.getByText('"My Subscriptions" calendar · me@gmail.com')).toBeInTheDocument()
+    expect(screen.getByText('The app’s own calendar · me@gmail.com')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Fr' }))
     fireEvent.change(screen.getByLabelText('Friday'), { target: { value: '18:00' } })
     await userEvent.type(screen.getByLabelText('Sessions in pass'), '8')

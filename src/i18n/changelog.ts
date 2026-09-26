@@ -5,7 +5,7 @@ export interface Release {
   version: string
   /** 'YYYY-MM-DD' */
   date: string
-  /** User-facing changes, plain language, 2–4 per release. */
+  /** User-facing changes, plain language, 1–5 per release. */
   notes: Record<Language, readonly string[]>
 }
 
@@ -20,18 +20,21 @@ export const CHANGELOG: readonly Release[] = [
         'Pay for a single session right from its card.',
         'Session length presets open as a list.',
         'This “What’s new” page, and a note after each update.',
+        'Guests see whose sessions these are: your name is in the calendar name and the event.',
       ],
       uk: [
         'Можна вибрати, з якого заняття починається нова оплата.',
         'Оплата одного заняття прямо з його картки.',
         'Тривалість заняття обирається зі списку.',
         'Сторінка «Що нового» і повідомлення після кожного оновлення.',
+        'Гості бачать, чиї це заняття: ваше імʼя — у назві календаря і в події.',
       ],
       ru: [
         'Можно выбрать, с какого занятия начинается новая оплата.',
         'Оплата одного занятия прямо из его карточки.',
         'Длительность занятия выбирается из списка.',
         'Страница «Что нового» и сообщение после каждого обновления.',
+        'Гости видят, чьи это занятия: ваше имя — в названии календаря и в событии.',
       ],
     },
   },

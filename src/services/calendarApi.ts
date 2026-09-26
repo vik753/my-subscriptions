@@ -51,6 +51,18 @@ export const calendarExists = async (token: string, calendarId: string): Promise
   }
 }
 
+/** Renames the app's calendar (guests see its name as the events' organizer). */
+export const renameCalendar = async (
+  token: string,
+  calendarId: string,
+  summary: string,
+): Promise<void> => {
+  await googleRequest(token, 'calendars.patch', calendarUrl(calendarId), {
+    method: 'PATCH',
+    body: { summary },
+  })
+}
+
 export const deleteCalendar = async (token: string, calendarId: string): Promise<void> => {
   try {
     await googleRequest(token, 'calendars.delete', calendarUrl(calendarId), { method: 'DELETE' })
