@@ -3,6 +3,7 @@ import {
   calendarExists,
   createCalendar,
   deleteEvent,
+  listHobbyEventIds,
   upsertEvent,
   type EventBody,
 } from './calendarApi'
@@ -100,6 +101,18 @@ describe('events', () => {
     expect(calls.every((c) => c.method === 'DELETE')).toBe(true)
     replies = [json({}, 401)]
     await expect(deleteEvent('tok', 'c', 'ms00ab')).rejects.toMatchObject({ status: 401 })
+  })
+
+  it('lists every event of a hobby across pages', async () => {
+    replies = [
+      json({ items: [{ id: 'a' }, { id: 'b' }], nextPageToken: 'p2' }),
+      json({ items: [{ id: 'c' }] }),
+    ]
+    await expect(listHobbyEventIds('tok', 'c', 'gym')).resolves.toEqual(['a', 'b', 'c'])
+    const first = new URL(calls[0]?.url ?? '')
+    expect(first.pathname).toBe('/calendar/v3/calendars/c/events')
+    expect(first.searchParams.get('privateExtendedProperty')).toBe('hobbyId=gym')
+    expect(new URL(calls[1]?.url ?? '').searchParams.get('pageToken')).toBe('p2')
   })
 
   it('surfaces network failures', async () => {

@@ -61,6 +61,18 @@ const server = () => {
       return new Response(null, { status: 204 })
     }
     if (parts.length === 1) return ok({ id: parts[0] })
+    if (parts.length === 2 && method === 'GET') {
+      const [prop, value] = (u.searchParams.get('privateExtendedProperty') ?? '').split('=')
+      const items = [...events.entries()]
+        .filter(([, e]) => e.status === 'confirmed')
+        .filter(([, e]) => {
+          const priv = (e.extendedProperties as { private?: Record<string, string> } | undefined)
+            ?.private
+          return !prop || priv?.[prop] === value
+        })
+        .map(([id]) => ({ id }))
+      return ok({ items })
+    }
     if (parts.length === 2 && method === 'POST') {
       const id = String(body.id)
       if (events.has(id)) return new Response('{}', { status: 409 })
@@ -264,6 +276,30 @@ describe('calendar sync', () => {
       colorId: '10',
       summary: 'Gym · Paid',
     })
+  })
+
+  it('a deleted hobby loses events this device never wrote (other device, lost bookkeeping)', async () => {
+    addGym()
+    signIn()
+    stop = startSync(meta)
+    await run()
+    // Another device's longer window wrote a later unpaid session; this device doesn't know it.
+    google.calendars.get('cal1')?.set('msother', {
+      summary: 'Gym · Unpaid',
+      status: 'confirmed',
+      extendedProperties: { private: { hobbyId: 'gym', sessionKey: '2027-03-01' } },
+    })
+    // …and a paid one whose bookkeeping here was lost.
+    const m = meta.value as { synced: Record<string, string> }
+    delete m.synced['gym|2026-09-28']
+    useApp.getState().deleteHobby('gym')
+    await run()
+    expect(google.live('cal1')).toEqual([])
+
+    // Purged once: the next sync doesn't search again.
+    google.requests.length = 0
+    await run()
+    expect(google.requests.filter((r) => r.startsWith('GET /calendars/cal1/events'))).toEqual([])
   })
 
   it('removes the events of a deleted hobby', async () => {
