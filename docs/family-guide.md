@@ -64,3 +64,7 @@ The first time, the app asks you to sign in with Google:
 ## Questions
 
 Write to vik753@gmail.com (also in Settings → About → Contact support).
+
+---
+
+Idea: Netrebko Olena · Developed by Ihor Korenets with Claude (Anthropic)

@@ -197,6 +197,11 @@ Tap ⚙️ on the Home screen:
   backed-up hobbies are merged automatically.
 - **Updates:** when a new version is out, a banner appears at the top. Tap **Update**.
 
+## Credits
+
+- **Idea:** Netrebko Olena (Нетребко Олена)
+- **Developed by:** Ihor Korenets (Ігор Коренець) with Claude (Anthropic)
+
 ## Questions and support
 
 Write to vik753@gmail.com (also in Settings → About → Contact support). A short guide to send to
