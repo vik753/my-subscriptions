@@ -133,7 +133,7 @@ export const ru: Messages = {
   lastPaidNote: 'Последнее оплаченное занятие — пора продлить абонемент',
   evDur: (n) => 'Длительность: ' + n + ' мин',
   evOrganizer: (who) => 'Организатор: ' + who,
-  calInfo: (e) => 'Календарь «My Subscriptions» · ' + e,
+  calInfo: (e) => 'Отдельный календарь приложения · ' + e,
   optCalendar: 'Добавить в Google Календарь',
   optBackup: 'Резервная копия в Google Drive',
   optBackupSub: 'Скрытая папка приложения на вашем Диске; синхронизирует устройства',

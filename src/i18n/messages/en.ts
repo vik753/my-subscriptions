@@ -116,7 +116,7 @@ export const en = {
   lastPaidNote: 'Last paid session — time to renew your pass',
   evDur: (n: number) => 'Duration: ' + n + ' min',
   evOrganizer: (who: string) => 'Organizer: ' + who,
-  calInfo: (e: string) => '"My Subscriptions" calendar · ' + e,
+  calInfo: (e: string) => 'The app’s own calendar · ' + e,
   optCalendar: 'Add to Google Calendar',
   optBackup: 'Back up to Google Drive',
   optBackupSub: 'A hidden app folder in your Drive; keeps your devices in sync',

@@ -133,7 +133,7 @@ export const uk: Messages = {
   lastPaidNote: 'Останнє оплачене заняття — час продовжити абонемент',
   evDur: (n) => 'Тривалість: ' + n + ' хв',
   evOrganizer: (who) => 'Організатор: ' + who,
-  calInfo: (e) => 'Календар «My Subscriptions» · ' + e,
+  calInfo: (e) => 'Окремий календар застосунку · ' + e,
   optCalendar: 'Додати в Google Календар',
   optBackup: 'Резервна копія в Google Drive',
   optBackupSub: 'Прихована папка застосунку на вашому Диску; синхронізує пристрої',

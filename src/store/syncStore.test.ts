@@ -339,6 +339,44 @@ describe('calendar sync', () => {
     expect(google.requests.filter((r) => r.startsWith('PATCH /calendars/cal1'))).toEqual([])
   })
 
+  it('renames the calendar when the profile name changes', async () => {
+    addGym()
+    signIn()
+    stop = startSync(meta)
+    await run()
+    useAuth.setState({ user: { email: 'me@gmail.com', name: 'New Name' } })
+    await run()
+    expect(google.titles.get('cal1')).toBe('My Subscriptions · New Name')
+  })
+
+  it('a failing rename does not stop the sessions from syncing, and is retried', async () => {
+    addGym()
+    signIn()
+    stop = startSync(meta)
+    await run()
+    meta.value = { ...(meta.value as object), calendarName: null, synced: {} }
+    google.titles.set('cal1', 'My Subscriptions')
+    const handle = google.handle
+    vi.mocked(googleHttp.fetch).mockImplementation((url, init) =>
+      Promise.resolve(
+        init?.method === 'PATCH' && url.endsWith('/calendars/cal1')
+          ? new Response('{}', { status: 403 })
+          : handle(url, init),
+      ),
+    )
+    google.requests.length = 0
+    expect(await run()).toBe(true)
+    expect(google.requests.filter((r) => r.startsWith('POST /calendars/cal1/events'))).toHaveLength(
+      13,
+    )
+    expect(google.titles.get('cal1')).toBe('My Subscriptions')
+    vi.mocked(googleHttp.fetch).mockImplementation((url, init) =>
+      Promise.resolve(handle(url, init)),
+    )
+    await run()
+    expect(google.titles.get('cal1')).toBe('My Subscriptions · Me')
+  })
+
   it('creates the calendar once and one event per session', async () => {
     addGym()
     signIn()

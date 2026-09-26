@@ -301,9 +301,14 @@ const sync = async (store: MetaStorage): Promise<void> => {
     const calendarId = m.calendarId
     // Calendars from before the owner's name was added (or after the account name changed).
     if (owner && m.calendarName !== name) {
-      await renameCalendar(token, calendarId, name)
-      m.calendarName = name
-      await save()
+      try {
+        await renameCalendar(token, calendarId, name)
+        m.calendarName = name
+        await save()
+      } catch (e) {
+        // Only a nicety: the sessions still sync, the rename is retried next time.
+        if (!(e instanceof GoogleHttpError) || e.status === 401) throw e
+      }
     }
 
     const { upsert, remove } = diffEvents(
