@@ -32,7 +32,7 @@ All items of `docs/design-brief-pwa.md` are covered. The brief is now historical
 
 14. **Forfeit sessions in Google Calendar** (user decision 2026-09-26, overrides README "Forfeit → Sage"): a session cancelled without carrying the payment over keeps its event but no longer looks attended — the hobby name is crossed out (Unicode combining stroke, titles have no formatting), the status reads "Cancelled · deducted" and the color is Graphite (the only grey in Google's palette; unpaid sessions are told apart by the plain title).
 
-15. **Delete data: everything or only Google** (user decision 2026-09-26): Settings → _Delete data…_ offers _Delete everything_ (phone + calendar + Drive; offline the Google part follows on the next sync) and, when a hobby uses Google, _Delete only from Google_ (calendar incl. guests' copies + Drive backup; the hobbies stay local with their Google options switched off so the next sync doesn't recreate them; needs a connection and a sign-in, otherwise nothing changes).
+15. **Delete data: everything or only Google** (user decision 2026-09-26): Settings → _Delete data…_ offers _Delete everything_ (phone + calendar + Drive; offline the Google part follows on the next sync) and, when a hobby uses Google, _Delete only from Google_ (calendar incl. guests' copies + Drive backup; the hobbies stay local with their Google options switched off so the next sync doesn't recreate them; needs a connection and a sign-in, otherwise nothing changes). Other devices of the same account are not told and may recreate the calendar/backup on their next sync — accepted as is by the user (2026-09-26).
 
 ## Accessibility adjustments (stage 11)
 
