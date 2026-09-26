@@ -35,8 +35,8 @@ import styles from './Settings.module.css'
 const NATIVE = { uk: 'Українська', en: 'English', ru: 'Русский' } as const
 const REMINDERS = [15, 30, 60] as const
 
-const initials = (name: string) =>
-  name
+const initials = (name: string | undefined) =>
+  (name ?? '')
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
@@ -136,7 +136,7 @@ export function Settings() {
         {user && (
           <div className={styles.account}>
             <span className={styles.avatar} aria-hidden="true">
-              {initials(user.name || user.email)}
+              {initials(user.name || user.email) || '?'}
             </span>
             <span className={styles.accountText}>
               <span className={styles.accountName}>{user.name}</span>

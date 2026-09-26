@@ -1,5 +1,11 @@
-import { describe, expect, it } from 'vitest'
-import { buildAuthUrl, missingScopes, parseAuthResponse } from './googleAuth'
+import { describe, expect, it, vi } from 'vitest'
+import {
+  buildAuthUrl,
+  fetchUser,
+  GoogleHttpError,
+  missingScopes,
+  parseAuthResponse,
+} from './googleAuth'
 
 describe('buildAuthUrl', () => {
   it('requests a token via redirect with the app scopes and optional silent prompt', () => {
@@ -69,5 +75,21 @@ describe('missingScopes', () => {
     expect(missingScopes(['https://www.googleapis.com/auth/drive.appdata'])).toEqual([
       'https://www.googleapis.com/auth/calendar.app.created',
     ])
+  })
+})
+
+describe('fetchUser', () => {
+  const reply = (body: unknown) =>
+    vi.stubGlobal('fetch', () => Promise.resolve(new Response(JSON.stringify(body))))
+
+  it('reads the profile; name falls back to the email', async () => {
+    reply({ email: 'me@gmail.com' })
+    await expect(fetchUser('t')).resolves.toEqual({ email: 'me@gmail.com', name: 'me@gmail.com' })
+  })
+
+  it('treats a profile without an email as a failure', async () => {
+    reply({ files: [] })
+    await expect(fetchUser('t')).rejects.toBeInstanceOf(GoogleHttpError)
+    vi.unstubAllGlobals()
   })
 })

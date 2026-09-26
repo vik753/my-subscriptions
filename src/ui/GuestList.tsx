@@ -1,4 +1,4 @@
-import { Plus, X } from '@phosphor-icons/react'
+import { Plus, Warning, X } from '@phosphor-icons/react'
 import { useId, useState } from 'react'
 import styles from './GuestList.module.css'
 
@@ -86,6 +86,7 @@ export function GuestList({
       </div>
       {error && (
         <p id={errorId} className={styles.error} role="alert">
+          <Warning size={16} className={styles.errorIcon} aria-hidden="true" />
           {error}
         </p>
       )}
