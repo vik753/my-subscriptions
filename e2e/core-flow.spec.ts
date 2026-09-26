@@ -116,6 +116,10 @@ test('sessions are written to the app calendar', async ({ page }) => {
   await page.getByLabel('Monday', { exact: true }).fill('10:00')
   await page.getByLabel('Sessions in pass').fill('2')
   await page.getByRole('switch', { name: /Add to Google Calendar/ }).click()
+  await page.getByRole('button', { name: /Color of paid sessions/ }).click()
+  await page.getByRole('radio', { name: 'Grape' }).click()
+  await page.getByLabel(/Guests/).fill('wife@gmail.com')
+  await page.getByRole('button', { name: 'Add', exact: true }).click()
   await page.getByRole('button', { name: 'Create and add to calendar' }).click()
 
   await expect
@@ -124,6 +128,8 @@ test('sessions are written to the app calendar', async ({ page }) => {
   expect(calendarWrites[0]?.body).toMatchObject({ summary: 'My Subscriptions' })
   expect(calendarWrites.map((w) => w.body.summary)).toContain('Gym · Paid')
   expect(calendarWrites.map((w) => w.body.summary)).toContain('Gym · Unpaid')
+  const paid = calendarWrites.find((w) => w.body.summary === 'Gym · Paid')?.body
+  expect(paid).toMatchObject({ colorId: '3', attendees: [{ email: 'wife@gmail.com' }] })
 })
 
 test('settings: language and scheme apply at once, About is reachable', async ({ page }) => {

@@ -112,7 +112,10 @@ describe('HobbyForm — create', () => {
     fireEvent.change(screen.getByLabelText('Friday'), { target: { value: '18:00' } })
     await userEvent.type(screen.getByLabelText('Sessions in pass'), '8')
     await userEvent.click(screen.getByRole('button', { name: 'Create' }))
-    expect(useApp.getState().data.hobbies[0]?.google).toEqual({ calendar: false, backup: false })
+    expect(useApp.getState().data.hobbies[0]?.google).toMatchObject({
+      calendar: false,
+      backup: false,
+    })
     expect(signIn).not.toHaveBeenCalled()
   })
 
@@ -126,9 +129,48 @@ describe('HobbyForm — create', () => {
     await userEvent.click(screen.getByRole('switch', { name: /Add to Google Calendar/ }))
     await userEvent.click(screen.getByRole('switch', { name: /Back up to Google Drive/ }))
     await userEvent.click(screen.getByRole('button', { name: 'Create and add to calendar' }))
-    expect(useApp.getState().data.hobbies[0]?.google).toEqual({ calendar: true, backup: true })
+    expect(useApp.getState().data.hobbies[0]?.google).toMatchObject({
+      calendar: true,
+      backup: true,
+    })
     expect(screen.getByText('detail')).toBeInTheDocument()
     expect(signIn).toHaveBeenCalledTimes(1)
+  })
+
+  it('picks the paid color and guests for the calendar', async () => {
+    vi.spyOn(useAuth.getState(), 'signIn').mockImplementation(() => {})
+    renderAt('/new')
+    expect(screen.queryByText('Color of paid sessions')).toBeNull()
+    await userEvent.click(screen.getByRole('button', { name: 'Fr' }))
+    fireEvent.change(screen.getByLabelText('Friday'), { target: { value: '18:00' } })
+    await userEvent.type(screen.getByLabelText('Sessions in pass'), '8')
+    await userEvent.click(screen.getByRole('switch', { name: /Add to Google Calendar/ }))
+
+    // Color: Basil by default, like Google's green.
+    await userEvent.click(screen.getByRole('button', { name: /Color of paid sessions.*Basil/ }))
+    await userEvent.click(screen.getByRole('radio', { name: 'Grape' }))
+    expect(
+      screen.getByRole('button', { name: /Color of paid sessions.*Grape/ }),
+    ).toBeInTheDocument()
+
+    // Guests: invalid email is refused, duplicates collapse, case-insensitive.
+    const guest = screen.getByLabelText(/Guests/)
+    await userEvent.type(guest, 'wife{Enter}')
+    expect(screen.getByRole('alert')).toHaveTextContent('Enter a valid email address')
+    await userEvent.clear(guest)
+    await userEvent.type(guest, 'Wife@Gmail.com')
+    await userEvent.click(screen.getByRole('button', { name: 'Add' }))
+    await userEvent.type(guest, 'wife@gmail.com{Enter}')
+    await userEvent.type(guest, 'son@gmail.com{Enter}')
+    await userEvent.click(screen.getByRole('button', { name: 'Remove son@gmail.com' }))
+
+    await userEvent.click(screen.getByRole('button', { name: 'Create and add to calendar' }))
+    expect(useApp.getState().data.hobbies[0]?.google).toEqual({
+      calendar: true,
+      backup: false,
+      guests: ['wife@gmail.com'],
+      paidColor: '3',
+    })
   })
 
   it('does not ask a signed-in user to sign in again', async () => {
@@ -262,9 +304,10 @@ describe('HobbyForm — edit', () => {
   })
 
   it('does not ask to sign in again when saving a hobby whose options were already on', async () => {
-    useApp
-      .getState()
-      .updateHobby('gym', (h) => ({ ...h, google: { calendar: true, backup: true } }))
+    useApp.getState().updateHobby('gym', (h) => ({
+      ...h,
+      google: { calendar: true, backup: true, guests: [], paidColor: '10' },
+    }))
     const signIn = vi.spyOn(useAuth.getState(), 'signIn').mockImplementation(() => {})
     renderAt('/hobby/gym/edit')
     await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
@@ -280,16 +323,20 @@ describe('HobbyForm — edit', () => {
   })
 
   it('switches the Google options of an existing hobby', async () => {
-    useApp
-      .getState()
-      .updateHobby('gym', (h) => ({ ...h, google: { calendar: true, backup: true } }))
+    useApp.getState().updateHobby('gym', (h) => ({
+      ...h,
+      google: { calendar: true, backup: true, guests: [], paidColor: '10' },
+    }))
     useAuth.setState({ status: 'signedIn', user: { email: 'me@gmail.com', name: 'Me' } })
     renderAt('/hobby/gym/edit')
     const calendar = screen.getByRole('switch', { name: /Add to Google Calendar/ })
     expect(calendar).toBeChecked()
     await userEvent.click(calendar)
     await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
-    expect(useApp.getState().data.hobbies[0]?.google).toEqual({ calendar: false, backup: true })
+    expect(useApp.getState().data.hobbies[0]?.google).toMatchObject({
+      calendar: false,
+      backup: true,
+    })
   })
 
   it('deletes only after confirmation', async () => {

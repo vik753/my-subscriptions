@@ -18,7 +18,7 @@ const useGoogle = () =>
     sessions: 8,
     price: 0,
     paymentDate: '2026-09-05',
-    google: { calendar: true, backup: false },
+    google: { calendar: true, backup: false, guests: [], paidColor: '10' },
   })
 const API_SCOPES =
   'openid email profile https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/drive.appdata'

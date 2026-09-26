@@ -87,6 +87,8 @@ export const eventBody = (
   reminderMinutes: number,
   appUrl: string,
   timeZone: string,
+  /** The hobby's calendar options: color of paid sessions, guests. */
+  options: { paidColor: string; guests: readonly string[] } = { paidColor: COLOR.paid, guests: [] },
 ): EventBody => {
   const t = messages[lang]
   const label = { paid: t.paid, unpaid: t.unpaid, attended: t.attended }[e.status]
@@ -95,13 +97,17 @@ export const eventBody = (
     description: [label, t.evDur(e.dur), ...(e.lastPaid ? [t.lastPaidNote] : []), appUrl].join(
       '\n',
     ),
-    colorId: COLOR[e.status],
+    colorId: e.status === 'paid' ? options.paidColor : COLOR[e.status],
     start: { dateTime: `${e.date}T${e.time}:00`, timeZone },
     end: { dateTime: `${addMinutes(e.date, e.time, e.dur)}:00`, timeZone },
     reminders: {
       useDefault: false,
       overrides: reminderMinutes > 0 ? [{ method: 'popup', minutes: reminderMinutes }] : [],
     },
+    // Guests see the sessions in their own calendar; they can't change or re-invite.
+    attendees: options.guests.map((email) => ({ email })),
+    guestsCanModify: false,
+    guestsCanInviteOthers: false,
     extendedProperties: { private: { hobbyId: e.hobbyId, sessionKey: e.sessionKey } },
   }
 }
@@ -230,16 +236,16 @@ const sync = async (store: MetaStorage): Promise<void> => {
   const now = localClock.now()
   const bodies = new Map<string, { model: CalendarEventModel; body: EventBody; hash: string }>()
   // Only hobbies that opted in get events.
-  for (const model of calendarEvents(
-    hobbies.filter((h) => h.google.calendar),
-    now,
-  )) {
+  const withCalendar = hobbies.filter((h) => h.google.calendar)
+  const byId = new Map(withCalendar.map((h) => [h.id, h.google]))
+  for (const model of calendarEvents(withCalendar, now)) {
     const body = eventBody(
       model,
       settings.language,
       settings.reminderMinutes,
       syncEnv.appUrl(),
       syncEnv.timeZone(),
+      byId.get(model.hobbyId),
     )
     bodies.set(model.key, { model, body, hash: hashText(JSON.stringify(body)) })
   }

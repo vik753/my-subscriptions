@@ -85,9 +85,10 @@ describe('HobbyDetail', () => {
     renderDetail()
     expect(screen.getByText('Stored only on this phone')).toBeInTheDocument()
     cleanup()
-    useApp
-      .getState()
-      .updateHobby('gym', (h) => ({ ...h, google: { calendar: true, backup: false } }))
+    useApp.getState().updateHobby('gym', (h) => ({
+      ...h,
+      google: { calendar: true, backup: false, guests: [], paidColor: '10' },
+    }))
     renderDetail()
     expect(screen.queryByText('Stored only on this phone')).toBeNull()
     expect(screen.getByText('You will be asked to sign in with Google')).toBeInTheDocument()

@@ -63,6 +63,10 @@ export interface HobbyGoogle {
   calendar: boolean
   /** The hobby is included in the Google Drive backup. */
   backup: boolean
+  /** Guests (emails) added to every calendar event, so the sessions show in their calendars too. */
+  guests: string[]
+  /** Google Calendar event color of paid sessions (`colorId` "1"–"11"; default "10" Basil). */
+  paidColor: string
 }
 
 /** `missed` covers both `missed` and `cancelled` marks. */
@@ -120,6 +124,6 @@ export interface NewHobbyInput {
   price: number
   paymentDate: ISODate
   updatedAt: string
-  /** Default: both off (local only). */
-  google?: HobbyGoogle
+  /** Default: local only, no guests, Basil. */
+  google?: Partial<HobbyGoogle>
 }

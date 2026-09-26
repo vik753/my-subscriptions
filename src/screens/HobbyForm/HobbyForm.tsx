@@ -22,10 +22,14 @@ import { DayChips } from '../../ui/DayChips'
 import { DurationField } from '../../ui/DurationField'
 import { Field, SelectInput, TextInput } from '../../ui/Field'
 import { Sheet } from '../../ui/Sheet'
+import { ColorPicker } from '../../ui/ColorPicker'
+import { GuestList } from '../../ui/GuestList'
 import { Switch } from '../../ui/Switch'
 import styles from './HobbyForm.module.css'
 
 const CURRENCIES: Currency[] = ['UAH', 'USD', 'EUR']
+// Deliberately loose: Google rejects what it can't deliver; this only catches typos.
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const WEEK: Weekday[] = [0, 1, 2, 3, 4, 5, 6]
 
 type Times = Partial<Record<Weekday, HHMM>>
@@ -74,6 +78,8 @@ function Form({
   const authStatus = useAuth((s) => s.status)
   const [calendarOn, setCalendarOn] = useState(hobby?.google.calendar ?? false)
   const [backupOn, setBackupOn] = useState(hobby?.google.backup ?? false)
+  const [guests, setGuests] = useState<string[]>(hobby?.google.guests ?? [])
+  const [paidColor, setPaidColor] = useState(hobby?.google.paidColor ?? '10')
   const calId = useId()
   const backupId = useId()
   // Offline counts as signed in: the session is there, sync waits for the network.
@@ -151,7 +157,7 @@ function Form({
     const cleanDurs = Object.fromEntries(days.map((d) => [d, durOf(d)])) as Partial<
       Record<Weekday, number>
     >
-    const google = { calendar: calendarOn, backup: backupOn }
+    const google = { calendar: calendarOn, backup: backupOn, guests, paidColor }
     // An option switched on just now needs an account: sign in right after saving, then come
     // back to the hobby. Saving a hobby whose options were already on never asks again.
     const newlyOn = (calendarOn && !hobby?.google.calendar) || (backupOn && !hobby?.google.backup)
@@ -320,6 +326,31 @@ function Form({
           </span>
           <Switch checked={calendarOn} onChange={setCalendarOn} labelledBy={calId} />
         </div>
+        {calendarOn && (
+          <div className={styles.calendarExtras}>
+            <ColorPicker
+              label={t.optColor}
+              value={paidColor}
+              options={t.gcalColors.map((name, i) => ({ id: String(i + 1), name }))}
+              onChange={setPaidColor}
+            />
+            <GuestList
+              label={t.optGuests}
+              hint={t.guestsSub}
+              guests={guests}
+              placeholder={t.guestPh}
+              addLabel={t.guestAdd}
+              removeLabel={t.guestRemove}
+              onAdd={(value) => {
+                const email = value.toLowerCase()
+                if (!EMAIL.test(email)) return t.guestInvalid
+                if (!guests.includes(email)) setGuests([...guests, email])
+                return null
+              }}
+              onRemove={(email) => setGuests(guests.filter((g) => g !== email))}
+            />
+          </div>
+        )}
         <div className={styles.option}>
           <GoogleDriveLogo className={styles.optionIcon} aria-hidden="true" />
           <span className={styles.optionText} id={backupId}>
