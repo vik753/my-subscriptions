@@ -125,11 +125,13 @@ test('sessions are written to the app calendar', async ({ page }) => {
   await expect
     .poll(() => calendarWrites.filter((w) => typeof w.body.summary === 'string').length)
     .toBe(13) // the calendar + 12 Mondays (Sep 28 … Dec 14)
-  expect(calendarWrites[0]?.body).toMatchObject({ summary: 'My Subscriptions' })
+  // Named after its owner: guests see the calendar as the organizer.
+  expect(calendarWrites[0]?.body).toMatchObject({ summary: 'My Subscriptions · Me' })
   expect(calendarWrites.map((w) => w.body.summary)).toContain('Gym · Paid')
   expect(calendarWrites.map((w) => w.body.summary)).toContain('Gym · Unpaid')
   const paid = calendarWrites.find((w) => w.body.summary === 'Gym · Paid')?.body
   expect(paid).toMatchObject({ colorId: '3', attendees: [{ email: 'wife@gmail.com' }] })
+  expect(paid?.description).toContain('Organizer: Me (me@gmail.com)')
 })
 
 test('settings: language and scheme apply at once, About is reachable', async ({ page }) => {
