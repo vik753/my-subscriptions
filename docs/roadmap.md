@@ -3,7 +3,7 @@
 Approved by the user on 2026-09-25. Update the checkboxes and "Status" as stages complete.
 Every stage ends with `/ship` → PR `dev → main` → the user merges → GitHub Pages deploys.
 
-**Status:** Stages 0, 1, 2 done (stage 1: GO — sign-in, silent renewal and Calendar/Drive scopes verified on the user's iPhone PWA, 2026-09-25). Stages 3–4 done. Next: Stage 5 (core screens).
+**Status:** Stages 0–10 done, stage 11 code done (icon, a11y pass, update banner, family guide) — all on `dev`, one PR to `main` awaiting the user's review with a decisions checklist. Left for stage 11: the user's actions below (OAuth app to production, phone test), then share the link.
 
 | #   | Stage                   | Deliverable                                                                                                                                     | Agents                                 | Est.  |
 | --- | ----------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------- | ----- |
@@ -12,12 +12,12 @@ Every stage ends with `/ship` → PR `dev → main` → the user merges → GitH
 | 2   | ✅ Domain engine        | Model, session generation, payments, statuses, moves, cancel/forfeit/restore, schedule edits, pending, next session — 100% coverage             | `spec-tester` → implement              | 4–5 d |
 | 3   | ✅ Data, i18n, theme    | IndexedDB + Zustand, schema versioning/migrations, all prototype strings in uk/en/ru with plurals, date/money formatting, scheme/mode switching | `spec-tester` (formatting, migrations) | 2–3 d |
 | 4   | ✅ UI kit               | Button, Card, Sheet (motion), Switch, Segmented, Tag, Pill, Toast, MonthCalendar, inputs, Spinner, SyncStatus                                   | `ui-verifier`                          | 3–4 d |
-| 5   | ☐ Core screens          | Sign-in (all states), Home (list, empty, install card), Hobby detail, Create/Edit                                                               | `ui-verifier`                          | 4–5 d |
-| 6   | ☐ Sheets & flows        | Add payment, Session sheet (move/cancel/restore), Attendance prompt, Pending list, Renewal reminder + snooze, app-open check                    | `ui-verifier`                          | 3–4 d |
-| 7   | ☐ "All sessions" tab    | Shared month calendar of all hobbies                                                                                                            | `ui-verifier`                          | 1–2 d |
-| 8   | ☐ Google Calendar sync  | App calendar, events (colors, descriptions, reminders), diff → patch only changed, offline outbox, 12-week rolling window, mapping recovery     | `spec-tester` (event derivation)       | 4–5 d |
-| 9   | ☐ Google Drive backup   | `state.json` in appDataFolder, per-hobby merge with `updatedAt` + tombstones, offline, reauth state                                             | `spec-tester` (merge)                  | 3 d   |
-| 10  | ☐ Settings & About      | Account, Calendar reminder, install row, delete all data, share                                                                                 | `ui-verifier`                          | 2 d   |
+| 5   | ✅ Core screens         | Sign-in (all states), Home (list, empty, install card), Hobby detail, Create/Edit                                                               | `ui-verifier`                          | 4–5 d |
+| 6   | ✅ Sheets & flows       | Add payment, Session sheet (move/cancel/restore), Attendance prompt, Pending list, Renewal reminder + snooze, app-open check                    | `ui-verifier`                          | 3–4 d |
+| 7   | ✅ "All sessions" tab   | Shared month calendar of all hobbies                                                                                                            | `ui-verifier`                          | 1–2 d |
+| 8   | ✅ Google Calendar sync | App calendar, events (colors, descriptions, reminders), diff → patch only changed, offline outbox, 12-week rolling window, mapping recovery     | `spec-tester` (event derivation)       | 4–5 d |
+| 9   | ✅ Google Drive backup  | `state.json` in appDataFolder, per-hobby merge with `updatedAt` + tombstones, offline, reauth state                                             | `spec-tester` (merge)                  | 3 d   |
+| 10  | ✅ Settings & About     | Account, Calendar reminder, install row, delete all data, share                                                                                 | `ui-verifier`                          | 2 d   |
 | 11  | ☐ Family release        | Vector icon + all sizes, desktop layout pass, a11y pass, update-available banner, OAuth app publishing, install guide for family                | `ui-verifier`, `reviewer`              | 2–3 d |
 
 ## Milestones
@@ -31,3 +31,4 @@ Every stage ends with `/ship` → PR `dev → main` → the user merges → GitH
 - Before stage 1: Google Cloud project, enable Calendar + Drive APIs, OAuth consent screen (External, test users), Web OAuth Client ID with origins `http://localhost:5173` and `https://vik753.github.io`; send the Client ID; add repo variable `VITE_GOOGLE_CLIENT_ID`.
 - Stage 1: install the PWA on an iPhone and test sign-in.
 - After each stage: merge the PR; from M1 test on the phone and report issues with screenshots.
+- Stage 11: Google Cloud Console → OAuth consent screen → **Publish app** (In production). Unverified is fine for family (they click "Advanced → Go to My Subscriptions"; limit 100 users). In _Testing_ mode Google drops access every 7 days. Then test on the phone and send `docs/family-guide.md` with the link.

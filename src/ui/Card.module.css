@@ -1,10 +1,10 @@
 .card {
+  position: relative;
   display: flex;
   flex-direction: column;
   gap: 14px;
   width: 100%;
   padding: 18px;
-  border: none;
   border-radius: var(--radius-lg);
   background: var(--color-surface);
   box-shadow: var(--shadow-sm);
@@ -12,10 +12,31 @@
   text-align: left;
 }
 
-.clickable {
+.cover {
+  position: absolute;
+  inset: 0;
+  padding: 0;
+  border: none;
+  border-radius: inherit;
+  background: transparent;
   cursor: pointer;
 }
 
-.clickable:active {
-  background: color-mix(in srgb, var(--color-surface), var(--color-text) 4%);
+.cover:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.cover:active {
+  background: color-mix(in srgb, transparent, var(--color-text) 4%);
+}
+
+/* Content doesn't catch taps meant for the cover; its own buttons do. */
+.clickable > :not(.cover) {
+  pointer-events: none;
+}
+
+.clickable button:not(.cover) {
+  position: relative;
+  pointer-events: auto;
 }

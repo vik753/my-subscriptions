@@ -1,0 +1,81 @@
+.card {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  padding: 8px;
+  border: 1px solid transparent;
+  border-radius: var(--radius-lg);
+  background: var(--color-surface);
+  color: var(--color-text);
+  font: inherit;
+  text-align: left;
+  cursor: pointer;
+}
+
+.card:focus-visible {
+  outline: 2px solid var(--color-accent);
+  outline-offset: 2px;
+}
+
+.selected {
+  border-color: var(--color-accent);
+}
+
+.preview {
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  height: 64px;
+  padding: 8px;
+  border-radius: var(--radius-md);
+  background: var(--color-bg);
+  box-shadow: 0 0 0 1px var(--color-neutral-800);
+}
+
+.pills {
+  display: flex;
+  gap: 4px;
+}
+
+.paid,
+.unpaid {
+  width: 18px;
+  height: 6px;
+  border-radius: 3px;
+}
+
+.paid {
+  background: var(--paid-line);
+}
+
+.unpaid {
+  border: 1px dashed var(--color-neutral-500);
+}
+
+.bottom {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.bar {
+  width: 44px;
+  height: 8px;
+  border-radius: 4px;
+  background: var(--color-neutral-700);
+}
+
+.ring {
+  width: 22px;
+  height: 22px;
+  border: 1.5px solid var(--color-accent);
+  border-radius: 50%;
+}
+
+.name {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 0 4px 2px;
+  font-size: 14px;
+}

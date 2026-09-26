@@ -1,16 +1,18 @@
 import { CaretLeft, CaretRight, ClockCountdown, PencilSimple, Plus } from '@phosphor-icons/react'
 import { useState } from 'react'
-import { Navigate, useNavigate, useParams } from 'react-router'
+import { Navigate, useLocation, useNavigate, useParams } from 'react-router'
 import { segmentAt, summarize, type Hobby, type Session, type SessionStatus } from '../../domain'
 import type { Messages } from '../../i18n'
-import { formatDate, formatMoney, formatMonthYear, formatSchedule } from '../../i18n/format'
+import { formatDate, formatMoney, formatMonthYear, formatScheduleGroups } from '../../i18n/format'
 import { useApp } from '../../store/appStore'
 import { useAuth } from '../../store/authStore'
+import { openPendingFlow, useFlow, type FlowSheet } from '../../store/flowStore'
 import { useNow } from '../../store/clock'
 import { useSyncState } from '../../store/syncState'
 import { useLanguage, useT } from '../../store/useT'
 import { Button, IconButton } from '../../ui/Button'
 import { shiftMonth } from '../../ui/calendarGrid'
+import { Groups } from '../../ui/Groups'
 import { MonthCalendar, SessionDayCell, type SessionCellStatus } from '../../ui/MonthCalendar'
 import { StatusPill } from '../../ui/Tag'
 import { SyncStatus } from '../../ui/SyncStatus'
@@ -57,9 +59,20 @@ function Detail({ hobby }: { hobby: Hobby }) {
   const sync = useSyncState()
   const signIn = useAuth((s) => s.signIn)
   const s = summarize(hobby, now)
+  const open = useFlow((f) => f.open)
+  // Pending → Attendance prompt; unmarked or cancelled → Session sheet; attended / missed are final.
+  const sheetFor = (x: Session): FlowSheet | null =>
+    x.pending
+      ? { kind: 'prompt', hobbyId: hobby.id, key: x.key }
+      : !x.mark || x.mark === 'cancelled' || x.mark === 'forfeit'
+        ? { kind: 'session', hobbyId: hobby.id, key: x.key }
+        : null
   const segment = segmentAt(hobby.sched, today) ?? hobby.sched[hobby.sched.length - 1]
 
-  const first = s.next?.date ?? today
+  // Opened from "All sessions": show the month of the tapped session.
+  const location = useLocation()
+  const month = (location.state as { month?: string } | null)?.month
+  const first = month ? `${month}-01` : (s.next?.date ?? today)
   const [view, setView] = useState<[number, number]>([
     Number(first.slice(0, 4)),
     Number(first.slice(5, 7)) - 1,
@@ -76,7 +89,11 @@ function Detail({ hobby }: { hobby: Hobby }) {
   return (
     <div className={styles.screen}>
       <header className={styles.topBar}>
-        <Button variant="ghost" icon={<CaretLeft />} onClick={() => navigate('/')}>
+        <Button
+          variant="ghost"
+          icon={<CaretLeft />}
+          onClick={() => (location.key === 'default' ? navigate('/') : navigate(-1))}
+        >
           {t.title}
         </Button>
         <IconButton
@@ -90,13 +107,19 @@ function Detail({ hobby }: { hobby: Hobby }) {
       <div className={styles.head}>
         <h1 className={styles.title}>{hobby.name}</h1>
         {segment && (
-          <p className={styles.schedule}>{formatSchedule(lang, segment.times, segment.durs)}</p>
+          <p className={styles.schedule}>
+            <Groups parts={formatScheduleGroups(lang, segment.times, segment.durs)} />
+          </p>
         )}
         <SyncStatus state={sync} label={syncLabel} actionLabel={t.reauthBtn} onAction={signIn} />
       </div>
 
-      {/* Payment and session sheets arrive in stage 6. */}
-      <Button variant="primary" block icon={<Plus />}>
+      <Button
+        variant="primary"
+        block
+        icon={<Plus />}
+        onClick={() => open({ kind: 'payment', hobbyId: hobby.id, queue: [] })}
+      >
         {t.addPayment}
       </Button>
 
@@ -137,6 +160,7 @@ function Detail({ hobby }: { hobby: Hobby }) {
                 time: x.time,
                 status: cellStatus(x),
                 label: `${formatDate(lang, x.date)}, ${x.time} — ${statusLabel(t, x)}`,
+                ...(sheetFor(x) && { onClick: () => open(sheetFor(x) as FlowSheet) }),
               })}
             />
           )
@@ -152,7 +176,11 @@ function Detail({ hobby }: { hobby: Hobby }) {
       </ul>
 
       {s.pending.length > 0 && (
-        <button type="button" className={styles.pendingRow}>
+        <button
+          type="button"
+          className={styles.pendingRow}
+          onClick={() => openPendingFlow(hobby.id)}
+        >
           <ClockCountdown size={18} aria-hidden="true" />
           <span>{t.pendingRow(s.pending.length)}</span>
           <CaretRight size={14} aria-hidden="true" />
@@ -163,18 +191,24 @@ function Detail({ hobby }: { hobby: Hobby }) {
         <h2 className={styles.h2}>{t.upcoming}</h2>
         <ul className={styles.list}>
           {upcoming.map((x) => (
-            <li key={x.key} className={styles.row}>
-              <span className={styles.rowText}>
-                <span className={styles.rowTitle}>{formatDate(lang, x.date)}</span>
-                <span className={styles.rowSub}>
-                  {x.time} · {x.dur} {t.min}
-                  {x.movedFrom && ` · ${t.movedShort}`}
+            <li key={x.key}>
+              <button
+                type="button"
+                className={`${styles.row} ${styles.rowButton}`}
+                onClick={() => open({ kind: 'session', hobbyId: hobby.id, key: x.key })}
+              >
+                <span className={styles.rowText}>
+                  <span className={styles.rowTitle}>{formatDate(lang, x.date)}</span>
+                  <span className={styles.rowSub}>
+                    {x.time} · {x.dur} {t.min}
+                    {x.movedFrom && ` · ${t.movedShort}`}
+                  </span>
                 </span>
-              </span>
-              <StatusPill status={x.status === 'paid' ? 'paid' : 'unpaid'}>
-                {statusLabel(t, x)}
-              </StatusPill>
-              <CaretRight size={14} className={styles.chevron} aria-hidden="true" />
+                <StatusPill status={x.status === 'paid' ? 'paid' : 'unpaid'}>
+                  {statusLabel(t, x)}
+                </StatusPill>
+                <CaretRight size={14} className={styles.chevron} aria-hidden="true" />
+              </button>
             </li>
           ))}
         </ul>

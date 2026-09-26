@@ -30,6 +30,46 @@ export const createIdbStorage = (): StateStorage => {
   }
 }
 
+/** A second small document next to the app state (local-only sync bookkeeping). */
+export interface MetaStorage {
+  load: () => Promise<unknown>
+  save: (value: unknown) => Promise<void>
+  clear: () => Promise<void>
+}
+
+export const createIdbMeta = (key: string): MetaStorage => {
+  const db = openDB(DB_NAME, 1, {
+    upgrade: (database, oldVersion) => {
+      if (oldVersion < 1) database.createObjectStore(STORE)
+    },
+  })
+  return {
+    load: async () => (await db).get(STORE, key),
+    save: async (value) => {
+      await (await db).put(STORE, value, key)
+    },
+    clear: async () => {
+      await (await db).delete(STORE, key)
+    },
+  }
+}
+
+export const createMemoryMeta = (initial?: unknown): MetaStorage & { value: unknown } => {
+  const meta = {
+    value: initial,
+    load: () => Promise.resolve(structuredClone(meta.value)),
+    save: (value: unknown) => {
+      meta.value = structuredClone(value)
+      return Promise.resolve()
+    },
+    clear: () => {
+      meta.value = undefined
+      return Promise.resolve()
+    },
+  }
+  return meta
+}
+
 /** In-memory storage for tests. */
 export const createMemoryStorage = (initial?: unknown): StateStorage & { value: unknown } => {
   const storage = {

@@ -16,6 +16,12 @@ export interface AppState {
   /** Applies a pure domain mutation and stamps `updatedAt`. */
   updateHobby: (id: string, mutate: (hobby: Hobby) => Hobby) => void
   deleteHobby: (id: string) => void
+  /** "Delete all data" locally: no hobbies; tombstones so other copies drop them too. */
+  wipe: () => void
+  /** Replace the data with a merged copy from the Drive backup (timestamps kept as merged). */
+  applyMerged: (data: PersistedState) => void
+  /** "Remind me later": hide the renewal reminder of this hobby until `until`. */
+  snoozeRenewal: (id: string, until: string) => void
 }
 
 /** Seam for tests. */
@@ -68,7 +74,6 @@ export const useApp = create<AppState>((set, get) => {
           set({ data, ready: true, loadError: null })
         } catch (e) {
           // Storage stays detached: data from a newer app version must never be overwritten.
-          // TODO(stage 5): surface `loadError` in the UI.
           const message = e instanceof Error ? e.message : String(e)
           console.warn('load failed; changes will not be saved', message)
           set({ data: defaultState(language), ready: true, loadError: message })
@@ -79,7 +84,11 @@ export const useApp = create<AppState>((set, get) => {
 
     updateSettings: (patch) => {
       const { data } = get()
-      commit({ ...data, settings: { ...data.settings, ...patch } })
+      commit({
+        ...data,
+        settings: { ...data.settings, ...patch },
+        settingsUpdatedAt: appClock.nowIso(),
+      })
     },
 
     addHobby: (input) => {
@@ -96,6 +105,28 @@ export const useApp = create<AppState>((set, get) => {
         ...data,
         hobbies: data.hobbies.map((h) => (h.id === id ? { ...mutate(h), updatedAt } : h)),
       })
+    },
+
+    applyMerged: (data) => commit(data),
+
+    wipe: () => {
+      const { data } = get()
+      const at = appClock.nowIso()
+      commit({
+        ...data,
+        hobbies: [],
+        deletedHobbies: {
+          ...data.deletedHobbies,
+          ...Object.fromEntries(data.hobbies.map((h) => [h.id, at])),
+        },
+        settings: { ...data.settings, renewSnoozedUntil: {} },
+        settingsUpdatedAt: at,
+      })
+    },
+
+    snoozeRenewal: (id, until) => {
+      const { settings } = get().data
+      get().updateSettings({ renewSnoozedUntil: { ...settings.renewSnoozedUntil, [id]: until } })
     },
 
     deleteHobby: (id) => {

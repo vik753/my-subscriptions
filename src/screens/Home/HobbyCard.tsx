@@ -1,8 +1,9 @@
 import { Clock, ClockCountdown } from '@phosphor-icons/react'
 import { segmentAt, summarize, type Hobby, type LocalDateTime } from '../../domain'
-import { formatDate, formatSchedule } from '../../i18n/format'
+import { formatDate, formatScheduleGroups } from '../../i18n/format'
 import { useLanguage, useT } from '../../store/useT'
 import { Card } from '../../ui/Card'
+import { Groups } from '../../ui/Groups'
 import { Tag } from '../../ui/Tag'
 import styles from './Home.module.css'
 
@@ -12,10 +13,13 @@ export function HobbyCard({
   hobby,
   now,
   onOpen,
+  onPending,
 }: {
   hobby: Hobby
   now: LocalDateTime
   onOpen: () => void
+  /** "Unmarked: N" tag → the pending flow of this hobby. */
+  onPending: () => void
 }) {
   const t = useT()
   const lang = useLanguage()
@@ -24,19 +28,19 @@ export function HobbyCard({
   const pending = s.pending.length
 
   return (
-    <Card onClick={onOpen}>
+    <Card onClick={onOpen} label={`${hobby.name}, ${s.remaining} ${t.remOf(s.remaining)}`}>
       <span className={styles.cardTop}>
         <span className={styles.cardHead}>
           <span className={styles.cardName}>{hobby.name}</span>
           {segment && (
             <span className={styles.schedule}>
-              {formatSchedule(lang, segment.times, segment.durs)}
+              <Groups parts={formatScheduleGroups(lang, segment.times, segment.durs)} />
             </span>
           )}
         </span>
         <span className={styles.tags}>
           {pending > 0 && (
-            <Tag icon={<ClockCountdown size={12} aria-hidden="true" />}>
+            <Tag icon={<ClockCountdown size={12} aria-hidden="true" />} onClick={onPending}>
               {t.tagPending(pending)}
             </Tag>
           )}

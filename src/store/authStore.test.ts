@@ -40,7 +40,7 @@ afterEach(() => {
 describe('authStore.init', () => {
   it('shows sign-in for a new user without redirecting', async () => {
     await useAuth.getState().init()
-    expect(useAuth.getState().status).toBe('signedOut')
+    expect(useAuth.getState()).toMatchObject({ status: 'signedOut', known: false })
     expect(go).not.toHaveBeenCalled()
   })
 
@@ -175,6 +175,38 @@ describe('authStore.init', () => {
     expect(go).not.toHaveBeenCalled()
   })
 
+  it('stays offline for a known account whose profile is gone (app was killed)', async () => {
+    online = false
+    localStorage.setItem('auth.loginHint', USER.email)
+    await useAuth.getState().init()
+    expect(useAuth.getState()).toMatchObject({ status: 'offline', known: true, user: null })
+    expect(go).not.toHaveBeenCalled()
+  })
+
+  it('marks a returning user as known even when the silent attempt fails', async () => {
+    localStorage.setItem('auth.loginHint', USER.email)
+    sessionStorage.setItem('auth.state', 'S')
+    sessionStorage.setItem('auth.silent', 'pending')
+    setHash('#error=interaction_required&state=S')
+    await useAuth.getState().init()
+    expect(useAuth.getState()).toMatchObject({ status: 'signedOut', known: true })
+  })
+
+  it('returns to the route the redirect started from', async () => {
+    mockUserinfo(json(USER))
+    localStorage.setItem('auth.loginHint', USER.email)
+    history.replaceState(null, '', '/hobby/gym?x=1')
+    await useAuth.getState().init()
+    expect(go).toHaveBeenCalledTimes(1)
+    const state = sessionStorage.getItem('auth.state') ?? ''
+    setHash(tokenHash(state))
+    await useAuth.getState().init()
+    expect(window.location.pathname + window.location.search + window.location.hash).toBe(
+      '/hobby/gym?x=1',
+    )
+    expect(useAuth.getState()).toMatchObject({ status: 'signedIn', known: true })
+  })
+
   it('shows sign-in when offline without a known account', async () => {
     online = false
     await useAuth.getState().init()
@@ -224,7 +256,7 @@ describe('authStore actions', () => {
     sessionStorage.setItem('auth.token', '{}')
     localStorage.setItem('auth.loginHint', USER.email)
     useAuth.getState().signOut()
-    expect(useAuth.getState().status).toBe('signedOut')
+    expect(useAuth.getState()).toMatchObject({ status: 'signedOut', known: false })
     expect(sessionStorage.getItem('auth.token')).toBeNull()
     expect(localStorage.getItem('auth.loginHint')).toBeNull()
   })

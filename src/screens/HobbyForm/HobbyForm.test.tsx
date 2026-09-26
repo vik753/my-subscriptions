@@ -10,9 +10,9 @@ import { HobbyForm } from './HobbyForm'
 
 const initial = useApp.getState()
 
-const renderAt = (path: string) =>
+const renderAt = (...paths: string[]) =>
   render(
-    <MemoryRouter initialEntries={[path]}>
+    <MemoryRouter initialEntries={paths} initialIndex={paths.length - 1}>
       <Routes>
         <Route path="/" element={<p>home</p>} />
         <Route path="/new" element={<HobbyForm />} />
@@ -62,6 +62,54 @@ describe('HobbyForm — create', () => {
     })
     expect(screen.getByText('detail')).toBeInTheDocument()
   })
+
+  it('stores a decimal price with a comma in minor units', async () => {
+    renderAt('/new')
+    await userEvent.click(screen.getByRole('button', { name: 'Fr' }))
+    fireEvent.change(screen.getByLabelText('Friday'), { target: { value: '18:00' } })
+    await userEvent.type(screen.getByLabelText('Sessions in pass'), '8')
+    await userEvent.type(screen.getByLabelText('Pass price'), '8000,50')
+    await userEvent.click(screen.getByRole('button', { name: 'Create and add to calendar' }))
+    expect(useApp.getState().data.hobbies[0]?.payments[0]?.price).toBe(800_050)
+  })
+
+  it('refuses a malformed price', async () => {
+    const show = vi.spyOn(useToast.getState(), 'show')
+    renderAt('/new')
+    await userEvent.click(screen.getByRole('button', { name: 'Fr' }))
+    fireEvent.change(screen.getByLabelText('Friday'), { target: { value: '18:00' } })
+    await userEvent.type(screen.getByLabelText('Sessions in pass'), '8')
+    await userEvent.type(screen.getByLabelText('Pass price'), '1.2.3')
+    await userEvent.click(screen.getByRole('button', { name: 'Create and add to calendar' }))
+    expect(show).toHaveBeenCalledWith(
+      'Set a time for each day, the number of sessions and the first session date.',
+    )
+    expect(useApp.getState().data.hobbies).toHaveLength(0)
+  })
+
+  it('copies the first day’s time and duration to all days', async () => {
+    renderAt('/new')
+    await userEvent.click(screen.getByRole('button', { name: 'Mo' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Th' }))
+    fireEvent.change(screen.getByLabelText('Monday'), { target: { value: '09:30' } })
+    await userEvent.type(screen.getByRole('textbox', { name: 'Monday, min' }), '45')
+    await userEvent.click(screen.getByRole('button', { name: 'Same time for all days' }))
+    expect(screen.getByLabelText('Thursday')).toHaveValue('09:30')
+    expect(screen.getByRole('textbox', { name: 'Thursday, min' })).toHaveValue('45')
+    expect(screen.queryByRole('button', { name: 'Same time for all days' })).toBeNull()
+  })
+
+  it('cancels back to the previous screen', async () => {
+    renderAt('/', '/new')
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(screen.getByText('home')).toBeInTheDocument()
+  })
+
+  it('cancels to Home when opened by a deep link', async () => {
+    renderAt('/new')
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(screen.getByText('home')).toBeInTheDocument()
+  })
 })
 
 describe('HobbyForm — edit', () => {
@@ -93,6 +141,79 @@ describe('HobbyForm — edit', () => {
       durs: { 0: 60, 2: 60 },
     })
     expect(hobby?.payments).toHaveLength(1)
+  })
+
+  it('refuses a schedule change from a past or empty date', async () => {
+    const show = vi.spyOn(useToast.getState(), 'show')
+    renderAt('/hobby/gym/edit')
+    await userEvent.click(screen.getByRole('button', { name: 'We' }))
+    for (const value of ['2026-09-10', '']) {
+      fireEvent.change(screen.getByLabelText('Changes apply from'), { target: { value } })
+      await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    }
+    expect(show).toHaveBeenCalledTimes(2)
+    expect(show).toHaveBeenCalledWith(
+      'Set a time for each day, the number of sessions and the first session date.',
+    )
+    expect(useApp.getState().data.hobbies[0]?.sched).toHaveLength(1)
+  })
+
+  it('accepts a change from today', async () => {
+    renderAt('/hobby/gym/edit')
+    await userEvent.click(screen.getByRole('button', { name: 'We' }))
+    fireEvent.change(screen.getByLabelText('Changes apply from'), {
+      target: { value: '2026-09-24' },
+    })
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    expect(useApp.getState().data.hobbies[0]?.sched.at(-1)?.from).toBe('2026-09-24')
+  })
+
+  it('does not add a schedule segment when only the name changes', async () => {
+    renderAt('/hobby/gym/edit')
+    await userEvent.clear(screen.getByLabelText('Name'))
+    await userEvent.type(screen.getByLabelText('Name'), 'Swim')
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    const hobby = useApp.getState().data.hobbies[0]
+    expect(hobby?.name).toBe('Swim')
+    expect(hobby?.sched).toHaveLength(1)
+  })
+
+  it('edits the latest schedule, not the one in effect today', async () => {
+    useApp.getState().updateHobby('gym', (h) => ({
+      ...h,
+      sched: [...h.sched, { from: '2026-10-05', times: { 3: '19:00' }, durs: { 3: 45 } }],
+    }))
+    renderAt('/hobby/gym/edit')
+    expect(screen.getByLabelText('Thursday')).toHaveValue('19:00')
+    expect(screen.queryByLabelText('Monday')).toBeNull()
+  })
+
+  it('changes the currency while there is a single payment', async () => {
+    renderAt('/hobby/gym/edit')
+    await userEvent.selectOptions(screen.getByLabelText('Currency'), 'USD')
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    expect(useApp.getState().data.hobbies[0]?.currency).toBe('USD')
+  })
+
+  it('locks the currency once there are several payments', () => {
+    useApp.getState().updateHobby('gym', (h) => ({
+      ...h,
+      payments: [...h.payments, { date: '2026-09-20', n: 8, price: 800_000 }],
+    }))
+    renderAt('/hobby/gym/edit')
+    expect(screen.queryByLabelText('Currency')).toBeNull()
+  })
+
+  it('returns to the Detail it came from instead of stacking another one', async () => {
+    renderAt('/', '/hobby/gym', '/hobby/gym/edit')
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    expect(screen.getByText('detail')).toBeInTheDocument()
+  })
+
+  it('cancels to the Detail when opened by a deep link', async () => {
+    renderAt('/hobby/gym/edit')
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
+    expect(screen.getByText('detail')).toBeInTheDocument()
   })
 
   it('deletes only after confirmation', async () => {

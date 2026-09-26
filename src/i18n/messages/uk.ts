@@ -62,6 +62,7 @@ export const uk: Messages = {
   feat2: 'Заняття в Google Calendar, оплачені — зелені',
   feat3: 'Дані зберігаються у вашому Google Drive',
   signErr: 'Не вдалося увійти. Спробуйте ще раз',
+  loadErr: 'Не вдалося відкрити дані на цьому пристрої. Зміни не збережуться',
   signDenied: 'Без доступу до календаря застосунок не зможе створювати заняття',
   grant: 'Надати доступ',
   install: 'Встановіть на екран «Додому»',
@@ -71,6 +72,8 @@ export const uk: Messages = {
   installBtn: 'Встановити',
   installRow: 'Встановити застосунок',
   tInstalled: 'Застосунок встановлено',
+  updateAvail: 'Доступна нова версія застосунку',
+  updateBtn: 'Оновити',
   pendingTitle: 'Позначте минулі заняття',
   pendingCount: (n) =>
     n + ' ' + pluralSlav(n, 'заняття без позначки', 'заняття без позначки', 'занять без позначки'),
@@ -90,8 +93,15 @@ export const uk: Messages = {
   reauth: 'Потрібно увійти знову',
   reauthBtn: 'Увійти',
   lastSync: (t) => 'Остання синхронізація: сьогодні, ' + t,
+  lastSyncOn: (d) => 'Остання синхронізація: ' + d,
+  neverSynced: 'Ще не синхронізовано',
+  schemeNames: { nocturne: 'Ноктюрн', sea: 'Море', clay: 'Глина', graphite: 'Графіт' },
+  langSub: { uk: 'Українська', en: 'Англійська', ru: 'Російська' },
+  calendarSection: 'Google Календар',
   tSynced: 'Синхронізовано',
   tOffline: 'Немає мережі. Зміни збережено на пристрої',
+  syncNewer:
+    'Резервну копію збережено новішою версією застосунку. Оновіть застосунок, щоб синхронізувати',
   account: 'Акаунт Google',
   syncNow: 'Синхронізувати зараз',
   signOut: 'Вийти',
@@ -162,6 +172,7 @@ export const uk: Messages = {
   fStart: 'Перше заняття',
   fPaid: 'Занять в абонементі',
   fPrice: 'Вартість абонемента',
+  fCurrency: 'Валюта',
   summary: (dt, n, per) =>
     dt +
     '. Перші ' +

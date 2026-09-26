@@ -18,6 +18,7 @@ export function defaultState(language: Language): PersistedState {
     schemaVersion: SCHEMA_VERSION,
     hobbies: [],
     settings: defaultSettings(language),
+    settingsUpdatedAt: '',
     deletedHobbies: {},
   }
 }
@@ -60,7 +61,8 @@ const readSettings = (raw: unknown, language: Language): Settings => {
  * Upgrades whatever was stored to the current schema.
  * - null / undefined / not an object / no numeric schemaVersion → defaultState(language)
  * - current version → same data; missing or invalid settings fields filled from defaults, missing
- *   `hobbies` → [], missing `deletedHobbies` → {}
+ *   `hobbies` → [], missing `deletedHobbies` → {}, missing `settingsUpdatedAt` → ''
+ * - v1 → v2: adds `settingsUpdatedAt: ''`
  * - version newer than SCHEMA_VERSION → throws (never silently drop data written by a newer app)
  */
 export function migrate(raw: unknown, language: Language): PersistedState {
@@ -70,13 +72,14 @@ export function migrate(raw: unknown, language: Language): PersistedState {
       `Stored data has schema v${raw.schemaVersion}; this app supports v${SCHEMA_VERSION}`,
     )
   }
-  // Future: `if (raw.schemaVersion === 1) raw = v1toV2(raw)` … chained up to SCHEMA_VERSION.
+  // v1 → v2: `settingsUpdatedAt` added; old settings count as never changed ('').
   return {
     schemaVersion: SCHEMA_VERSION,
     hobbies: Array.isArray(raw.hobbies)
       ? (structuredClone(raw.hobbies.filter(isHobbyLike)) as PersistedState['hobbies'])
       : [],
     settings: readSettings(raw.settings, language),
+    settingsUpdatedAt: typeof raw.settingsUpdatedAt === 'string' ? raw.settingsUpdatedAt : '',
     deletedHobbies: stringRecord(raw.deletedHobbies),
   }
 }

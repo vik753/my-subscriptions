@@ -14,10 +14,27 @@
   padding-top: 20px;
 }
 
+.actions {
+  display: flex;
+  flex: none;
+  gap: 8px;
+}
+
 .date {
+  display: flex;
+  align-items: center;
+  gap: 6px;
   margin: 0;
   font-size: 13px;
   color: var(--color-neutral-400);
+}
+
+.syncIcon {
+  flex: none;
+}
+
+.syncWarn {
+  color: var(--color-accent);
 }
 
 .title {
@@ -67,10 +84,6 @@
 .schedule {
   font-size: 13px;
   color: var(--color-neutral-400);
-}
-
-.nowrap {
-  white-space: nowrap;
 }
 
 .tags {

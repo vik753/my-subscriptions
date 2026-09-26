@@ -48,14 +48,15 @@ export function currencyLabel(lang: Language, currency: Currency): string {
 }
 
 /**
- * Schedule line. Equal durations: "Mo, Fr 10:00 · 60 min" (groups days sharing a time, joined by " · ").
- * Different durations: "Mo 10:00 (60 min) · Fr 18:00 (90 min)" (groups days sharing time AND duration).
+ * Schedule line as unbreakable groups (join with " · "; lines may wrap only between groups).
+ * Equal durations: "Mo, Fr 10:00" · "60 min" (days sharing a time are grouped).
+ * Different durations: "Mo 10:00 (60 min)" · "Fr 18:00 (90 min)" (grouped by time AND duration).
  */
-export function formatSchedule(
+export function formatScheduleGroups(
   lang: Language,
   times: Partial<Record<Weekday, HHMM>>,
   durs: Partial<Record<Weekday, number>>,
-): string {
+): string[] {
   const L = messages[lang]
   const days = ([0, 1, 2, 3, 4, 5, 6] as Weekday[]).filter((d) => times[d] != null)
   const dur = (d: Weekday) => durs[d] ?? 60
@@ -70,8 +71,15 @@ export function formatSchedule(
   }
   if (sameDuration) {
     const first = days[0]
-    const tail = first === undefined ? '' : ` · ${dur(first)} ${L.min}`
-    return groups.map((g) => `${g.names.join(', ')} ${g.time}`).join(' · ') + tail
+    const tail = first === undefined ? [] : [`${dur(first)} ${L.min}`]
+    return [...groups.map((g) => `${g.names.join(', ')} ${g.time}`), ...tail]
   }
-  return groups.map((g) => `${g.names.join(', ')} ${g.time} (${g.minutes} ${L.min})`).join(' · ')
+  return groups.map((g) => `${g.names.join(', ')} ${g.time} (${g.minutes} ${L.min})`)
 }
+
+/** The schedule line as plain text, e.g. "Mo, Fr 10:00 · 60 min". */
+export const formatSchedule = (
+  lang: Language,
+  times: Partial<Record<Weekday, HHMM>>,
+  durs: Partial<Record<Weekday, number>>,
+): string => formatScheduleGroups(lang, times, durs).join(' · ')

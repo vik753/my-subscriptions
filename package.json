@@ -1,7 +1,7 @@
 {
   "name": "my-subscriptions",
   "private": true,
-  "version": "0.1.0",
+  "version": "1.0.0",
   "type": "module",
   "engines": {
     "node": ">=24"
@@ -30,6 +30,7 @@
     "zustand": "^5.0.15"
   },
   "devDependencies": {
+    "@axe-core/playwright": "^4.13.0",
     "@eslint/js": "^9.39.5",
     "@playwright/test": "^1.63.0",
     "@testing-library/jest-dom": "^7.0.1",
