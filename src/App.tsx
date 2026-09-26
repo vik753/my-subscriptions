@@ -10,13 +10,16 @@ import { Kit } from './screens/Kit/Kit'
 import { ScrollToTop } from './screens/ScrollToTop'
 import { Settings } from './screens/Settings/Settings'
 import { SheetHost } from './screens/sheets/SheetHost'
+import { Changelog } from './screens/Changelog/Changelog'
 import { UpdateBanner } from './screens/UpdateBanner'
+import { WhatsNewBanner } from './screens/WhatsNewBanner'
 import { useApp } from './store/appStore'
 import { useAuth } from './store/authStore'
 import { runOpenCheck, useFlow } from './store/flowStore'
 import { createIdbMeta, createIdbStorage } from './store/persistence/storage'
 import { startSync } from './store/syncStore'
 import { useToast } from './store/toastStore'
+import { useWhatsNew } from './store/whatsNewStore'
 import { applyTheme } from './theme/applyTheme'
 import { ToastRegion } from './ui/Toast'
 
@@ -70,6 +73,12 @@ export function App() {
     return () => document.removeEventListener('visibilitychange', onVisible)
   }, [checking])
 
+  // "Updated to …" once per new version; judged after the data is loaded (fresh installs skip it).
+  useEffect(() => {
+    if (ready)
+      useWhatsNew.getState().init(__APP_VERSION__, useApp.getState().data.hobbies.length > 0)
+  }, [ready])
+
   // Google sync; it waits by itself while signed out/offline and only touches opted-in hobbies.
   useEffect(() => (checking ? undefined : startSync(createIdbMeta('sync'))), [checking])
 
@@ -89,6 +98,7 @@ export function App() {
       {import.meta.env.PROD && <UpdateBanner />}
       <BrowserRouter basename={import.meta.env.BASE_URL}>
         <ScrollToTop />
+        <WhatsNewBanner />
         <Routes>
           <Route path="/" element={<Home />} />
           <Route path="/new" element={<HobbyForm />} />
@@ -96,6 +106,7 @@ export function App() {
           <Route path="/hobby/:id/edit" element={<HobbyForm />} />
           <Route path="/settings" element={<Settings />} />
           <Route path="/about" element={<About />} />
+          <Route path="/changelog" element={<Changelog />} />
           <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
         <SheetHost />

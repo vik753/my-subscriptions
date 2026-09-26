@@ -5,6 +5,7 @@ import {
   GithubLogo,
   ShareNetwork,
   ShieldCheck,
+  Sparkle,
 } from '@phosphor-icons/react'
 import { useNavigate } from 'react-router'
 import { APP_NAME } from '../../i18n'
@@ -65,6 +66,16 @@ export function About() {
           {t.version} {__APP_VERSION__}
         </p>
       </div>
+
+      <ListSection>
+        <ListRow
+          icon={<Sparkle />}
+          label={t.whatsNew}
+          trailing={<span className={styles.value}>{__APP_VERSION__}</span>}
+          chevron
+          onClick={() => navigate('/changelog')}
+        />
+      </ListSection>
 
       <ListSection>
         <ListRow label={t.ideaL} trailing={<span className={styles.value}>{t.ideaName}</span>} />
