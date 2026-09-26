@@ -117,7 +117,7 @@ test('sessions are written to the app calendar', async ({ page }) => {
   await page.getByLabel('Sessions in pass').fill('2')
   await page.getByRole('switch', { name: /Add to Google Calendar/ }).click()
   await page.getByRole('button', { name: /Color of paid sessions/ }).click()
-  await page.getByRole('radio', { name: 'Grape' }).click()
+  await page.getByRole('button', { name: 'Grape' }).click()
   await page.getByLabel(/Guests/).fill('wife@gmail.com')
   await page.getByRole('button', { name: 'Add', exact: true }).click()
   await page.getByRole('button', { name: 'Create and add to calendar' }).click()

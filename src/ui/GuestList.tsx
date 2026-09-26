@@ -10,6 +10,8 @@ export function GuestList({
   placeholder,
   addLabel,
   removeLabel,
+  draft,
+  onDraft,
   onAdd,
   onRemove,
 }: {
@@ -19,10 +21,12 @@ export function GuestList({
   placeholder: string
   addLabel: string
   removeLabel: (email: string) => string
+  /** The typed, not yet added email (owned by the caller, so Save can pick it up). */
+  draft: string
+  onDraft: (value: string) => void
   onAdd: (email: string) => string | null
   onRemove: (email: string) => void
 }) {
-  const [draft, setDraft] = useState('')
   const [error, setError] = useState<string | null>(null)
   const inputId = useId()
   const errorId = useId()
@@ -30,7 +34,7 @@ export function GuestList({
   const add = () => {
     const problem = onAdd(draft.trim())
     setError(problem)
-    if (!problem) setDraft('')
+    if (!problem) onDraft('')
   }
 
   return (
@@ -67,7 +71,7 @@ export function GuestList({
           value={draft}
           aria-invalid={error ? true : undefined}
           aria-describedby={error ? errorId : undefined}
-          onChange={(e) => setDraft(e.target.value)}
+          onChange={(e) => onDraft(e.target.value)}
           onKeyDown={(e) => {
             if (e.key === 'Enter') {
               e.preventDefault()

@@ -44,6 +44,7 @@
 }
 
 .remove {
+  position: relative;
   display: flex;
   flex: none;
   align-items: center;
@@ -55,6 +56,13 @@
   background: transparent;
   color: var(--color-neutral-400);
   cursor: pointer;
+}
+
+/* The visible circle is 32px; the tap area is 44px. */
+.remove::before {
+  content: '';
+  position: absolute;
+  inset: -6px;
 }
 
 .addRow {

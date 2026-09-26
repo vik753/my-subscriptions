@@ -148,7 +148,7 @@ describe('HobbyForm — create', () => {
 
     // Color: Basil by default, like Google's green.
     await userEvent.click(screen.getByRole('button', { name: /Color of paid sessions.*Basil/ }))
-    await userEvent.click(screen.getByRole('radio', { name: 'Grape' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Grape' }))
     expect(
       screen.getByRole('button', { name: /Color of paid sessions.*Grape/ }),
     ).toBeInTheDocument()
@@ -171,6 +171,23 @@ describe('HobbyForm — create', () => {
       guests: ['wife@gmail.com'],
       paidColor: '3',
     })
+  })
+
+  it('keeps a guest email typed but not added, and refuses a malformed one', async () => {
+    vi.spyOn(useAuth.getState(), 'signIn').mockImplementation(() => {})
+    const show = vi.spyOn(useToast.getState(), 'show')
+    renderAt('/new')
+    await userEvent.click(screen.getByRole('button', { name: 'Fr' }))
+    fireEvent.change(screen.getByLabelText('Friday'), { target: { value: '18:00' } })
+    await userEvent.type(screen.getByLabelText('Sessions in pass'), '8')
+    await userEvent.click(screen.getByRole('switch', { name: /Add to Google Calendar/ }))
+    await userEvent.type(screen.getByLabelText(/Guests/), 'wife@')
+    await userEvent.click(screen.getByRole('button', { name: 'Create and add to calendar' }))
+    expect(show).toHaveBeenCalledWith('Enter a valid email address')
+    expect(useApp.getState().data.hobbies).toHaveLength(0)
+    await userEvent.type(screen.getByLabelText(/Guests/), 'gmail.com')
+    await userEvent.click(screen.getByRole('button', { name: 'Create and add to calendar' }))
+    expect(useApp.getState().data.hobbies[0]?.google.guests).toEqual(['wife@gmail.com'])
   })
 
   it('does not ask a signed-in user to sign in again', async () => {

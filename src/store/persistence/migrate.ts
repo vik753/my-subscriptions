@@ -48,8 +48,16 @@ const readGoogle = (raw: unknown, legacy: boolean): Hobby['google'] => {
   return {
     calendar: typeof on.calendar === 'boolean' ? on.calendar : legacy,
     backup: typeof on.backup === 'boolean' ? on.backup : legacy,
+    // Duplicate or malformed attendees would make Google reject the event.
     guests: Array.isArray(on.guests)
-      ? on.guests.filter((g): g is string => typeof g === 'string')
+      ? [
+          ...new Set(
+            on.guests
+              .filter((g): g is string => typeof g === 'string')
+              .map((g) => g.trim().toLowerCase())
+              .filter((g) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(g)),
+          ),
+        ]
       : [],
     paidColor:
       typeof on.paidColor === 'string' && /^([1-9]|1[01])$/.test(on.paidColor)

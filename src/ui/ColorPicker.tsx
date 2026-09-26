@@ -39,13 +39,12 @@ export function ColorPicker({
         {open ? <CaretUp aria-hidden="true" /> : <CaretDown aria-hidden="true" />}
       </button>
       {open && (
-        <div id={listId} role="radiogroup" aria-label={label} className={styles.list}>
+        <div id={listId} role="group" aria-label={label} className={styles.list}>
           {options.map((o) => (
             <button
               key={o.id}
               type="button"
-              role="radio"
-              aria-checked={o.id === value}
+              aria-pressed={o.id === value}
               className={styles.item}
               onClick={() => {
                 onChange(o.id)

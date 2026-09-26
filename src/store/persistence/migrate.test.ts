@@ -221,7 +221,12 @@ describe('migrate: v3 → v4', () => {
   it('keeps valid guests and color, drops junk', () => {
     const hobby = {
       ...makeHobby(),
-      google: { calendar: true, backup: true, guests: ['a@b.co', 5], paidColor: '42' },
+      google: {
+        calendar: true,
+        backup: true,
+        guests: [' A@B.co ', 'a@b.co', 5, 'not-an-email'],
+        paidColor: '42',
+      },
     }
     expect(migrate({ ...makeRaw(), hobbies: [hobby] }, 'en').hobbies[0]?.google).toEqual({
       calendar: true,

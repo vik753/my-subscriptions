@@ -80,6 +80,7 @@ function Form({
   const [backupOn, setBackupOn] = useState(hobby?.google.backup ?? false)
   const [guests, setGuests] = useState<string[]>(hobby?.google.guests ?? [])
   const [paidColor, setPaidColor] = useState(hobby?.google.paidColor ?? '10')
+  const [guestDraft, setGuestDraft] = useState('')
   const calId = useId()
   const backupId = useId()
   // Offline counts as signed in: the session is there, sync waits for the network.
@@ -157,7 +158,11 @@ function Form({
     const cleanDurs = Object.fromEntries(days.map((d) => [d, durOf(d)])) as Partial<
       Record<Weekday, number>
     >
-    const google = { calendar: calendarOn, backup: backupOn, guests, paidColor }
+    // An email typed but not added yet still counts; a malformed one stops the save.
+    const typed = guestDraft.trim().toLowerCase()
+    if (calendarOn && typed && !EMAIL.test(typed)) return toast(t.guestInvalid)
+    const allGuests = calendarOn && typed && !guests.includes(typed) ? [...guests, typed] : guests
+    const google = { calendar: calendarOn, backup: backupOn, guests: allGuests, paidColor }
     // An option switched on just now needs an account: sign in right after saving, then come
     // back to the hobby. Saving a hobby whose options were already on never asks again.
     const newlyOn = (calendarOn && !hobby?.google.calendar) || (backupOn && !hobby?.google.backup)
@@ -340,6 +345,8 @@ function Form({
               guests={guests}
               placeholder={t.guestPh}
               addLabel={t.guestAdd}
+              draft={guestDraft}
+              onDraft={setGuestDraft}
               removeLabel={t.guestRemove}
               onAdd={(value) => {
                 const email = value.toLowerCase()
