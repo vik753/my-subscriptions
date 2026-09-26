@@ -25,6 +25,7 @@ import { Sheet } from '../../ui/Sheet'
 import { ColorPicker } from '../../ui/ColorPicker'
 import { GuestList } from '../../ui/GuestList'
 import { Switch } from '../../ui/Switch'
+import { PaymentList } from '../PaymentList'
 import styles from './HobbyForm.module.css'
 
 const CURRENCIES: Currency[] = ['UAH', 'USD', 'EUR']
@@ -317,6 +318,13 @@ function Form({
               </SelectInput>
             )}
           </Field>
+        </div>
+      )}
+
+      {hobby && hobby.payments.length > 0 && (
+        <div className={styles.block}>
+          <span className={styles.label}>{t.payments}</span>
+          <PaymentList hobby={hobby} />
         </div>
       )}
 

@@ -23,6 +23,7 @@ import { Groups } from '../../ui/Groups'
 import { MonthCalendar, SessionDayCell, type SessionCellStatus } from '../../ui/MonthCalendar'
 import { StatusPill } from '../../ui/Tag'
 import { SyncStatus } from '../../ui/SyncStatus'
+import { PaymentList } from '../PaymentList'
 import styles from './HobbyDetail.module.css'
 
 const UPCOMING = 12
@@ -251,17 +252,7 @@ function Detail({ hobby }: { hobby: Hobby }) {
 
       <section className={styles.section}>
         <h2 className={styles.h2}>{t.payments}</h2>
-        <ul className={styles.list}>
-          {[...hobby.payments].reverse().map((p, i) => (
-            <li key={`${p.date}-${i}`} className={styles.row}>
-              <span className={styles.rowText}>
-                <span className={styles.rowTitle}>{formatDate(lang, p.date)}</span>
-                <span className={styles.rowSub}>{t.payN(p.n)}</span>
-              </span>
-              <span className={styles.rowMeta}>{formatMoney(p.price, hobby.currency)}</span>
-            </li>
-          ))}
-        </ul>
+        <PaymentList hobby={hobby} />
       </section>
     </div>
   )

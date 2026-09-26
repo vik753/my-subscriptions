@@ -6,6 +6,7 @@ import { useT } from '../../store/useT'
 import { Sheet } from '../../ui/Sheet'
 import { AddPayment } from './AddPayment'
 import { AttendancePrompt } from './AttendancePrompt'
+import { EditPayment } from './EditPayment'
 import { InstallSheet } from './InstallSheet'
 import { PendingList } from './PendingList'
 import { RenewalReminder } from './RenewalReminder'
@@ -18,6 +19,7 @@ const DISMISSIBLE: Record<FlowSheet['kind'], boolean> = {
   pending: false,
   reminder: false,
   payment: true,
+  editPayment: true,
   session: true,
   install: true,
   wipe: true,
@@ -50,6 +52,8 @@ export function SheetHost() {
         return <RenewalReminder key={hobby.id} hobby={hobby} queue={shown.queue} />
       case 'payment':
         return <AddPayment key={hobby.id} hobby={hobby} queue={shown.queue} />
+      case 'editPayment':
+        return <EditPayment key={`${hobby.id}-${shown.index}`} hobby={hobby} index={shown.index} />
       case 'session':
         return <SessionSheet key={shown.key} hobby={hobby} sessionKey={shown.key} />
     }
@@ -70,6 +74,7 @@ export function SheetHost() {
         pending: t.pendingTitle,
         reminder: hobby?.name ?? '',
         payment: t.payTitle,
+        editPayment: t.editPayTitle,
         session: hobby?.name ?? '',
         install: t.install,
         wipe: t.wipeTitle,
