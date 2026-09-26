@@ -3,9 +3,10 @@
 **Link:** https://vik753.github.io/my-subscriptions/
 
 The app keeps track of prepaid class passes (gym, lessons, any hobby): how many paid sessions are
-left, which sessions you attended, and when to renew. Sessions appear in your Google Calendar —
-paid ones in green. Your data lives on your phone and in a hidden folder of your own Google Drive;
-nobody else (including the author) can see it.
+left, which sessions you attended, and when to renew. Your data stays on your phone — no account
+needed. If you like, each hobby can also go to your Google Calendar (paid sessions in green) and
+be backed up to a hidden folder of your own Google Drive; nobody else (including the author) can
+see it.
 
 ## 1. Install
 
@@ -24,20 +25,25 @@ nobody else (including the author) can see it.
 **Computer (Chrome / Edge):** open the link and click the install icon in the address bar, or use
 the app in the browser tab.
 
-## 2. Sign in with Google
+## 2. Add your first hobby
 
-1. Tap **Sign in with Google** and choose your account.
+Tap **+**, enter the name, pick the days and times, the date of the first session, the number of
+sessions in your pass and its price, then **Create**. That's it — the app works right away.
+
+## 3. Optional: Google Calendar and Drive
+
+In the hobby form you can turn on:
+
+- **Add to Google Calendar** — the sessions appear in a new calendar called **"My Subscriptions"**.
+- **Back up to Google Drive** — a copy for safety and for your other devices.
+
+The first time, the app asks you to sign in with Google:
+
+1. Choose your account.
 2. Google may show **"Google hasn't verified this app"** — this is a family app that is not
    published in a store. Tap **Advanced → Go to My Subscriptions (unsafe)**. It is safe: the app
    only gets access to its own **"My Subscriptions"** calendar and its own hidden Drive folder.
-3. Allow both permissions (calendar and Drive). Without the calendar permission the app can't
-   create sessions.
-
-## 3. Add your first hobby
-
-Tap **+**, enter the name, pick the days and times, the date of the first session, the number of
-sessions in your pass and its price. The sessions appear in Google Calendar in a new calendar
-called **"My Subscriptions"**.
+3. Allow both permissions (calendar and Drive).
 
 ## How it works day to day
 
@@ -45,9 +51,10 @@ called **"My Subscriptions"**.
   "Didn't happen" moves the payment to the next session.
 - **Cancel or move a session** — open the hobby, tap the session in the calendar.
 - **Running out** — when one paid session is left the app suggests adding a payment.
-- **Reminders** — Settings → Google Calendar → "Reminder before session" (sent by Google Calendar).
-- **Several devices** — sign in with the same Google account; data is merged automatically.
-- **Offline** — everything works; changes sync when the internet is back.
+- **Reminders** (with Google Calendar on) — Settings → Google Calendar → "Reminder before session".
+- **Several devices** — turn on the Drive backup and sign in with the same Google account; data is
+  merged automatically.
+- **Offline** — everything works; Google changes sync when the internet is back.
 - **"Sign in again to sync"** — Google sessions expire from time to time; tap **Sign in**. Your data
   stays on the phone meanwhile.
 - **Update available** — tap **Update** in the banner at the top.

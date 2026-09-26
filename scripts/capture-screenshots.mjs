@@ -34,23 +34,13 @@ const fakeGoogle = async (context) => {
 
 const shot = (page, name) => page.screenshot({ path: `${OUT}/${name}.png` })
 
-// Sign-in (no session).
-{
-  const context = await browser.newContext(phone)
-  const page = await context.newPage()
-  await page.goto(BASE)
-  await page.getByRole('button', { name: 'Sign in with Google' }).waitFor()
-  await shot(page, 'sign-in')
-  await context.close()
-}
-
 const context = await browser.newContext(phone)
 await fakeGoogle(context)
 const page = await context.newPage()
 await page.clock.setFixedTime(new Date('2026-09-24T10:02:00'))
 await page.goto(BASE)
 
-const create = async ({ name, days, start, sessions, price }) => {
+const create = async ({ name, days, start, sessions, price, calendar, shot: formShot }) => {
   await page.getByRole('button', { name: 'New hobby' }).click()
   await page.getByLabel('Name').fill(name)
   for (const [short, full, time, dur] of days) {
@@ -61,7 +51,17 @@ const create = async ({ name, days, start, sessions, price }) => {
   await page.getByLabel('First session').fill(start)
   await page.getByLabel('Sessions in pass').fill(String(sessions))
   await page.getByLabel('Pass price').fill(String(price))
-  await page.getByRole('button', { name: 'Create and add to calendar' }).click()
+  if (calendar) {
+    await page.getByRole('switch', { name: /Add to Google Calendar/ }).click()
+    await page.getByRole('switch', { name: /Back up to Google Drive/ }).click()
+  }
+  if (formShot) {
+    await page.getByRole('switch', { name: /Back up to Google Drive/ }).scrollIntoViewIfNeeded()
+    await shot(page, formShot)
+  }
+  await page
+    .getByRole('button', { name: calendar ? 'Create and add to calendar' : 'Create', exact: true })
+    .click()
   await page.getByRole('heading', { name }).waitFor()
   // In-app back: a reload would run the open check and cover the screen with a sheet.
   await page.getByRole('button', { name: 'Subscriptions' }).click()
@@ -76,6 +76,8 @@ await create({
   start: '2026-09-07',
   sessions: 10,
   price: 8000,
+  calendar: true,
+  shot: 'form',
 })
 await create({
   name: 'English lessons',
@@ -83,6 +85,7 @@ await create({
   start: '2026-09-08',
   sessions: 8,
   price: 6400,
+  calendar: false,
 })
 
 // Reopening the app asks about past sessions.
