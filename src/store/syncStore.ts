@@ -13,6 +13,7 @@ import {
   createCalendar,
   deleteCalendar,
   deleteEvent,
+  listHobbyEventIds,
   upsertEvent,
   type EventBody,
 } from '../services/calendarApi'
@@ -41,6 +42,8 @@ export interface SyncMeta {
   lastSync: string | null
   /** Drive file id of the state.json backup, once known. */
   driveFileId: string | null
+  /** hobbyId → tombstone time whose events were already purged from this calendar. */
+  purged: Record<string, string>
 }
 
 const emptyMeta = (account: string | null): SyncMeta => ({
@@ -49,6 +52,7 @@ const emptyMeta = (account: string | null): SyncMeta => ({
   synced: {},
   lastSync: null,
   driveFileId: null,
+  purged: {},
 })
 
 const readMeta = (raw: unknown): SyncMeta => {
@@ -59,6 +63,7 @@ const readMeta = (raw: unknown): SyncMeta => {
     synced: m.synced && typeof m.synced === 'object' ? { ...m.synced } : {},
     lastSync: typeof m.lastSync === 'string' ? m.lastSync : null,
     driveFileId: typeof m.driveFileId === 'string' ? m.driveFileId : null,
+    purged: m.purged && typeof m.purged === 'object' ? { ...m.purged } : {},
   }
 }
 
@@ -216,6 +221,17 @@ const sync = async (store: MetaStorage): Promise<void> => {
       const [hobbyId = '', sessionKey = ''] = key.split('|')
       await deleteEvent(token, calendarId, eventId(hobbyId, sessionKey))
       m.synced = Object.fromEntries(Object.entries(m.synced).filter(([k]) => k !== key))
+      await save()
+    }
+
+    // A deleted hobby loses every event, not only the ones this device remembers writing
+    // (another device may have written later sessions, or the bookkeeping may be gone).
+    const tombstones = useApp.getState().data.deletedHobbies
+    for (const [hobbyId, deletedAt] of Object.entries(tombstones)) {
+      if (m.purged[hobbyId] === deletedAt) continue
+      for (const id of await listHobbyEventIds(token, calendarId, hobbyId))
+        await deleteEvent(token, calendarId, id)
+      m.purged[hobbyId] = deletedAt
       await save()
     }
   }

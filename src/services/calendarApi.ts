@@ -80,6 +80,35 @@ export const upsertEvent = async (
   }
 }
 
+/**
+ * Ids of every live event this app wrote for one hobby (by `extendedProperties.private.hobbyId`),
+ * whoever wrote them — also events from other devices or from lost bookkeeping.
+ */
+export const listHobbyEventIds = async (
+  token: string,
+  calendarId: string,
+  hobbyId: string,
+): Promise<string[]> => {
+  const ids: string[] = []
+  let pageToken: string | undefined
+  do {
+    const params = new URLSearchParams({
+      privateExtendedProperty: `hobbyId=${hobbyId}`,
+      maxResults: '2500',
+      fields: 'items(id),nextPageToken',
+    })
+    if (pageToken) params.set('pageToken', pageToken)
+    const { data } = await googleRequest<{ items?: { id: string }[]; nextPageToken?: string }>(
+      token,
+      'events.list',
+      `${calendarUrl(calendarId)}/events?${params.toString()}`,
+    )
+    ids.push(...(data?.items ?? []).map((e) => e.id))
+    pageToken = data?.nextPageToken
+  } while (pageToken)
+  return ids
+}
+
 /** Already gone counts as done. */
 export const deleteEvent = async (token: string, calendarId: string, id: string): Promise<void> => {
   try {
