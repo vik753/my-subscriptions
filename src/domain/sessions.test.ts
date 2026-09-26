@@ -16,6 +16,7 @@ function makeHobby(overrides: Partial<Hobby> = {}): Hobby {
     marks: {},
     moves: {},
     updatedAt: '2026-01-01T00:00:00.000Z',
+    google: { calendar: false, backup: false },
     ...overrides,
   }
 }

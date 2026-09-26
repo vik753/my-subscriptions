@@ -104,6 +104,16 @@ describe('Settings', () => {
     expect(screen.getByText('about')).toBeInTheDocument()
   })
 
+  it('offers Google sign-in when not signed in, without account actions', async () => {
+    useAuth.setState({ status: 'signedOut', known: false, user: null })
+    const signIn = vi.spyOn(useAuth.getState(), 'signIn').mockImplementation(() => {})
+    renderSettings()
+    expect(screen.queryByRole('button', { name: 'Sign out' })).toBeNull()
+    expect(screen.queryByRole('button', { name: 'Sync now' })).toBeNull()
+    await userEvent.click(screen.getByRole('button', { name: /Sign in with Google/ }))
+    expect(signIn).toHaveBeenCalled()
+  })
+
   it('hides the install row in the installed app', () => {
     useInstall.setState({ standalone: true })
     renderSettings()

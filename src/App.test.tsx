@@ -5,12 +5,18 @@ import type * as StorageModule from './store/persistence/storage'
 
 vi.mock('./store/persistence/storage', async (importOriginal) => {
   const mod = await importOriginal<typeof StorageModule>()
-  return { ...mod, createIdbStorage: () => mod.createMemoryStorage() }
+  return {
+    ...mod,
+    createIdbStorage: () => mod.createMemoryStorage(),
+    createIdbMeta: () => mod.createMemoryMeta(),
+  }
 })
 
 describe('App', () => {
-  it('renders the app name as the page heading once data is loaded', async () => {
+  it('opens straight into the local app — no Google sign-in needed', async () => {
     render(<App />)
-    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('My Subscriptions')
+    expect(await screen.findByRole('heading', { level: 1 })).toHaveTextContent('Subscriptions')
+    expect(screen.getByRole('button', { name: 'Add hobby' })).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Sign in with Google' })).toBeNull()
   })
 })

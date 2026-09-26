@@ -1,4 +1,11 @@
-import { CaretLeft, CaretRight, ClockCountdown, PencilSimple, Plus } from '@phosphor-icons/react'
+import {
+  CaretLeft,
+  DeviceMobile,
+  CaretRight,
+  ClockCountdown,
+  PencilSimple,
+  Plus,
+} from '@phosphor-icons/react'
 import { useState } from 'react'
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router'
 import { segmentAt, summarize, type Hobby, type Session, type SessionStatus } from '../../domain'
@@ -82,9 +89,14 @@ function Detail({ hobby }: { hobby: Hobby }) {
 
   const upcoming = s.sessions.filter((x) => !x.mark && !x.pending).slice(0, UPCOMING)
   const history = s.sessions.filter((x) => x.mark).reverse()
-  const syncLabel = { ok: t.syncedL, syncing: t.syncing, offline: t.offline, reauth: t.reauth }[
-    sync
-  ]
+  // Never signed in on this device: "Sign in again" would be odd — say a sign-in is needed.
+  const known = useAuth((a) => a.known)
+  const syncLabel = {
+    ok: t.syncedL,
+    syncing: t.syncing,
+    offline: t.offline,
+    reauth: known ? t.reauth : t.googleSignInNeeded,
+  }[sync]
 
   return (
     <div className={styles.screen}>
@@ -111,7 +123,14 @@ function Detail({ hobby }: { hobby: Hobby }) {
             <Groups parts={formatScheduleGroups(lang, segment.times, segment.durs)} />
           </p>
         )}
-        <SyncStatus state={sync} label={syncLabel} actionLabel={t.reauthBtn} onAction={signIn} />
+        {hobby.google.calendar || hobby.google.backup ? (
+          <SyncStatus state={sync} label={syncLabel} actionLabel={t.reauthBtn} onAction={signIn} />
+        ) : (
+          <p className={styles.localOnly}>
+            <DeviceMobile size={16} aria-hidden="true" />
+            {t.localOnly}
+          </p>
+        )}
       </div>
 
       <Button

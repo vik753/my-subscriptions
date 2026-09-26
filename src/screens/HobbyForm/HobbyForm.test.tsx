@@ -3,6 +3,7 @@ import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { resetAppStore, useApp } from '../../store/appStore'
+import { useAuth } from '../../store/authStore'
 import { localClock } from '../../store/clock'
 import { createMemoryStorage } from '../../store/persistence/storage'
 import { useToast } from '../../store/toastStore'
@@ -22,8 +23,11 @@ const renderAt = (...paths: string[]) =>
     </MemoryRouter>,
   )
 
+const authInitial = useAuth.getState()
+
 beforeEach(async () => {
   resetAppStore(initial)
+  useAuth.setState(authInitial, true)
   vi.spyOn(localClock, 'now').mockReturnValue('2026-09-24T10:02')
   await useApp.getState().load(createMemoryStorage(), 'en')
 })
@@ -33,7 +37,7 @@ describe('HobbyForm — create', () => {
     const show = vi.spyOn(useToast.getState(), 'show')
     renderAt('/new')
     expect(screen.getByText('Pick at least one day.')).toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: 'Create and add to calendar' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Create' }))
     expect(show).toHaveBeenCalledWith('Pick at least one day.')
     expect(useApp.getState().data.hobbies).toHaveLength(0)
   })
@@ -50,7 +54,7 @@ describe('HobbyForm — create', () => {
     expect(
       screen.getByText(/The first 8 sessions will be marked green as paid \(1 000 ₴ each\)/),
     ).toBeInTheDocument()
-    await userEvent.click(screen.getByRole('button', { name: 'Create and add to calendar' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Create' }))
 
     const [hobby] = useApp.getState().data.hobbies
     expect(hobby).toMatchObject({
@@ -69,7 +73,7 @@ describe('HobbyForm — create', () => {
     fireEvent.change(screen.getByLabelText('Friday'), { target: { value: '18:00' } })
     await userEvent.type(screen.getByLabelText('Sessions in pass'), '8')
     await userEvent.type(screen.getByLabelText('Pass price'), '8000,50')
-    await userEvent.click(screen.getByRole('button', { name: 'Create and add to calendar' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Create' }))
     expect(useApp.getState().data.hobbies[0]?.payments[0]?.price).toBe(800_050)
   })
 
@@ -80,7 +84,7 @@ describe('HobbyForm — create', () => {
     fireEvent.change(screen.getByLabelText('Friday'), { target: { value: '18:00' } })
     await userEvent.type(screen.getByLabelText('Sessions in pass'), '8')
     await userEvent.type(screen.getByLabelText('Pass price'), '1.2.3')
-    await userEvent.click(screen.getByRole('button', { name: 'Create and add to calendar' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Create' }))
     expect(show).toHaveBeenCalledWith(
       'Set a time for each day, the number of sessions and the first session date.',
     )
@@ -97,6 +101,47 @@ describe('HobbyForm — create', () => {
     expect(screen.getByLabelText('Thursday')).toHaveValue('09:30')
     expect(screen.getByRole('textbox', { name: 'Thursday, min' })).toHaveValue('45')
     expect(screen.queryByRole('button', { name: 'Same time for all days' })).toBeNull()
+  })
+
+  it('keeps a new hobby on the phone by default', async () => {
+    const signIn = vi.spyOn(useAuth.getState(), 'signIn').mockImplementation(() => {})
+    renderAt('/new')
+    expect(screen.getByRole('switch', { name: /Add to Google Calendar/ })).not.toBeChecked()
+    expect(screen.getByRole('switch', { name: /Back up to Google Drive/ })).not.toBeChecked()
+    await userEvent.click(screen.getByRole('button', { name: 'Fr' }))
+    fireEvent.change(screen.getByLabelText('Friday'), { target: { value: '18:00' } })
+    await userEvent.type(screen.getByLabelText('Sessions in pass'), '8')
+    await userEvent.click(screen.getByRole('button', { name: 'Create' }))
+    expect(useApp.getState().data.hobbies[0]?.google).toEqual({ calendar: false, backup: false })
+    expect(signIn).not.toHaveBeenCalled()
+  })
+
+  it('opting into Google asks to sign in after saving', async () => {
+    const signIn = vi.spyOn(useAuth.getState(), 'signIn').mockImplementation(() => {})
+    renderAt('/new')
+    await userEvent.click(screen.getByRole('button', { name: 'Fr' }))
+    fireEvent.change(screen.getByLabelText('Friday'), { target: { value: '18:00' } })
+    await userEvent.type(screen.getByLabelText('Sessions in pass'), '8')
+    expect(screen.getByText('You will be asked to sign in with Google')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('switch', { name: /Add to Google Calendar/ }))
+    await userEvent.click(screen.getByRole('switch', { name: /Back up to Google Drive/ }))
+    await userEvent.click(screen.getByRole('button', { name: 'Create and add to calendar' }))
+    expect(useApp.getState().data.hobbies[0]?.google).toEqual({ calendar: true, backup: true })
+    expect(screen.getByText('detail')).toBeInTheDocument()
+    expect(signIn).toHaveBeenCalledTimes(1)
+  })
+
+  it('does not ask a signed-in user to sign in again', async () => {
+    useAuth.setState({ status: 'signedIn', user: { email: 'me@gmail.com', name: 'Me' } })
+    const signIn = vi.spyOn(useAuth.getState(), 'signIn').mockImplementation(() => {})
+    renderAt('/new')
+    expect(screen.getByText('"My Subscriptions" calendar · me@gmail.com')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Fr' }))
+    fireEvent.change(screen.getByLabelText('Friday'), { target: { value: '18:00' } })
+    await userEvent.type(screen.getByLabelText('Sessions in pass'), '8')
+    await userEvent.click(screen.getByRole('switch', { name: /Add to Google Calendar/ }))
+    await userEvent.click(screen.getByRole('button', { name: 'Create and add to calendar' }))
+    expect(signIn).not.toHaveBeenCalled()
   })
 
   it('cancels back to the previous screen', async () => {
@@ -214,6 +259,37 @@ describe('HobbyForm — edit', () => {
     renderAt('/hobby/gym/edit')
     await userEvent.click(screen.getByRole('button', { name: 'Cancel' }))
     expect(screen.getByText('detail')).toBeInTheDocument()
+  })
+
+  it('does not ask to sign in again when saving a hobby whose options were already on', async () => {
+    useApp
+      .getState()
+      .updateHobby('gym', (h) => ({ ...h, google: { calendar: true, backup: true } }))
+    const signIn = vi.spyOn(useAuth.getState(), 'signIn').mockImplementation(() => {})
+    renderAt('/hobby/gym/edit')
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    expect(signIn).not.toHaveBeenCalled()
+  })
+
+  it('turning an option on while signed out signs in and comes back to the hobby', async () => {
+    const signIn = vi.spyOn(useAuth.getState(), 'signIn').mockImplementation(() => {})
+    renderAt('/', '/hobby/gym', '/hobby/gym/edit')
+    await userEvent.click(screen.getByRole('switch', { name: /Back up to Google Drive/ }))
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    expect(signIn).toHaveBeenCalledWith('/hobby/gym')
+  })
+
+  it('switches the Google options of an existing hobby', async () => {
+    useApp
+      .getState()
+      .updateHobby('gym', (h) => ({ ...h, google: { calendar: true, backup: true } }))
+    useAuth.setState({ status: 'signedIn', user: { email: 'me@gmail.com', name: 'Me' } })
+    renderAt('/hobby/gym/edit')
+    const calendar = screen.getByRole('switch', { name: /Add to Google Calendar/ })
+    expect(calendar).toBeChecked()
+    await userEvent.click(calendar)
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    expect(useApp.getState().data.hobbies[0]?.google).toEqual({ calendar: false, backup: true })
   })
 
   it('deletes only after confirmation', async () => {

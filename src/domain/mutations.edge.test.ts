@@ -13,6 +13,7 @@ const hobby = (overrides: Partial<Hobby> = {}): Hobby => ({
   marks: {},
   moves: {},
   updatedAt: '2026-09-05T00:00:00.000Z',
+  google: { calendar: false, backup: false },
   ...overrides,
 })
 
