@@ -6,7 +6,7 @@ test.describe('language from the browser locale', () => {
   test('Ukrainian browser gets the Ukrainian UI', async ({ page }) => {
     await page.goto('./')
     await expect(page.locator('html')).toHaveAttribute('lang', 'uk')
-    await expect(page.getByText('Облік абонементів і оплачених занять')).toBeVisible()
+    await expect(page.getByRole('heading', { name: 'Поки немає абонементів' })).toBeVisible()
   })
 })
 

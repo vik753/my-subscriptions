@@ -4,6 +4,7 @@ import {
   CalendarBlank,
   CaretLeft,
   DownloadSimple,
+  GoogleLogo,
   Info,
   Moon,
   SignOut,
@@ -124,6 +125,14 @@ export function Settings() {
       </ListSection>
 
       <ListSection title={t.account}>
+        {!user && (
+          <ListRow
+            icon={<GoogleLogo />}
+            label={t.signIn}
+            sub={t.signInSub}
+            onClick={() => useAuth.getState().signIn()}
+          />
+        )}
         {user && (
           <div className={styles.account}>
             <span className={styles.avatar} aria-hidden="true">
@@ -136,13 +145,17 @@ export function Settings() {
             </span>
           </div>
         )}
-        <ListRow
-          icon={sync === 'syncing' ? <Spinner /> : <ArrowsClockwise />}
-          label={sync === 'reauth' ? t.reauthBtn : t.syncNow}
-          sub={sync === 'reauth' ? t.reauth : undefined}
-          onClick={() => void syncNow()}
-        />
-        <ListRow icon={<SignOut />} label={t.signOut} onClick={signOut} />
+        {user && (
+          <>
+            <ListRow
+              icon={sync === 'syncing' ? <Spinner /> : <ArrowsClockwise />}
+              label={sync === 'reauth' ? t.reauthBtn : t.syncNow}
+              sub={sync === 'reauth' ? t.reauth : undefined}
+              onClick={() => void syncNow()}
+            />
+            <ListRow icon={<SignOut />} label={t.signOut} onClick={signOut} />
+          </>
+        )}
       </ListSection>
 
       <ListSection title={t.calendarSection}>

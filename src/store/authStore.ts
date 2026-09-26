@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { useApp } from './appStore'
 import {
   buildAuthUrl,
   fetchUser,
@@ -63,6 +64,10 @@ const local = {
 }
 const readJson = <T>(k: string): T | null =>
   safe(() => JSON.parse(session.get(k) ?? 'null') as T | null, null)
+
+/** Any hobby opted into Google Calendar or the Drive backup. */
+export const usesGoogle = (): boolean =>
+  useApp.getState().data.hobbies.some((h) => h.google.calendar || h.google.backup)
 
 /** The current access token while it is still valid, for API calls. */
 export const accessToken = (): string | null => {
@@ -147,8 +152,9 @@ const runInit = async (set: (s: Partial<AuthState>) => void): Promise<void> => {
           : { status: 'signedOut' },
       )
     }
-    // One silent attempt per app session, only for returning users.
-    if (local.get(HINT_KEY) != null && session.get(SILENT_KEY) == null) {
+    // One silent attempt per app session, only for returning users who use Google for something —
+    // a local-only user is never sent to accounts.google.com.
+    if (local.get(HINT_KEY) != null && session.get(SILENT_KEY) == null && usesGoogle()) {
       session.set(SILENT_KEY, 'pending')
       return redirect('none')
     }

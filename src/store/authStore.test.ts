@@ -1,7 +1,25 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
+import { resetAppStore, useApp } from './appStore'
 import { authNavigation, useAuth } from './authStore'
+import { createMemoryStorage } from './persistence/storage'
 
 const initial = useAuth.getState()
+const appInitial = useApp.getState()
+
+/** A hobby that uses Google Calendar — silent renewal is only for such users. */
+const useGoogle = () =>
+  useApp.getState().addHobby({
+    id: 'gym',
+    name: 'Gym',
+    start: '2026-09-07',
+    times: { 0: '10:00' },
+    durs: { 0: 60 },
+    currency: 'UAH',
+    sessions: 8,
+    price: 0,
+    paymentDate: '2026-09-05',
+    google: { calendar: true, backup: false },
+  })
 const API_SCOPES =
   'openid email profile https://www.googleapis.com/auth/calendar.app.created https://www.googleapis.com/auth/drive.appdata'
 const USER = { email: 'me@gmail.com', name: 'Me' }
@@ -20,7 +38,9 @@ const mockUserinfo = (res: Promise<Response> | Response) => {
 const json = (body: unknown, status = 200) =>
   new Response(JSON.stringify(body), { status, headers: { 'Content-Type': 'application/json' } })
 
-beforeEach(() => {
+beforeEach(async () => {
+  resetAppStore(appInitial)
+  await useApp.getState().load(createMemoryStorage(), 'en')
   sessionStorage.clear()
   localStorage.clear()
   setHash('')
@@ -44,7 +64,15 @@ describe('authStore.init', () => {
     expect(go).not.toHaveBeenCalled()
   })
 
+  it('never sends a local-only returning user to Google', async () => {
+    localStorage.setItem('auth.loginHint', USER.email)
+    await useAuth.getState().init()
+    expect(go).not.toHaveBeenCalled()
+    expect(useAuth.getState()).toMatchObject({ status: 'signedOut', known: true })
+  })
+
   it('makes exactly one silent attempt for a returning user', async () => {
+    useGoogle()
     localStorage.setItem('auth.loginHint', USER.email)
     await useAuth.getState().init()
     expect(go).toHaveBeenCalledTimes(1)
@@ -194,6 +222,7 @@ describe('authStore.init', () => {
 
   it('returns to the route the redirect started from', async () => {
     mockUserinfo(json(USER))
+    useGoogle()
     localStorage.setItem('auth.loginHint', USER.email)
     history.replaceState(null, '', '/hobby/gym?x=1')
     await useAuth.getState().init()

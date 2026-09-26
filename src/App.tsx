@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { BrowserRouter, Navigate, Route, Routes } from 'react-router'
 import styles from './App.module.css'
-import { detectLanguage } from './i18n'
+import { detectLanguage, messages } from './i18n'
 import { Home } from './screens/Home/Home'
 import { HobbyDetail } from './screens/HobbyDetail/HobbyDetail'
 import { About } from './screens/About/About'
@@ -10,7 +10,6 @@ import { Kit } from './screens/Kit/Kit'
 import { ScrollToTop } from './screens/ScrollToTop'
 import { Settings } from './screens/Settings/Settings'
 import { SheetHost } from './screens/sheets/SheetHost'
-import { SignIn } from './screens/SignIn/SignIn'
 import { UpdateBanner } from './screens/UpdateBanner'
 import { useApp } from './store/appStore'
 import { useAuth } from './store/authStore'
@@ -29,15 +28,16 @@ export function App() {
   const ready = useApp((s) => s.ready)
   const { scheme, mode, language } = useApp((s) => s.data.settings)
   const auth = useAuth((s) => s.status)
-  const known = useAuth((s) => s.known)
-  // Only a first-time user is gated; a returning user with an expired session keeps their local
-  // data and sees "Sign in again" in the sync status (reauth).
   const toast = useToast()
+  const t = messages[language]
   const sheetOpen = useFlow((s) => s.sheet !== null)
 
   useEffect(() => {
-    void useApp.getState().load(getStorage(), detectLanguage(navigator.languages))
-    void useAuth.getState().init()
+    // Auth needs the data first: silent renewal only happens when a hobby uses Google.
+    void useApp
+      .getState()
+      .load(getStorage(), detectLanguage(navigator.languages))
+      .then(() => useAuth.getState().init())
     const onVisible = () => {
       if (document.visibilityState === 'visible') useAuth.getState().resume()
     }
@@ -52,9 +52,14 @@ export function App() {
 
   useEffect(() => applyTheme(scheme, mode, language), [scheme, mode, language])
 
+  // A failed or refused Google sign-in: the app keeps working locally, just say so.
+  useEffect(() => {
+    if (auth === 'error') useToast.getState().show(t.signErr)
+    if (auth === 'denied') useToast.getState().show(t.signDenied)
+  }, [auth, t])
+
   // App open check (replaces notifications): on launch and whenever the app comes back to the front.
-  const gated = !known && auth !== 'signedIn' && auth !== 'offline'
-  const checking = !ready || auth === 'checking' || gated
+  const checking = !ready || auth === 'checking'
   useEffect(() => {
     if (checking) return
     runOpenCheck()
@@ -65,7 +70,7 @@ export function App() {
     return () => document.removeEventListener('visibilitychange', onVisible)
   }, [checking])
 
-  // Calendar sync for everyone past the sign-in screen; it waits by itself while signed out/offline.
+  // Google sync; it waits by itself while signed out/offline and only touches opted-in hobbies.
   useEffect(() => (checking ? undefined : startSync(createIdbMeta('sync'))), [checking])
 
   // Nothing until settings and auth are known — no English flash, no sign-in flicker.
@@ -82,23 +87,19 @@ export function App() {
   return (
     <main className={styles.shell} aria-busy="false">
       {import.meta.env.PROD && <UpdateBanner />}
-      {!gated ? (
-        <BrowserRouter basename={import.meta.env.BASE_URL}>
-          <ScrollToTop />
-          <Routes>
-            <Route path="/" element={<Home />} />
-            <Route path="/new" element={<HobbyForm />} />
-            <Route path="/hobby/:id" element={<HobbyDetail />} />
-            <Route path="/hobby/:id/edit" element={<HobbyForm />} />
-            <Route path="/settings" element={<Settings />} />
-            <Route path="/about" element={<About />} />
-            <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-          <SheetHost />
-        </BrowserRouter>
-      ) : (
-        <SignIn />
-      )}
+      <BrowserRouter basename={import.meta.env.BASE_URL}>
+        <ScrollToTop />
+        <Routes>
+          <Route path="/" element={<Home />} />
+          <Route path="/new" element={<HobbyForm />} />
+          <Route path="/hobby/:id" element={<HobbyDetail />} />
+          <Route path="/hobby/:id/edit" element={<HobbyForm />} />
+          <Route path="/settings" element={<Settings />} />
+          <Route path="/about" element={<About />} />
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+        <SheetHost />
+      </BrowserRouter>
       <ToastRegion message={toast.message} leaving={toast.leaving} top={sheetOpen} />
     </main>
   )

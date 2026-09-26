@@ -1,4 +1,4 @@
-import { render, screen, within } from '@testing-library/react'
+import { cleanup, render, screen, within } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
@@ -79,6 +79,18 @@ describe('HobbyDetail', () => {
     const payments = screen.getByRole('heading', { name: 'Payments' }).parentElement as HTMLElement
     expect(payments).toHaveTextContent('8 sessions')
     expect(payments).toHaveTextContent('8 000 ₴')
+  })
+
+  it('says a local-only hobby lives on this phone, and shows sync status once it uses Google', () => {
+    renderDetail()
+    expect(screen.getByText('Stored only on this phone')).toBeInTheDocument()
+    cleanup()
+    useApp
+      .getState()
+      .updateHobby('gym', (h) => ({ ...h, google: { calendar: true, backup: false } }))
+    renderDetail()
+    expect(screen.queryByText('Stored only on this phone')).toBeNull()
+    expect(screen.getByText('You will be asked to sign in with Google')).toBeInTheDocument()
   })
 
   it('navigates between months and to edit / home', async () => {

@@ -1,5 +1,5 @@
-import { Copy, GoogleLogo, Trash } from '@phosphor-icons/react'
-import { useState } from 'react'
+import { CalendarBlank, Copy, GoogleDriveLogo, Trash } from '@phosphor-icons/react'
+import { useId, useState } from 'react'
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router'
 import {
   editSchedule,
@@ -22,6 +22,7 @@ import { DayChips } from '../../ui/DayChips'
 import { DurationField } from '../../ui/DurationField'
 import { Field, SelectInput, TextInput } from '../../ui/Field'
 import { Sheet } from '../../ui/Sheet'
+import { Switch } from '../../ui/Switch'
 import styles from './HobbyForm.module.css'
 
 const CURRENCIES: Currency[] = ['UAH', 'USD', 'EUR']
@@ -70,6 +71,14 @@ function Form({
   const now = useNow()
   const today = now.slice(0, 10)
   const email = useAuth((s) => s.user?.email ?? '')
+  const authStatus = useAuth((s) => s.status)
+  const [calendarOn, setCalendarOn] = useState(hobby?.google.calendar ?? false)
+  const [backupOn, setBackupOn] = useState(hobby?.google.backup ?? false)
+  const calId = useId()
+  const backupId = useId()
+  const googleChosen = calendarOn || backupOn
+  // Offline counts as signed in: the session is there, sync waits for the network.
+  const signedIn = authStatus === 'signedIn' || authStatus === 'offline'
   const { addHobby, updateHobby, deleteHobby } = useApp.getState()
   const toast = useToast((s) => s.show)
   const edit = Boolean(hobby)
@@ -143,6 +152,12 @@ function Form({
     const cleanDurs = Object.fromEntries(days.map((d) => [d, durOf(d)])) as Partial<
       Record<Weekday, number>
     >
+    const google = { calendar: calendarOn, backup: backupOn }
+    // The first Google option needs an account: sign in right after saving (back to the hobby).
+    const done = (to: string) => {
+      onDone(to)
+      if (googleChosen && !signedIn) useAuth.getState().signIn()
+    }
     if (hobby) {
       const unchanged =
         base !== undefined &&
@@ -152,8 +167,9 @@ function Form({
         ...(unchanged ? h : editSchedule(h, effective, filled(times), cleanDurs)),
         name: name.trim() || h.name,
         currency: h.payments.length <= 1 ? currency : h.currency,
+        google,
       }))
-      return onDone(`/hobby/${hobby.id}`)
+      return done(`/hobby/${hobby.id}`)
     }
     const created = addHobby({
       id: crypto.randomUUID(),
@@ -165,8 +181,9 @@ function Form({
       sessions: n,
       price: minor ?? 0,
       paymentDate: today,
+      google,
     })
-    onDone(`/hobby/${created.id}`)
+    done(`/hobby/${created.id}`)
   }
 
   return (
@@ -291,17 +308,33 @@ function Form({
         </div>
       )}
 
-      <p className={styles.info}>
-        <GoogleLogo aria-hidden="true" />
-        {t.calInfo(email)}
-      </p>
+      <div className={styles.options}>
+        <div className={styles.option}>
+          <CalendarBlank className={styles.optionIcon} aria-hidden="true" />
+          <span className={styles.optionText} id={calId}>
+            {t.optCalendar}
+            <span className={styles.optionSub}>
+              {signedIn && email ? t.calInfo(email) : t.googleSignInNeeded}
+            </span>
+          </span>
+          <Switch checked={calendarOn} onChange={setCalendarOn} labelledBy={calId} />
+        </div>
+        <div className={styles.option}>
+          <GoogleDriveLogo className={styles.optionIcon} aria-hidden="true" />
+          <span className={styles.optionText} id={backupId}>
+            {t.optBackup}
+            <span className={styles.optionSub}>{t.optBackupSub}</span>
+          </span>
+          <Switch checked={backupOn} onChange={setBackupOn} labelledBy={backupId} />
+        </div>
+      </div>
 
       <p className={styles.summary} aria-live="polite">
         {summary}
       </p>
 
       <Button variant="primary" block onClick={submit}>
-        {edit ? t.save : t.createBtn}
+        {edit ? t.save : calendarOn ? t.createBtn : t.createLocal}
       </Button>
       {hobby && (
         <Button variant="ghost" block icon={<Trash />} onClick={() => setConfirmDelete(true)}>
@@ -318,7 +351,8 @@ function Form({
             block
             icon={<Trash />}
             onClick={() => {
-              announceDeletion(hobby.id)
+              // Confirm the calendar cleanup only where there was a calendar to clean.
+              if (hobby.google.calendar) announceDeletion(hobby.id)
               deleteHobby(hobby.id)
               toast(t.tDeleted)
               onDone('/')
