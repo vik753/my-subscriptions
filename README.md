@@ -35,7 +35,9 @@ the Home Screen, and it runs full screen like a regular app, offline too.
 - **Local first:** everything is stored on the phone; the app works without an account or internet.
 - **Google Calendar (optional, per hobby):** a separate "My Subscriptions" calendar with one event
   per session:
-  - Paid sessions are green, unpaid grey, attended sage.
+  - Paid sessions in the color you pick (Google's 11 event colors; green by default), unpaid grey,
+    attended sage.
+  - **Guests:** add someone's email (e.g. your partner) and the sessions show in their calendar too.
   - An optional popup reminder before each session is sent by Google Calendar.
 - **Google Drive backup (optional, per hobby):** a copy in a hidden app folder in your own Drive,
   so several phones and computers stay in sync.
@@ -69,7 +71,11 @@ turn it on, in the hobby form:
 
 - **Add to Google Calendar:** the hobby's sessions appear in a separate "My Subscriptions"
   calendar and stay up to date. Turning it off later removes them from the calendar; the hobby
-  stays on your phone.
+  stays on your phone. With it on you can also pick the **color of paid sessions** and add
+  **guests**: people whose Google Calendar should show the sessions too (they get the events
+  without an email per session). A guest needs a Google account; if the sessions don't show up
+  for them, they set Google Calendar → Settings → "Add invitations to my calendar" to
+  "From everyone".
 - **Back up to Google Drive:** the hobby is saved to a hidden app folder in your Drive and synced
   to your other devices.
 
@@ -192,6 +198,11 @@ Tap ⚙️ on the Home screen:
 - **Several devices:** turn on the Drive backup and sign in with the same Google account; the
   backed-up hobbies are merged automatically.
 - **Updates:** when a new version is out, a banner appears at the top. Tap **Update**.
+
+## Credits
+
+- **Idea:** Netrebko Olena (Нетребко Олена)
+- **Developed by:** Ihor Korenets (Ігор Коренець) with Claude (Anthropic)
 
 ## Questions and support
 

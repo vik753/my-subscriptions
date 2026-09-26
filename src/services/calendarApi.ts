@@ -11,6 +11,9 @@ export interface EventBody {
   start: { dateTime: string; timeZone: string }
   end: { dateTime: string; timeZone: string }
   reminders: { useDefault: false; overrides: { method: 'popup'; minutes: number }[] }
+  attendees: { email: string }[]
+  guestsCanModify: boolean
+  guestsCanInviteOthers: boolean
   extendedProperties: { private: Record<string, string> }
 }
 
@@ -67,13 +70,19 @@ export const upsertEvent = async (
   body: EventBody,
 ): Promise<void> => {
   try {
-    await googleRequest(token, 'events.insert', `${calendarUrl(calendarId)}/events`, {
-      method: 'POST',
-      body: { id, ...body },
-    })
+    // `sendUpdates=none`: guests get the events in their calendar without an email per session.
+    await googleRequest(
+      token,
+      'events.insert',
+      `${calendarUrl(calendarId)}/events?sendUpdates=none`,
+      {
+        method: 'POST',
+        body: { id, ...body },
+      },
+    )
   } catch (e) {
     if (!(e instanceof GoogleHttpError && e.status === 409)) throw e
-    await googleRequest(token, 'events.patch', eventUrl(calendarId, id), {
+    await googleRequest(token, 'events.patch', `${eventUrl(calendarId, id)}?sendUpdates=none`, {
       method: 'PATCH',
       body: { ...body, status: 'confirmed' },
     })
@@ -112,7 +121,9 @@ export const listHobbyEventIds = async (
 /** Already gone counts as done. */
 export const deleteEvent = async (token: string, calendarId: string, id: string): Promise<void> => {
   try {
-    await googleRequest(token, 'events.delete', eventUrl(calendarId, id), { method: 'DELETE' })
+    await googleRequest(token, 'events.delete', `${eventUrl(calendarId, id)}?sendUpdates=none`, {
+      method: 'DELETE',
+    })
   } catch (e) {
     if (!(e instanceof GoogleHttpError && (e.status === 404 || e.status === 410))) throw e
   }

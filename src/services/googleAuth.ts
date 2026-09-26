@@ -87,10 +87,12 @@ export const fetchUser = async (accessToken: string): Promise<GoogleUser> => {
     headers: { Authorization: `Bearer ${accessToken}` },
   })
   if (!res.ok) throw new GoogleHttpError(res.status, 'userinfo')
-  const data = (await res.json()) as { email: string; name?: string; picture?: string }
+  const data = (await res.json()) as { email?: unknown; name?: unknown; picture?: string }
+  // A profile without an email is useless (and would break the account row): treat as a failure.
+  if (typeof data.email !== 'string' || !data.email) throw new GoogleHttpError(502, 'userinfo')
   return {
     email: data.email,
-    name: data.name ?? data.email,
+    name: typeof data.name === 'string' && data.name ? data.name : data.email,
     ...(data.picture && { picture: data.picture }),
   }
 }

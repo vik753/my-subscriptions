@@ -35,6 +35,9 @@ sessions in your pass and its price, then **Create**. That's it — the app work
 In the hobby form you can turn on:
 
 - **Add to Google Calendar** — the sessions appear in a new calendar called **"My Subscriptions"**.
+  You can pick the color of paid sessions and add **guests** (e.g. your partner) — the sessions
+  appear in their calendar too. If they don't, the guest opens Google Calendar → Settings →
+  "Add invitations to my calendar" and picks "From everyone".
 - **Back up to Google Drive** — a copy for safety and for your other devices.
 
 The first time, the app asks you to sign in with Google:
@@ -62,3 +65,7 @@ The first time, the app asks you to sign in with Google:
 ## Questions
 
 Write to vik753@gmail.com (also in Settings → About → Contact support).
+
+---
+
+Idea: Netrebko Olena · Developed by Ihor Korenets with Claude (Anthropic)

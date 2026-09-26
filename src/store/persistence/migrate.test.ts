@@ -22,7 +22,7 @@ const makeHobby = (overrides: Partial<Hobby> = {}): Hobby => ({
   marks: {},
   moves: {},
   updatedAt: '2026-09-01T00:00:00.000Z',
-  google: { calendar: false, backup: false },
+  google: { calendar: false, backup: false, guests: [], paidColor: '10' },
   ...overrides,
 })
 
@@ -170,8 +170,10 @@ describe('migrate: v1 → v2', () => {
       deletedHobbies: { h2: '2026-09-01T00:00:00.000Z' },
     }
     expect(migrate(v1, 'en')).toEqual({
-      schemaVersion: 3,
-      hobbies: [{ ...makeHobby(), google: { calendar: true, backup: true } }],
+      schemaVersion: 4,
+      hobbies: [
+        { ...makeHobby(), google: { calendar: true, backup: true, guests: [], paidColor: '10' } },
+      ],
       settings: makeSettings({ language: 'uk', reminderMinutes: 15 }),
       settingsUpdatedAt: '',
       deletedHobbies: { h2: '2026-09-01T00:00:00.000Z' },
@@ -186,20 +188,51 @@ describe('migrate: v1 → v2', () => {
 describe('migrate: v2 → v3', () => {
   it('keeps Calendar and Drive on for hobbies created before the option existed', () => {
     const v2 = { ...makeRaw(), schemaVersion: 2, hobbies: [withoutGoogle(makeHobby())] }
-    expect(migrate(v2, 'en').hobbies[0]?.google).toEqual({ calendar: true, backup: true })
+    expect(migrate(v2, 'en').hobbies[0]?.google).toMatchObject({ calendar: true, backup: true })
   })
 
   it('reads v3 flags and treats missing ones as off (local only)', () => {
     const v3 = {
       ...makeRaw(),
       hobbies: [
-        makeHobby({ google: { calendar: true, backup: false } }),
+        makeHobby({ google: { calendar: true, backup: false, guests: [], paidColor: '10' } }),
         withoutGoogle(makeHobby({ id: 'b' })),
       ],
     }
-    expect(migrate(v3, 'en').hobbies.map((h) => h.google)).toEqual([
+    expect(migrate(v3, 'en').hobbies.map((h) => h.google)).toMatchObject([
       { calendar: true, backup: false },
       { calendar: false, backup: false },
     ])
+  })
+})
+
+describe('migrate: v3 → v4', () => {
+  it('adds no guests and Basil (the old green) to existing hobbies', () => {
+    const v3hobby = { ...makeHobby(), google: { calendar: true, backup: false } }
+    const v3 = { ...makeRaw(), schemaVersion: 3, hobbies: [v3hobby] }
+    expect(migrate(v3, 'en').hobbies[0]?.google).toEqual({
+      calendar: true,
+      backup: false,
+      guests: [],
+      paidColor: '10',
+    })
+  })
+
+  it('keeps valid guests and color, drops junk', () => {
+    const hobby = {
+      ...makeHobby(),
+      google: {
+        calendar: true,
+        backup: true,
+        guests: [' A@B.co ', 'a@b.co', 5, 'not-an-email'],
+        paidColor: '42',
+      },
+    }
+    expect(migrate({ ...makeRaw(), hobbies: [hobby] }, 'en').hobbies[0]?.google).toEqual({
+      calendar: true,
+      backup: true,
+      guests: ['a@b.co'],
+      paidColor: '10',
+    })
   })
 })

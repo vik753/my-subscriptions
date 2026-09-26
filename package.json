@@ -2,6 +2,11 @@
   "name": "my-subscriptions",
   "private": true,
   "version": "1.0.0",
+  "author": "Ihor Korenets",
+  "contributors": [
+    "Netrebko Olena (idea)",
+    "Claude (Anthropic)"
+  ],
   "type": "module",
   "engines": {
     "node": ">=24"

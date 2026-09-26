@@ -14,7 +14,7 @@ export interface Settings {
   renewSnoozedUntil: Record<string, string>
 }
 
-export const SCHEMA_VERSION = 3
+export const SCHEMA_VERSION = 4
 
 /** Everything persisted in IndexedDB and backed up to Google Drive. */
 export interface PersistedState {

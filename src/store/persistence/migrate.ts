@@ -48,6 +48,21 @@ const readGoogle = (raw: unknown, legacy: boolean): Hobby['google'] => {
   return {
     calendar: typeof on.calendar === 'boolean' ? on.calendar : legacy,
     backup: typeof on.backup === 'boolean' ? on.backup : legacy,
+    // Duplicate or malformed attendees would make Google reject the event.
+    guests: Array.isArray(on.guests)
+      ? [
+          ...new Set(
+            on.guests
+              .filter((g): g is string => typeof g === 'string')
+              .map((g) => g.trim().toLowerCase())
+              .filter((g) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(g)),
+          ),
+        ]
+      : [],
+    paidColor:
+      typeof on.paidColor === 'string' && /^([1-9]|1[01])$/.test(on.paidColor)
+        ? on.paidColor
+        : '10',
   }
 }
 
@@ -73,6 +88,7 @@ const readSettings = (raw: unknown, language: Language): Settings => {
  *   `hobbies` → [], missing `deletedHobbies` → {}, missing `settingsUpdatedAt` → ''
  * - v1 → v2: adds `settingsUpdatedAt: ''`
  * - v2 → v3: adds `hobby.google`; older hobbies keep Calendar + Drive on, missing flags in v3 = off
+ * - v3 → v4: adds `hobby.google.guests` ([]) and `paidColor` ('10' Basil — the previous green)
  * - version newer than SCHEMA_VERSION → throws (never silently drop data written by a newer app)
  */
 export function migrate(raw: unknown, language: Language): PersistedState {

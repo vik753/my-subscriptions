@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { cleanup, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter } from 'react-router'
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest'
@@ -28,7 +28,9 @@ describe('About', () => {
   it('shows version, author, license and contact links', () => {
     renderAbout()
     expect(screen.getByText(`Version ${__APP_VERSION__}`)).toBeInTheDocument()
+    expect(screen.getByText('Netrebko Olena')).toBeInTheDocument()
     expect(screen.getByText('Ihor Korenets')).toBeInTheDocument()
+    expect(screen.getByText('Claude (Anthropic)')).toBeInTheDocument()
     expect(screen.getByText('Proprietary')).toBeInTheDocument()
     expect(screen.getByRole('link', { name: /Contact support/ })).toHaveAttribute(
       'href',
@@ -38,6 +40,20 @@ describe('About', () => {
       'href',
       'https://github.com/vik753?tab=repositories',
     )
+  })
+
+  it('credits the idea author and developers in the app language', async () => {
+    useApp.getState().updateSettings({ language: 'ru' })
+    renderAbout()
+    expect(screen.getByText('Создатель идеи')).toBeInTheDocument()
+    expect(screen.getByText('Нетребко Елена')).toBeInTheDocument()
+    expect(screen.getByText('Разработчики')).toBeInTheDocument()
+    expect(screen.getByText('Игорь Коренец')).toBeInTheDocument()
+    cleanup()
+    useApp.getState().updateSettings({ language: 'uk' })
+    renderAbout()
+    expect(screen.getByText('Нетребко Олена')).toBeInTheDocument()
+    expect(screen.getByText('Ігор Коренець')).toBeInTheDocument()
   })
 
   it('shares the app link with the Web Share API', async () => {
