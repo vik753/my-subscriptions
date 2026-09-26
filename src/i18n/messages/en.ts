@@ -84,6 +84,7 @@ export const en = {
   calendarSection: 'Google Calendar',
   tSynced: 'Synced',
   tOffline: 'Offline. Changes are saved on this device',
+  syncNewer: 'Your backup was saved by a newer version of the app. Update the app to sync',
   account: 'Google account',
   syncNow: 'Sync now',
   signOut: 'Sign out',

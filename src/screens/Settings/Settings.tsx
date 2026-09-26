@@ -15,6 +15,7 @@ import { APP_NAME, LANGUAGES } from '../../i18n'
 import { formatDate } from '../../i18n/format'
 import { useApp } from '../../store/appStore'
 import { useAuth } from '../../store/authStore'
+import { localClock } from '../../store/clock'
 import { useFlow } from '../../store/flowStore'
 import { useInstall } from '../../store/installStore'
 import { useSyncState } from '../../store/syncState'
@@ -61,8 +62,7 @@ export function Settings() {
     const pad = (n: number) => String(n).padStart(2, '0')
     const date = `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`
     const time = `${pad(d.getHours())}:${pad(d.getMinutes())}`
-    const today = new Date()
-    return d.toDateString() === today.toDateString()
+    return date === localClock.now().slice(0, 10)
       ? t.lastSync(time)
       : t.lastSyncOn(`${formatDate(lang, date)}, ${time}`)
   })()

@@ -3,6 +3,7 @@ import { cancelSession, eventId, markSession } from '../domain'
 import { googleHttp } from '../services/googleHttp'
 import { resetAppStore, useApp } from './appStore'
 import { useAuth } from './authStore'
+import { useToast } from './toastStore'
 import { localClock } from './clock'
 import { createMemoryMeta, createMemoryStorage } from './persistence/storage'
 import { eventBody, startSync, syncEnv, useSync, wipeAllData } from './syncStore'
@@ -287,7 +288,7 @@ describe('calendar sync', () => {
     expect(google.live('cal2')).toHaveLength(13)
   })
 
-  it('starts over for another Google account', async () => {
+  it('another Google account starts clean: the previous account data does not leak', async () => {
     addGym()
     signIn('me@gmail.com')
     stop = startSync(meta)
@@ -295,8 +296,34 @@ describe('calendar sync', () => {
     signIn('other@gmail.com')
     google.drive.clear() // each account has its own Drive
     await run()
-    expect(google.live('cal2')).toHaveLength(13)
-    expect(meta.value).toMatchObject({ account: 'other@gmail.com', calendarId: 'cal2' })
+    expect(useApp.getState().data.hobbies).toEqual([])
+    expect(google.calendars.size).toBe(1) // only the first account's calendar
+    expect(backupHobbies()).toEqual([])
+    expect(meta.value).toMatchObject({ account: 'other@gmail.com', calendarId: null })
+  })
+
+  it('waits for renewal instead of asking to sign in when the token expired locally', async () => {
+    addGym()
+    signIn()
+    sessionStorage.setItem(
+      'auth.token',
+      JSON.stringify({ accessToken: 't', expiresAt: Date.now() - 1 }),
+    )
+    const resume = vi.spyOn(useAuth.getState(), 'resume').mockImplementation(() => {})
+    stop = startSync(meta)
+    expect(await run()).toBe(false)
+    expect(resume).toHaveBeenCalled()
+    expect(useAuth.getState().status).toBe('signedIn')
+    expect(google.requests).toEqual([])
+  })
+
+  it('never syncs when local data failed to load', async () => {
+    addGym()
+    signIn()
+    useApp.setState({ loadError: 'broken' })
+    stop = startSync(meta)
+    expect(await run()).toBe(false)
+    expect(google.requests).toEqual([])
   })
 
   it('asks to sign in again when Google rejects the token, keeping the work for later', async () => {
@@ -393,6 +420,37 @@ describe('calendar sync', () => {
       expect(google.calendars.get('cal1')?.size).toBe(13)
     })
 
+    it('delete all data on another device reaches this one (stale file id)', async () => {
+      addGym()
+      signIn()
+      stop = startSync(meta)
+      await run()
+      const deviceA = meta
+      stop()
+
+      // Device B: same account, restores, then deletes everything online.
+      const stateA = useApp.getState().data
+      resetAppStore(initial)
+      await useApp.getState().load(createMemoryStorage(), 'en')
+      meta = createMemoryMeta()
+      stop = startSync(meta)
+      await run()
+      await wipeAllData()
+      await run()
+      stop()
+
+      // Back on device A: its remembered Drive file is gone; it must find B's new one.
+      resetAppStore(initial)
+      await useApp.getState().load(createMemoryStorage(stateA), 'en')
+      meta = deviceA
+      stop = startSync(meta)
+      await run()
+      await run()
+      expect(useApp.getState().data.hobbies).toEqual([])
+      expect(google.drive.size).toBe(1)
+      expect([...google.calendars.keys()].every((c) => google.live(c).length === 0)).toBe(true)
+    })
+
     it('a hobby deleted on another device disappears here with its events', async () => {
       addGym()
       signIn()
@@ -410,6 +468,7 @@ describe('calendar sync', () => {
     })
 
     it('never overwrites a backup written by a newer app version', async () => {
+      const show = vi.spyOn(useToast.getState(), 'show')
       addGym()
       signIn()
       google.drive.set('file1', { schemaVersion: 99, hobbies: [] })
@@ -417,6 +476,9 @@ describe('calendar sync', () => {
       expect(await run()).toBe(false)
       expect(backup()).toEqual({ schemaVersion: 99, hobbies: [] })
       expect(google.calendars.size).toBe(0)
+      expect(show).toHaveBeenCalledWith(
+        'Your backup was saved by a newer version of the app. Update the app to sync',
+      )
     })
   })
 

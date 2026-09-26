@@ -20,7 +20,8 @@ import { deleteFile, downloadJson, findStateFile, uploadJson } from '../services
 import { GoogleHttpError } from '../services/googleAuth'
 import { useApp } from './appStore'
 import { accessToken, useAuth } from './authStore'
-import { mergeState, readBackup, sameState, type BackupDoc } from './backup'
+import { mergeState, NewerBackupError, readBackup, sameState, type BackupDoc } from './backup'
+import { defaultState } from './persistence/migrate'
 import { localClock } from './clock'
 import type { MetaStorage } from './persistence/storage'
 import { useToast } from './toastStore'
@@ -97,7 +98,14 @@ interface SyncState {
   schedule: () => void
 }
 
+/** No valid token locally — not a Google rejection; renewal is up to the auth store. */
+class TokenMissing extends Error {}
+
 let meta: MetaStorage | null = null
+// One immediate retry after a 404 (vanished calendar); a lasting 404 waits for the next trigger.
+let retried404 = false
+// The "backup is from a newer app" toast is shown once per launch.
+let warnedNewer = false
 let rerun = false
 let timer: number | undefined
 // The calendar's existence is checked once per launch, not on every sync.
@@ -112,25 +120,43 @@ export const syncEnv = {
 const sync = async (store: MetaStorage): Promise<void> => {
   const token = accessToken()
   const account = useAuth.getState().user?.email ?? null
-  if (!token) throw new GoogleHttpError(401, 'token')
+  if (!token) throw new TokenMissing()
 
   let m = readMeta(await store.load())
-  if (m.account !== account) m = emptyMeta(account)
+  if (m.account !== account) {
+    // Another Google account signed in on this device: the local hobbies belong to the previous
+    // account and must not leak into this account's calendar and backup.
+    // Device preferences (theme, language) stay.
+    if (m.account !== null) {
+      const { settings, settingsUpdatedAt } = useApp.getState().data
+      useApp
+        .getState()
+        .applyMerged({ ...defaultState(settings.language), settings, settingsUpdatedAt })
+    }
+    m = emptyMeta(account)
+  }
   const save = () => store.save(m)
 
   // 1. Backup: merge this device with the Drive copy (another device may have changed things).
   const language = useApp.getState().data.settings.language
-  let fileId = m.driveFileId ?? (await findStateFile(token))
-  let remote: BackupDoc | null = null
-  if (fileId) {
+  const download = async (id: string | null): Promise<BackupDoc | null> => {
+    if (!id) return null
     try {
-      remote = readBackup(await downloadJson(token, fileId), language)
+      return readBackup(await downloadJson(token, id), language)
     } catch (e) {
-      // The file vanished (e.g. "Delete all data" on another device): write a new one.
-      if (!(e instanceof GoogleHttpError && e.status === 404)) throw e
-      fileId = null
+      if (e instanceof GoogleHttpError && e.status === 404) return null
+      throw e
     }
   }
+  let fileId = m.driveFileId ?? (await findStateFile(token))
+  let remote = await download(fileId)
+  if (!remote && m.driveFileId) {
+    // The remembered file is gone (e.g. "Delete all data" on another device, which then wrote a
+    // new one): look for the current file instead of forking a second copy.
+    fileId = await findStateFile(token)
+    remote = await download(fileId)
+  }
+  if (!remote) fileId = null
   if (remote) {
     const local = useApp.getState().data
     const merged = mergeState(local, remote)
@@ -211,7 +237,19 @@ export const useSync = create<SyncState>((set, get) => ({
 
   run: async () => {
     const store = meta
-    if (!store || useAuth.getState().status !== 'signedIn' || !get().online) return false
+    // Local data failed to load: syncing now would erase the calendar and backup with empty data.
+    if (
+      !store ||
+      useApp.getState().loadError ||
+      useAuth.getState().status !== 'signedIn' ||
+      !get().online
+    )
+      return false
+    if (!accessToken()) {
+      // Expired locally: renew (silently if possible) instead of declaring "Sign in again".
+      useAuth.getState().resume()
+      return false
+    }
     if (get().running) {
       rerun = true
       return false
@@ -224,14 +262,23 @@ export const useSync = create<SyncState>((set, get) => ({
         await sync(store)
       } while (rerun)
       ok = true
+      retried404 = false
     } catch (e) {
       if (e instanceof GoogleHttpError && e.status === 401) useAuth.getState().expire()
       // The calendar vanished mid-sync: check again (and recreate it) on a fresh run.
       else if (e instanceof GoogleHttpError && e.status === 404) {
         verified = false
-        get().schedule()
+        if (!retried404) {
+          retried404 = true
+          get().schedule()
+        }
+      } else if (e instanceof NewerBackupError) {
+        if (!warnedNewer) {
+          warnedNewer = true
+          useToast.getState().show(messages[useApp.getState().data.settings.language].syncNewer)
+        }
       }
-      // Network errors: nothing to do — the diff is recomputed on the next run.
+      // Network errors, TokenMissing: nothing to do — the diff is recomputed on the next run.
     } finally {
       set({ running: false })
     }

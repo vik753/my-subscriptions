@@ -1,15 +1,26 @@
 import { mergeHobbies } from '../domain'
 import type { Language } from '../i18n'
 import { migrate } from './persistence/migrate'
-import type { PersistedState, Settings } from './types'
+import { SCHEMA_VERSION, type PersistedState, type Settings } from './types'
 
 /** state.json in Drive appDataFolder: the app state plus the account's calendar id. */
 export interface BackupDoc extends PersistedState {
   calendarId: string | null
 }
 
+/** The backup was written by a newer app version: sync stops until this app is updated. */
+export class NewerBackupError extends Error {}
+
 /** Reads a downloaded backup; throws for a newer schema (never overwrite what we can't read). */
 export const readBackup = (raw: unknown, language: Language): BackupDoc => {
+  if (
+    typeof raw === 'object' &&
+    raw !== null &&
+    'schemaVersion' in raw &&
+    typeof raw.schemaVersion === 'number' &&
+    raw.schemaVersion > SCHEMA_VERSION
+  )
+    throw new NewerBackupError(`backup schema v${raw.schemaVersion}`)
   const calendarId =
     typeof raw === 'object' &&
     raw !== null &&
