@@ -469,6 +469,25 @@ export const startSync = (store: MetaStorage): (() => void) => {
   }
 }
 
+/** Deletes the calendar (shared events one by one first) and the Drive backup. */
+const deleteGoogleData = async (token: string, m: SyncMeta): Promise<void> => {
+  if (m.calendarId) {
+    // Guests hold copies of these events. Deleting each event is documented to cancel it
+    // for every attendee; deleting the whole calendar is not, so shared events go first.
+    const calendarId = m.calendarId
+    const shared = useApp
+      .getState()
+      .data.hobbies.filter((h) => h.google.calendar && h.google.guests.length > 0)
+    for (const h of shared) {
+      const ids = await listHobbyEventIds(token, calendarId, h.id)
+      await inParallel(ids, (id) => deleteEvent(token, calendarId, id))
+    }
+    await deleteCalendar(token, calendarId)
+  }
+  const fileId = m.driveFileId ?? (await findStateFile(token))
+  if (fileId) await deleteFile(token, fileId)
+}
+
 /**
  * "Delete all data": the calendar and the Drive backup go first (when Google is reachable), then
  * the local data. Offline, the local tombstones remove the hobbies everywhere on the next sync.
@@ -479,21 +498,7 @@ export const wipeAllData = async (): Promise<void> => {
   let removed = false
   if (token && useSync.getState().online) {
     try {
-      if (m.calendarId) {
-        // Guests hold copies of these events. Deleting each event is documented to cancel it
-        // for every attendee; deleting the whole calendar is not, so shared events go first.
-        const calendarId = m.calendarId
-        const shared = useApp
-          .getState()
-          .data.hobbies.filter((h) => h.google.calendar && h.google.guests.length > 0)
-        for (const h of shared) {
-          const ids = await listHobbyEventIds(token, calendarId, h.id)
-          await inParallel(ids, (id) => deleteEvent(token, calendarId, id))
-        }
-        await deleteCalendar(token, calendarId)
-      }
-      const fileId = m.driveFileId ?? (await findStateFile(token))
-      if (fileId) await deleteFile(token, fileId)
+      await deleteGoogleData(token, m)
       removed = true
     } catch {
       // Unreachable now: tombstones and the event diff finish the job on the next sync.
@@ -507,4 +512,25 @@ export const wipeAllData = async (): Promise<void> => {
     useSync.setState({ lastSync: null })
   }
   useApp.getState().wipe()
+}
+
+/**
+ * "Delete only from Google": the calendar and the Drive backup go, the hobbies stay on this phone
+ * with their Google options switched off (else the next sync would recreate everything).
+ * Needs a connection and a valid sign-in; returns false (and changes nothing) without them.
+ */
+export const wipeGoogleData = async (): Promise<boolean> => {
+  const token = accessToken()
+  if (!token || !useSync.getState().online) return false
+  const m = readMeta(await meta?.load())
+  try {
+    await deleteGoogleData(token, m)
+  } catch {
+    return false
+  }
+  verified = false
+  await meta?.save(emptyMeta(m.account))
+  useSync.setState({ lastSync: null })
+  useApp.getState().disableGoogle()
+  return true
 }

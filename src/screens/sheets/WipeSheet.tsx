@@ -1,24 +1,35 @@
-import { Trash } from '@phosphor-icons/react'
+import { CloudSlash, Trash } from '@phosphor-icons/react'
 import { useState } from 'react'
+import { usesGoogle } from '../../store/authStore'
 import { useFlow } from '../../store/flowStore'
-import { wipeAllData } from '../../store/syncStore'
+import { wipeAllData, wipeGoogleData } from '../../store/syncStore'
 import { useToast } from '../../store/toastStore'
 import { useT } from '../../store/useT'
 import { Button } from '../../ui/Button'
 import styles from './sheets.module.css'
 
-/** "Delete all data?" confirmation: calendar, Drive backup and this device. */
+/** "Delete data?": everything (phone + Google) or only the Google copies (calendar + Drive). */
 export function WipeSheet({ onDone }: { onDone: () => void }) {
   const t = useT()
-  const [busy, setBusy] = useState(false)
+  const [busy, setBusy] = useState<'all' | 'google' | null>(null)
   const close = () => useFlow.getState().close()
+  const toast = useToast.getState().show
 
-  const wipe = async () => {
-    setBusy(true)
+  const wipeAll = async () => {
+    setBusy('all')
     await wipeAllData()
     close()
-    useToast.getState().show(t.tWiped)
+    toast(t.tWiped)
     onDone()
+  }
+
+  const wipeGoogle = async () => {
+    setBusy('google')
+    const ok = await wipeGoogleData()
+    setBusy(null)
+    if (!ok) return toast(t.wipeGoogleNeeds)
+    close()
+    toast(t.tWipedGoogle)
   }
 
   return (
@@ -32,12 +43,30 @@ export function WipeSheet({ onDone }: { onDone: () => void }) {
         block
         tall
         icon={<Trash />}
-        loading={busy}
-        onClick={() => void wipe()}
+        loading={busy === 'all'}
+        disabled={busy !== null}
+        onClick={() => void wipeAll()}
       >
-        {t.wipeBtn}
+        {t.wipeAllBtn}
       </Button>
-      <Button variant="ghost" block disabled={busy} onClick={close}>
+      <p className={styles.hint}>{t.wipeAllSub}</p>
+      {usesGoogle() && (
+        <>
+          <Button
+            variant="secondary"
+            block
+            tall
+            icon={<CloudSlash />}
+            loading={busy === 'google'}
+            disabled={busy !== null}
+            onClick={() => void wipeGoogle()}
+          >
+            {t.wipeGoogleBtn}
+          </Button>
+          <p className={styles.hint}>{t.wipeGoogleSub}</p>
+        </>
+      )}
+      <Button variant="ghost" block disabled={busy !== null} onClick={close}>
         {t.cancel}
       </Button>
     </>

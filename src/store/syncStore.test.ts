@@ -6,7 +6,15 @@ import { useAuth } from './authStore'
 import { useToast } from './toastStore'
 import { localClock } from './clock'
 import { createMemoryMeta, createMemoryStorage } from './persistence/storage'
-import { announceDeletion, eventBody, startSync, syncEnv, useSync, wipeAllData } from './syncStore'
+import {
+  announceDeletion,
+  eventBody,
+  startSync,
+  syncEnv,
+  useSync,
+  wipeAllData,
+  wipeGoogleData,
+} from './syncStore'
 
 /** In-memory Google Calendar: enough of calendars + events to exercise the sync. */
 const server = () => {
@@ -847,6 +855,46 @@ describe('calendar sync', () => {
       )
       expect(eventDeletes).toHaveLength(13)
       expect(google.requests.at(-2)).toBe('DELETE /calendars/cal1') // then the calendar, then Drive
+    })
+  })
+
+  describe('delete only from Google', () => {
+    it('removes the calendar and the backup, keeps the hobbies locally with Google off', async () => {
+      useApp.getState().addHobby({
+        ...gymInput,
+        google: { calendar: true, backup: true, guests: ['wife@gmail.com'], paidColor: '3' },
+      })
+      signIn()
+      stop = startSync(meta)
+      await run()
+      expect(await wipeGoogleData()).toBe(true)
+      expect(google.calendars.size).toBe(0)
+      expect(google.drive.size).toBe(0)
+      const [hobby] = useApp.getState().data.hobbies
+      expect(hobby?.google).toEqual({
+        calendar: false,
+        backup: false,
+        guests: ['wife@gmail.com'],
+        paidColor: '3',
+      })
+      // The next sync doesn't bring anything back.
+      await run()
+      expect(google.calendars.size).toBe(0)
+      expect(google.drive.size).toBe(0)
+    })
+
+    it('does nothing without a connection or a sign-in', async () => {
+      addGym()
+      signIn()
+      stop = startSync(meta)
+      await run()
+      useSync.setState({ online: false })
+      expect(await wipeGoogleData()).toBe(false)
+      useSync.setState({ online: true })
+      sessionStorage.clear()
+      expect(await wipeGoogleData()).toBe(false)
+      expect(google.live('cal1')).toHaveLength(13)
+      expect(useApp.getState().data.hobbies[0]?.google.calendar).toBe(true)
     })
   })
 
