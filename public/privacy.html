@@ -104,15 +104,16 @@
         <li>
           <strong>Google account basic info</strong> (<code>openid</code>, <code>email</code>,
           <code>profile</code>): your name and email are shown in the app's Settings, and the email
-          is used to sign you back in.
+          is used to sign you back in. Your name is also part of the app calendar's name, and events
+          shared with guests say who organized them (your name and email).
         </li>
         <li>
           <strong>Calendars created by the app</strong>
           (<code>https://www.googleapis.com/auth/calendar.app.created</code>): the app creates one
-          secondary calendar named “My Subscriptions” and writes one event per session of the
-          hobbies you chose (date, time, duration, status such as paid or unpaid). If you add guests
-          to a hobby, their email addresses are added as event attendees so the sessions appear in
-          their calendars. The app cannot see or change any of your other calendars.
+          secondary calendar named “My Subscriptions · your name” and writes one event per session
+          of the hobbies you chose (date, time, duration, status such as paid or unpaid). If you add
+          guests to a hobby, their email addresses are added as event attendees so the sessions
+          appear in their calendars. The app cannot see or change any of your other calendars.
         </li>
         <li>
           <strong>The app's own hidden Google Drive folder</strong>

@@ -10,6 +10,8 @@ three languages under **About → What's new** (`src/i18n/changelog.ts`) — kee
 - _Pay for this session_ in the session sheet of an unpaid session.
 - Session length presets open as a vertical list.
 - _What's new_ page in About, and an "Updated to …" note once after each update.
+- The calendar is named after its owner ("My Subscriptions · Name") and events with guests say
+  "Organizer: Name (email)" — Google shows the calendar, not the person, as the organizer.
 
 ## [1.2.1] — 2026-09-26
 

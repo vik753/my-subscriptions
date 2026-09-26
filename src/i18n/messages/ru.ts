@@ -132,6 +132,7 @@ export const ru: Messages = {
   tWiped: 'Все данные удалены',
   lastPaidNote: 'Последнее оплаченное занятие — пора продлить абонемент',
   evDur: (n) => 'Длительность: ' + n + ' мин',
+  evOrganizer: (who) => 'Организатор: ' + who,
   calInfo: (e) => 'Календарь «My Subscriptions» · ' + e,
   optCalendar: 'Добавить в Google Календарь',
   optBackup: 'Резервная копия в Google Drive',
