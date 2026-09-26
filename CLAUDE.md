@@ -82,6 +82,7 @@ Never store derived values (`remaining`, statuses, `paid`/`price` totals) — co
 - Before every commit: `npm run typecheck && npm run lint && npm test` must pass. Enforced by husky (`pre-commit`: lint-staged + typecheck, `pre-push`: tests + build), by `.claude/hooks/guard-git.mjs` (blocks `main`, force-push, `--no-verify`, `gh pr merge`) and by CI (`.github/workflows/ci.yml`) — `main` accepts only PRs with green CI.
 - Ship finished work with `/ship`.
 - The only PRs in this repo are `dev → main`. Dependabot PRs (target `dev`): evaluate, port accepted updates as regular commits on `dev`, then close the PR with a comment (`gh pr close <n> --comment ...`). Never merge PRs.
+- Releases: a PR with user-visible changes bumps `package.json` (feature → minor, fix → patch) and adds the release to `CHANGELOG.md` (English) and `src/i18n/changelog.ts` (uk/en/ru, plain language). After the user merges, tag the merge commit on `main` as `vX.Y.Z` and push the tag.
 - Conventional Commits: `feat(domain): carry payment over on cancel`. Small, focused commits.
 - PR description: what changed, how it was verified, screenshots for UI changes, open questions.
 

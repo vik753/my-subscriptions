@@ -11,6 +11,7 @@ import { APP_NAME, messages, type Language } from '../i18n'
 import {
   calendarExists,
   createCalendar,
+  renameCalendar,
   deleteCalendar,
   deleteEvent,
   listHobbyEventIds,
@@ -47,6 +48,8 @@ export interface SyncMeta {
   /** Account the calendar belongs to; another account starts from scratch. */
   account: string | null
   calendarId: string | null
+  /** The calendar name last written (renamed when the account's name changes). */
+  calendarName: string | null
   /** event key (`hobbyId|sessionKey`) → hash of the body written to Google. */
   synced: Record<string, string>
   /** ISO timestamp of the last successful sync. */
@@ -62,6 +65,7 @@ export interface SyncMeta {
 const emptyMeta = (account: string | null): SyncMeta => ({
   account,
   calendarId: null,
+  calendarName: null,
   synced: {},
   lastSync: null,
   driveFileId: null,
@@ -74,6 +78,7 @@ const readMeta = (raw: unknown): SyncMeta => {
   return {
     account: typeof m.account === 'string' ? m.account : null,
     calendarId: typeof m.calendarId === 'string' ? m.calendarId : null,
+    calendarName: typeof m.calendarName === 'string' ? m.calendarName : null,
     synced: m.synced && typeof m.synced === 'object' ? { ...m.synced } : {},
     lastSync: typeof m.lastSync === 'string' ? m.lastSync : null,
     driveFileId: typeof m.driveFileId === 'string' ? m.driveFileId : null,
@@ -84,6 +89,21 @@ const readMeta = (raw: unknown): SyncMeta => {
   }
 }
 
+/** Who owns the calendar: shown to guests, since Google names the calendar as the organizer. */
+export interface CalendarOwner {
+  name: string
+  email: string
+}
+
+const ownerLabel = (o: CalendarOwner) => (o.name === o.email ? o.email : `${o.name} (${o.email})`)
+
+/**
+ * "My Subscriptions · Ihor Korenets": events of a secondary calendar show the calendar as their
+ * organizer, so the name tells guests whose sessions these are.
+ */
+export const calendarName = (owner: CalendarOwner | null): string =>
+  owner ? `${APP_NAME} · ${owner.name}` : APP_NAME
+
 /** The Google event for one session: localized title/description, color, popup reminder. */
 export const eventBody = (
   e: CalendarEventModel,
@@ -93,6 +113,7 @@ export const eventBody = (
   timeZone: string,
   /** The hobby's calendar options: color of paid sessions, guests. */
   options: { paidColor: string; guests: readonly string[] } = { paidColor: COLOR.paid, guests: [] },
+  owner: CalendarOwner | null = null,
 ): EventBody => {
   const t = messages[lang]
   const label = {
@@ -103,9 +124,14 @@ export const eventBody = (
   }[e.status]
   return {
     summary: `${e.status === 'forfeit' ? strike(e.name) : e.name} · ${label}`,
-    description: [label, t.evDur(e.dur), ...(e.lastPaid ? [t.lastPaidNote] : []), appUrl].join(
-      '\n',
-    ),
+    description: [
+      label,
+      t.evDur(e.dur),
+      ...(e.lastPaid ? [t.lastPaidNote] : []),
+      // Only guests need to be told who added the session.
+      ...(owner && options.guests.length > 0 ? [t.evOrganizer(ownerLabel(owner))] : []),
+      appUrl,
+    ].join('\n'),
     colorId: e.status === 'paid' ? options.paidColor : COLOR[e.status],
     start: { dateTime: `${e.date}T${e.time}:00`, timeZone },
     end: { dateTime: `${addMinutes(e.date, e.time, e.dur)}:00`, timeZone },
@@ -247,6 +273,8 @@ const sync = async (store: MetaStorage): Promise<void> => {
   // Only hobbies that opted in get events.
   const withCalendar = hobbies.filter((h) => h.google.calendar)
   const byId = new Map(withCalendar.map((h) => [h.id, h.google]))
+  const user = useAuth.getState().user
+  const owner = user ? { name: user.name, email: user.email } : null
   for (const model of calendarEvents(withCalendar, now)) {
     const body = eventBody(
       model,
@@ -255,19 +283,33 @@ const sync = async (store: MetaStorage): Promise<void> => {
       syncEnv.appUrl(),
       syncEnv.timeZone(),
       byId.get(model.hobbyId),
+      owner,
     )
     bodies.set(model.key, { model, body, hash: hashText(JSON.stringify(body)) })
   }
   if (m.calendarId || bodies.size > 0) {
     if (m.calendarId && !verified && !(await calendarExists(token, m.calendarId)))
       m = { ...emptyMeta(account), lastSync: m.lastSync, driveFileId: fileId }
+    const name = calendarName(owner)
     if (!m.calendarId) {
-      m.calendarId = await createCalendar(token, APP_NAME, syncEnv.timeZone())
+      m.calendarId = await createCalendar(token, name, syncEnv.timeZone())
+      m.calendarName = name
       m.synced = {}
       await save()
     }
     verified = true
     const calendarId = m.calendarId
+    // Calendars from before the owner's name was added (or after the account name changed).
+    if (owner && m.calendarName !== name) {
+      try {
+        await renameCalendar(token, calendarId, name)
+        m.calendarName = name
+        await save()
+      } catch (e) {
+        // Only a nicety: the sessions still sync, the rename is retried next time.
+        if (!(e instanceof GoogleHttpError) || e.status === 401) throw e
+      }
+    }
 
     const { upsert, remove } = diffEvents(
       [...bodies.values()].map(({ model, hash }) => ({ key: model.key, hash })),

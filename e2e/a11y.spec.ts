@@ -69,5 +69,7 @@ for (const mode of ['dark', 'light'] as const) {
     await audit(page)
     await page.goto('./about')
     await audit(page)
+    await page.goto('./changelog')
+    await audit(page)
   })
 }

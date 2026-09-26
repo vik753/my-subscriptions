@@ -19,6 +19,7 @@ import {
 /** In-memory Google Calendar: enough of calendars + events to exercise the sync. */
 const server = () => {
   const calendars = new Map<string, Map<string, Record<string, unknown>>>()
+  const titles = new Map<string, unknown>()
   let next = 1
   const requests: string[] = []
   let failWith: number | null = null
@@ -60,6 +61,7 @@ const server = () => {
     if (parts.length === 0 && method === 'POST') {
       const id = `cal${next++}`
       calendars.set(id, new Map())
+      titles.set(id, body.summary)
       return ok({ id })
     }
     const events = calendars.get(parts[0] ?? '')
@@ -68,6 +70,7 @@ const server = () => {
       calendars.delete(parts[0] ?? '')
       return new Response(null, { status: 204 })
     }
+    if (parts.length === 1 && method === 'PATCH') titles.set(parts[0] ?? '', body.summary)
     if (parts.length === 1) return ok({ id: parts[0] })
     if (parts.length === 2 && method === 'GET') {
       const [prop, value] = (u.searchParams.get('privateExtendedProperty') ?? '').split('=')
@@ -103,6 +106,7 @@ const server = () => {
   }
   return {
     calendars,
+    titles,
     drive,
     requests,
     fail: (status: number | null) => (failWith = status),
@@ -252,6 +256,33 @@ describe('eventBody', () => {
     )
   })
 
+  it('tells guests who the organizer is; no such line without guests', () => {
+    const base = {
+      key: 'k',
+      hobbyId: 'h',
+      sessionKey: '2026-09-28',
+      name: 'Gym',
+      date: '2026-09-28',
+      time: '10:00',
+      dur: 60,
+      status: 'paid' as const,
+      lastPaid: false,
+    }
+    const owner = { name: 'Ігор Коренець', email: 'ihor@gmail.com' }
+    const shared = { paidColor: '10', guests: ['wife@gmail.com'] }
+    expect(eventBody(base, 'uk', 0, 'u', 'UTC', shared, owner).description).toBe(
+      'Оплачено\nТривалість: 60 хв\nОрганізатор: Ігор Коренець (ihor@gmail.com)\nu',
+    )
+    const noName = { name: 'ihor@gmail.com', email: 'ihor@gmail.com' }
+    expect(eventBody(base, 'en', 0, 'u', 'UTC', shared, noName).description).toContain(
+      'Organizer: ihor@gmail.com\n',
+    )
+    const alone = { paidColor: '10', guests: [] }
+    expect(eventBody(base, 'en', 0, 'u', 'UTC', alone, owner).description).not.toContain(
+      'Organizer',
+    )
+  })
+
   it('uses Graphite for unpaid, Sage for attended, no reminder when off', () => {
     const base = {
       key: 'k',
@@ -279,6 +310,71 @@ describe('calendar sync', () => {
     stop = startSync(meta)
     expect(await run()).toBe(false)
     expect(google.requests).toEqual([])
+  })
+
+  it('names the calendar after its owner, so guests see whose sessions these are', async () => {
+    useApp
+      .getState()
+      .addHobby({ ...gymInput, google: { calendar: true, guests: ['wife@gmail.com'] } })
+    signIn()
+    stop = startSync(meta)
+    await run()
+    expect(google.titles.get('cal1')).toBe('My Subscriptions · Me')
+    expect(google.live('cal1')[0]?.description).toContain('Organizer: Me (me@gmail.com)')
+    expect(google.requests.filter((r) => r === 'PATCH /calendars/cal1')).toEqual([])
+  })
+
+  it('renames a calendar created before the owner name, once', async () => {
+    addGym()
+    signIn()
+    stop = startSync(meta)
+    await run()
+    // Simulate an older calendar: bookkeeping without the name.
+    meta.value = { ...(meta.value as object), calendarName: null }
+    google.titles.set('cal1', 'My Subscriptions')
+    await run()
+    expect(google.titles.get('cal1')).toBe('My Subscriptions · Me')
+    google.requests.length = 0
+    await run()
+    expect(google.requests.filter((r) => r.startsWith('PATCH /calendars/cal1'))).toEqual([])
+  })
+
+  it('renames the calendar when the profile name changes', async () => {
+    addGym()
+    signIn()
+    stop = startSync(meta)
+    await run()
+    useAuth.setState({ user: { email: 'me@gmail.com', name: 'New Name' } })
+    await run()
+    expect(google.titles.get('cal1')).toBe('My Subscriptions · New Name')
+  })
+
+  it('a failing rename does not stop the sessions from syncing, and is retried', async () => {
+    addGym()
+    signIn()
+    stop = startSync(meta)
+    await run()
+    meta.value = { ...(meta.value as object), calendarName: null, synced: {} }
+    google.titles.set('cal1', 'My Subscriptions')
+    const handle = google.handle
+    vi.mocked(googleHttp.fetch).mockImplementation((url, init) =>
+      Promise.resolve(
+        init?.method === 'PATCH' && url.endsWith('/calendars/cal1')
+          ? new Response('{}', { status: 403 })
+          : handle(url, init),
+      ),
+    )
+    google.requests.length = 0
+    expect(await run()).toBe(true)
+    expect(google.requests.filter((r) => r.startsWith('POST /calendars/cal1/events'))).toHaveLength(
+      13,
+    )
+    expect(google.titles.get('cal1')).toBe('My Subscriptions')
+    vi.mocked(googleHttp.fetch).mockImplementation((url, init) =>
+      Promise.resolve(handle(url, init)),
+    )
+    await run()
+    expect(google.titles.get('cal1')).toBe('My Subscriptions · Me')
   })
 
   it('creates the calendar once and one event per session', async () => {

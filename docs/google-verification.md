@@ -66,7 +66,7 @@ account that owns the Cloud project.
 **calendar.app.created**
 
 > My Subscriptions tracks prepaid class passes (gym, lessons). When the user turns on "Add to
-> Google Calendar" for a hobby, the app creates one secondary calendar named "My Subscriptions"
+> Google Calendar" for a hobby, the app creates one secondary calendar named "My Subscriptions · <the user's name>"
 > and writes one event per session (date, time, duration, paid/unpaid status), updating or
 > deleting events when the user marks, moves or cancels sessions. Optionally the user adds guests
 > (e.g. a partner) as attendees so the sessions appear in their calendar. The app never reads or
