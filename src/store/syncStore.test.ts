@@ -500,7 +500,7 @@ describe('calendar sync', () => {
       stop = startSync(meta)
       await run()
       expect(backup()).toMatchObject({
-        schemaVersion: 2,
+        schemaVersion: 3,
         calendarId: 'cal1',
         hobbies: [{ id: 'gym' }],
       })

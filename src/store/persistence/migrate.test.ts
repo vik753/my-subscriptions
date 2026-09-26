@@ -22,8 +22,16 @@ const makeHobby = (overrides: Partial<Hobby> = {}): Hobby => ({
   marks: {},
   moves: {},
   updatedAt: '2026-09-01T00:00:00.000Z',
+  google: { calendar: false, backup: false },
   ...overrides,
 })
+
+/** A hobby as stored before schema v3 (no `google` flags). */
+const withoutGoogle = (h: Hobby): Partial<Hobby> => {
+  const copy: Partial<Hobby> = { ...h }
+  delete copy.google
+  return copy
+}
 
 const makeRaw = (overrides: Partial<PersistedState> = {}): PersistedState => ({
   schemaVersion: SCHEMA_VERSION,
@@ -154,7 +162,7 @@ describe('migrate: newer schema version', () => {
 
 describe('migrate: v1 → v2', () => {
   it('adds settingsUpdatedAt as never changed and keeps everything else', () => {
-    const hobby = makeHobby()
+    const hobby = withoutGoogle(makeHobby())
     const v1 = {
       schemaVersion: 1,
       hobbies: [hobby],
@@ -162,8 +170,8 @@ describe('migrate: v1 → v2', () => {
       deletedHobbies: { h2: '2026-09-01T00:00:00.000Z' },
     }
     expect(migrate(v1, 'en')).toEqual({
-      schemaVersion: 2,
-      hobbies: [hobby],
+      schemaVersion: 3,
+      hobbies: [{ ...makeHobby(), google: { calendar: true, backup: true } }],
       settings: makeSettings({ language: 'uk', reminderMinutes: 15 }),
       settingsUpdatedAt: '',
       deletedHobbies: { h2: '2026-09-01T00:00:00.000Z' },
@@ -172,5 +180,26 @@ describe('migrate: v1 → v2', () => {
 
   it('replaces a non-string settingsUpdatedAt with never', () => {
     expect(migrate({ ...makeRaw(), settingsUpdatedAt: 5 }, 'en').settingsUpdatedAt).toBe('')
+  })
+})
+
+describe('migrate: v2 → v3', () => {
+  it('keeps Calendar and Drive on for hobbies created before the option existed', () => {
+    const v2 = { ...makeRaw(), schemaVersion: 2, hobbies: [withoutGoogle(makeHobby())] }
+    expect(migrate(v2, 'en').hobbies[0]?.google).toEqual({ calendar: true, backup: true })
+  })
+
+  it('reads v3 flags and treats missing ones as off (local only)', () => {
+    const v3 = {
+      ...makeRaw(),
+      hobbies: [
+        makeHobby({ google: { calendar: true, backup: false } }),
+        withoutGoogle(makeHobby({ id: 'b' })),
+      ],
+    }
+    expect(migrate(v3, 'en').hobbies.map((h) => h.google)).toEqual([
+      { calendar: true, backup: false },
+      { calendar: false, backup: false },
+    ])
   })
 })

@@ -35,6 +35,7 @@ export const createHobby = (input: NewHobbyInput): Hobby => ({
   marks: {},
   moves: {},
   updatedAt: input.updatedAt,
+  google: { calendar: false, backup: false, ...input.google },
 })
 
 export const addPayment = (hobby: Hobby, payment: Payment): Hobby => ({
