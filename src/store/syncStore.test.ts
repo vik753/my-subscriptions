@@ -367,17 +367,31 @@ describe('calendar sync', () => {
     expect(google.live('cal2')).toHaveLength(13)
   })
 
-  it('another Google account starts clean: the previous account data does not leak', async () => {
-    addGym()
+  it('another Google account: backed-up hobbies leave, local ones stay (calendar off)', async () => {
+    addGym() // calendar + backup
+    useApp.getState().addHobby({
+      ...gymInput,
+      id: 'loc',
+      name: 'Local',
+      google: { calendar: false, backup: false },
+    })
+    useApp.getState().addHobby({
+      ...gymInput,
+      id: 'cal',
+      name: 'CalOnly',
+      google: { calendar: true, backup: false },
+    })
     signIn('me@gmail.com')
     stop = startSync(meta)
     await run()
     signIn('other@gmail.com')
     google.drive.clear() // each account has its own Drive
     await run()
-    expect(useApp.getState().data.hobbies).toEqual([])
-    expect(google.calendars.size).toBe(1) // only the first account's calendar
-    expect(google.drive.size).toBe(0) // nothing to back up yet
+    const hobbies = useApp.getState().data.hobbies
+    expect(hobbies.map((h) => h.id)).toEqual(['loc', 'cal'])
+    expect(hobbies.find((h) => h.id === 'cal')?.google).toEqual({ calendar: false, backup: false })
+    expect(google.calendars.size).toBe(1) // nothing written for the new account
+    expect(google.drive.size).toBe(0)
     expect(meta.value).toMatchObject({ account: 'other@gmail.com', calendarId: null })
   })
 
@@ -550,6 +564,65 @@ describe('calendar sync', () => {
       expect(backupHobbies()).toEqual([])
       expect(useApp.getState().data.hobbies).toHaveLength(1)
     })
+  })
+
+  it('backup switched off on one device stops it on the other (kept locally)', async () => {
+    addGym()
+    signIn()
+    stop = startSync(meta)
+    await run()
+    const deviceA = meta
+    const stateA = useApp.getState().data
+    stop()
+
+    // Device B restores gym from the backup.
+    resetAppStore(initial)
+    await useApp.getState().load(createMemoryStorage(), 'en')
+    meta = createMemoryMeta()
+    stop = startSync(meta)
+    await run()
+    const stateB = useApp.getState().data
+    expect(stateB.hobbies[0]?.google.backup).toBe(true)
+    stop()
+
+    // Device A switches the backup off.
+    resetAppStore(initial)
+    await useApp.getState().load(createMemoryStorage(stateA), 'en')
+    meta = deviceA
+    stop = startSync(meta)
+    await run()
+    useApp.getState().updateHobby('gym', (h) => ({ ...h, google: { ...h.google, backup: false } }))
+    await run()
+    expect(backupHobbies()).toEqual([])
+    stop()
+
+    // Device B learns it and keeps its copy, locally.
+    const deviceB = createMemoryMeta()
+    resetAppStore(initial)
+    await useApp.getState().load(createMemoryStorage(stateB), 'en')
+    meta = deviceB
+    stop = startSync(meta)
+    await run()
+    expect(useApp.getState().data.hobbies[0]?.google.backup).toBe(false)
+    expect(backupHobbies()).toEqual([])
+  })
+
+  it('ids of never-backed-up hobbies do not reach Drive', async () => {
+    addGym()
+    useApp
+      .getState()
+      .addHobby({ ...gymInput, id: 'loc', google: { calendar: false, backup: false } })
+    useApp.getState().snoozeRenewal('loc', '2026-09-25')
+    useApp.getState().deleteHobby('loc')
+    useApp
+      .getState()
+      .addHobby({ ...gymInput, id: 'loc2', google: { calendar: false, backup: false } })
+    useApp.getState().snoozeRenewal('loc2', '2026-09-25')
+    signIn()
+    stop = startSync(meta)
+    await run()
+    const doc = JSON.stringify([...google.drive.values()][0])
+    expect(doc).not.toContain('loc')
   })
 
   describe('Drive backup', () => {

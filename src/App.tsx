@@ -29,7 +29,6 @@ export function App() {
   const { scheme, mode, language } = useApp((s) => s.data.settings)
   const auth = useAuth((s) => s.status)
   const toast = useToast()
-  const t = messages[language]
   const sheetOpen = useFlow((s) => s.sheet !== null)
 
   useEffect(() => {
@@ -54,9 +53,10 @@ export function App() {
 
   // A failed or refused Google sign-in: the app keeps working locally, just say so.
   useEffect(() => {
-    if (auth === 'error') useToast.getState().show(t.signErr)
-    if (auth === 'denied') useToast.getState().show(t.signDenied)
-  }, [auth, t])
+    const m = messages[useApp.getState().data.settings.language]
+    if (auth === 'error') useToast.getState().show(m.signErr)
+    if (auth === 'denied') useToast.getState().show(m.signDenied)
+  }, [auth])
 
   // App open check (replaces notifications): on launch and whenever the app comes back to the front.
   const checking = !ready || auth === 'checking'

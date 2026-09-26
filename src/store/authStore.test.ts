@@ -273,6 +273,12 @@ describe('authStore actions', () => {
     expect(fetchMock).not.toHaveBeenCalled()
   })
 
+  it('signIn can come back to a given route', () => {
+    history.replaceState(null, '', '/hobby/gym/edit')
+    useAuth.getState().signIn('/hobby/gym')
+    expect(sessionStorage.getItem('auth.returnTo')).toBe('/hobby/gym')
+  })
+
   it('signIn starts an interactive redirect', () => {
     sessionStorage.setItem('auth.silent', 'used')
     useAuth.getState().signIn()

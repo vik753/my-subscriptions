@@ -76,7 +76,6 @@ function Form({
   const [backupOn, setBackupOn] = useState(hobby?.google.backup ?? false)
   const calId = useId()
   const backupId = useId()
-  const googleChosen = calendarOn || backupOn
   // Offline counts as signed in: the session is there, sync waits for the network.
   const signedIn = authStatus === 'signedIn' || authStatus === 'offline'
   const { addHobby, updateHobby, deleteHobby } = useApp.getState()
@@ -153,10 +152,12 @@ function Form({
       Record<Weekday, number>
     >
     const google = { calendar: calendarOn, backup: backupOn }
-    // The first Google option needs an account: sign in right after saving (back to the hobby).
+    // An option switched on just now needs an account: sign in right after saving, then come
+    // back to the hobby. Saving a hobby whose options were already on never asks again.
+    const newlyOn = (calendarOn && !hobby?.google.calendar) || (backupOn && !hobby?.google.backup)
     const done = (to: string) => {
       onDone(to)
-      if (googleChosen && !signedIn) useAuth.getState().signIn()
+      if (newlyOn && !signedIn) useAuth.getState().signIn(to)
     }
     if (hobby) {
       const unchanged =

@@ -38,7 +38,8 @@ interface AuthState {
   lastGrant: 'interactive' | 'silent' | 'restored' | null
   init: () => Promise<void>
   resume: () => void
-  signIn: () => void
+  /** `returnTo`: app route (e.g. `/hobby/42`) to come back to; default = the current page. */
+  signIn: (returnTo?: string) => void
   signOut: () => void
   /** A Google API answered 401: drop the token, keep the account → "Sign in again". */
   expire: () => void
@@ -80,12 +81,17 @@ export const authNavigation = {
   go: (url: string) => window.location.assign(url),
 }
 
-const redirect = (prompt?: 'none') => {
+const redirect = (prompt?: 'none', returnTo?: string) => {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined
   if (!clientId) throw new Error('VITE_GOOGLE_CLIENT_ID is not set')
   const state = crypto.randomUUID()
   session.set(STATE_KEY, state)
-  session.set(RETURN_KEY, window.location.pathname + window.location.search)
+  session.set(
+    RETURN_KEY,
+    returnTo
+      ? `${import.meta.env.BASE_URL}${returnTo.replace(/^\//, '')}`
+      : window.location.pathname + window.location.search,
+  )
   const loginHint = local.get(HINT_KEY) ?? undefined
   authNavigation.go(
     buildAuthUrl({
@@ -212,9 +218,9 @@ export const useAuth = create<AuthState>((set) => ({
     if (status === 'offline' || (status === 'signedIn' && expiring)) void init()
   },
 
-  signIn: () => {
+  signIn: (returnTo) => {
     session.del(SILENT_KEY)
-    redirect()
+    redirect(undefined, returnTo)
   },
 
   expire: () => {

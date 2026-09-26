@@ -261,6 +261,24 @@ describe('HobbyForm — edit', () => {
     expect(screen.getByText('detail')).toBeInTheDocument()
   })
 
+  it('does not ask to sign in again when saving a hobby whose options were already on', async () => {
+    useApp
+      .getState()
+      .updateHobby('gym', (h) => ({ ...h, google: { calendar: true, backup: true } }))
+    const signIn = vi.spyOn(useAuth.getState(), 'signIn').mockImplementation(() => {})
+    renderAt('/hobby/gym/edit')
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    expect(signIn).not.toHaveBeenCalled()
+  })
+
+  it('turning an option on while signed out signs in and comes back to the hobby', async () => {
+    const signIn = vi.spyOn(useAuth.getState(), 'signIn').mockImplementation(() => {})
+    renderAt('/', '/hobby/gym', '/hobby/gym/edit')
+    await userEvent.click(screen.getByRole('switch', { name: /Back up to Google Drive/ }))
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    expect(signIn).toHaveBeenCalledWith('/hobby/gym')
+  })
+
   it('switches the Google options of an existing hobby', async () => {
     useApp
       .getState()
