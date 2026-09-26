@@ -43,8 +43,7 @@
 .dayRow {
   display: grid;
   grid-template-columns: 1fr 104px 92px;
-  /* The duration presets open below their field; the day and time stay level with it. */
-  align-items: start;
+  align-items: center;
   gap: 8px;
   padding: 8px 8px 8px 16px;
   border-bottom: 1px solid var(--color-divider);
@@ -57,7 +56,6 @@
 
 .dayName {
   overflow: hidden;
-  line-height: 44px;
   font-size: 15px;
   text-overflow: ellipsis;
   white-space: nowrap;

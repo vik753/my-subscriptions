@@ -114,21 +114,20 @@ describe('DurationField', () => {
     expect(input).toHaveValue('')
   })
 
-  it('picks a preset and closes the preset list', async () => {
+  it('picks a preset from the native picker', async () => {
     render(<Harness />)
-    await userEvent.click(screen.getByRole('button', { name: 'Presets' }))
-    await userEvent.click(screen.getByRole('button', { name: '90 min' }))
+    const picker = screen.getByRole('combobox', { name: 'Presets' })
+    expect(picker).toHaveValue('60')
+    await userEvent.selectOptions(picker, '90')
     expect(screen.getByRole('textbox', { name: 'Duration' })).toHaveValue('90')
-    expect(screen.queryByRole('button', { name: '90 min' })).toBeNull()
   })
 
-  it('Escape closes the presets and returns focus to the caret', async () => {
+  it('a typed value that is not a preset leaves the picker empty', async () => {
     render(<Harness />)
-    await userEvent.click(screen.getByRole('button', { name: 'Presets' }))
-    screen.getByRole('button', { name: '45 min' }).focus()
-    await userEvent.keyboard('{Escape}')
-    expect(screen.queryByRole('button', { name: '45 min' })).toBeNull()
-    expect(screen.getByRole('button', { name: 'Presets' })).toHaveFocus()
+    const input = screen.getByRole('textbox', { name: 'Duration' })
+    await userEvent.clear(input)
+    await userEvent.type(input, '50')
+    expect(screen.getByRole('combobox', { name: 'Presets' })).toHaveValue('')
   })
 })
 
