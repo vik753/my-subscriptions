@@ -73,7 +73,10 @@ turn it on, in the hobby form:
   calendar and stay up to date. Turning it off later removes them from the calendar; the hobby
   stays on your phone. With it on you can also pick the **color of paid sessions** and add
   **guests**: people whose Google Calendar should show the sessions too (they get the events
-  without an email per session). A guest needs a Google account; if the sessions don't show up
+  without an email per session). Every change (a moved or cancelled session, a new payment, a
+  deleted hobby, removing the guest) reaches their calendar too, since it's the same event. The
+  color is personal in Google Calendar: guests see the sessions in their own calendar's color.
+  A guest needs a Google account; if the sessions don't show up
   for them, they set Google Calendar → Settings → "Add invitations to my calendar" to
   "From everyone".
 - **Back up to Google Drive:** the hobby is saved to a hidden app folder in your Drive and synced
