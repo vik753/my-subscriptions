@@ -4,6 +4,12 @@ User-facing changes, newest first. Versions follow [Semantic Versioning](https:/
 a new feature bumps the minor number, a fix the patch number. The app shows the same list in
 three languages under **About → What's new** (`src/i18n/changelog.ts`) — keep both in step.
 
+## [1.3.1] — 2026-09-26
+
+- Session length presets open in the phone's native picker, like the currency; the schedule
+  row no longer stretches.
+- The Settings button on Home is an outlined circle like the "+" next to it.
+
 ## [1.3.0] — 2026-09-26
 
 - Choose which session a new payment starts from (_First paid session_ in _Add payment_).
