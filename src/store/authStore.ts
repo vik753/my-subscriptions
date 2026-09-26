@@ -1,4 +1,5 @@
 import { create } from 'zustand'
+import { useApp } from './appStore'
 import {
   buildAuthUrl,
   fetchUser,
@@ -37,7 +38,8 @@ interface AuthState {
   lastGrant: 'interactive' | 'silent' | 'restored' | null
   init: () => Promise<void>
   resume: () => void
-  signIn: () => void
+  /** `returnTo`: app route (e.g. `/hobby/42`) to come back to; default = the current page. */
+  signIn: (returnTo?: string) => void
   signOut: () => void
   /** A Google API answered 401: drop the token, keep the account → "Sign in again". */
   expire: () => void
@@ -64,6 +66,10 @@ const local = {
 const readJson = <T>(k: string): T | null =>
   safe(() => JSON.parse(session.get(k) ?? 'null') as T | null, null)
 
+/** Any hobby opted into Google Calendar or the Drive backup. */
+export const usesGoogle = (): boolean =>
+  useApp.getState().data.hobbies.some((h) => h.google.calendar || h.google.backup)
+
 /** The current access token while it is still valid, for API calls. */
 export const accessToken = (): string | null => {
   const token = readJson<StoredToken>(TOKEN_KEY)
@@ -75,12 +81,17 @@ export const authNavigation = {
   go: (url: string) => window.location.assign(url),
 }
 
-const redirect = (prompt?: 'none') => {
+const redirect = (prompt?: 'none', returnTo?: string) => {
   const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined
   if (!clientId) throw new Error('VITE_GOOGLE_CLIENT_ID is not set')
   const state = crypto.randomUUID()
   session.set(STATE_KEY, state)
-  session.set(RETURN_KEY, window.location.pathname + window.location.search)
+  session.set(
+    RETURN_KEY,
+    returnTo
+      ? `${import.meta.env.BASE_URL}${returnTo.replace(/^\//, '')}`
+      : window.location.pathname + window.location.search,
+  )
   const loginHint = local.get(HINT_KEY) ?? undefined
   authNavigation.go(
     buildAuthUrl({
@@ -147,8 +158,9 @@ const runInit = async (set: (s: Partial<AuthState>) => void): Promise<void> => {
           : { status: 'signedOut' },
       )
     }
-    // One silent attempt per app session, only for returning users.
-    if (local.get(HINT_KEY) != null && session.get(SILENT_KEY) == null) {
+    // One silent attempt per app session, only for returning users who use Google for something —
+    // a local-only user is never sent to accounts.google.com.
+    if (local.get(HINT_KEY) != null && session.get(SILENT_KEY) == null && usesGoogle()) {
       session.set(SILENT_KEY, 'pending')
       return redirect('none')
     }
@@ -206,9 +218,9 @@ export const useAuth = create<AuthState>((set) => ({
     if (status === 'offline' || (status === 'signedIn' && expiring)) void init()
   },
 
-  signIn: () => {
+  signIn: (returnTo) => {
     session.del(SILENT_KEY)
-    redirect()
+    redirect(undefined, returnTo)
   },
 
   expire: () => {

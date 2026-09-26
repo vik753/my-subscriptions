@@ -33,11 +33,27 @@ test.beforeEach(async ({ page }) => {
   })
 })
 
-test('shows sign-in without a session', async ({ browser }) => {
-  const page = await browser.newPage()
-  await page.goto('/')
-  await expect(page.getByRole('button', { name: 'Sign in with Google' })).toBeVisible()
-  await page.close()
+test('works locally without Google: no sign-in, nothing sent to Google', async ({ browser }) => {
+  const context = await browser.newContext()
+  const page = await context.newPage()
+  const google: string[] = []
+  page.on('request', (r) => {
+    if (/google(apis)?\.com/.test(r.url())) google.push(r.url())
+  })
+  await page.goto('./')
+  await expect(page.getByRole('heading', { name: 'No passes yet' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Sign in with Google' })).toHaveCount(0)
+  await page.getByRole('button', { name: 'Add hobby' }).click()
+  await page.getByLabel('Name').fill('Gym')
+  await page.getByRole('button', { name: 'Mo', exact: true }).click()
+  await page.getByLabel('Monday', { exact: true }).fill('10:00')
+  await page.getByLabel('Sessions in pass').fill('8')
+  await page.getByRole('button', { name: 'Create', exact: true }).click()
+  await expect(page.getByText('Stored only on this phone')).toBeVisible()
+  await page.reload()
+  await expect(page.getByRole('heading', { name: 'Gym' })).toBeVisible()
+  expect(google).toEqual([])
+  await context.close()
 })
 
 test('create a hobby, see it in detail and on Home', async ({ page }) => {
@@ -51,7 +67,7 @@ test('create a hobby, see it in detail and on Home', async ({ page }) => {
   await page.getByRole('textbox', { name: 'Monday, min' }).fill('60')
   await page.getByLabel('Sessions in pass').fill('8')
   await page.getByLabel('Pass price').fill('8000')
-  await page.getByRole('button', { name: 'Create and add to calendar' }).click()
+  await page.getByRole('button', { name: 'Create', exact: true }).click()
 
   await expect(page.getByRole('heading', { name: 'Gym' })).toBeVisible()
   await expect(page.locator('dl')).toContainText('8')
@@ -68,27 +84,6 @@ test('create a hobby, see it in detail and on Home', async ({ page }) => {
   await expect(page.getByRole('heading', { name: 'Gym' })).toBeVisible()
 })
 
-test('a returning user with an expired session keeps their data', async ({ browser }) => {
-  const page = await browser.newPage()
-  // Known account, no token, silent renewal already spent this session.
-  await page.addInitScript(() => {
-    localStorage.setItem('auth.loginHint', 'me@gmail.com')
-    sessionStorage.setItem('auth.silent', 'used')
-  })
-  await page.goto('./')
-  await expect(page.getByRole('heading', { name: 'No passes yet' })).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Sign in with Google' })).toHaveCount(0)
-
-  await page.getByRole('button', { name: 'Add hobby' }).click()
-  await page.getByRole('button', { name: 'Mo', exact: true }).click()
-  await page.getByLabel('Monday', { exact: true }).fill('10:00')
-  await page.getByLabel('Sessions in pass').fill('8')
-  await page.getByRole('button', { name: 'Create and add to calendar' }).click()
-  await expect(page.getByText('Sign in again to sync')).toBeVisible()
-  await expect(page.getByRole('button', { name: 'Sign in', exact: true })).toBeVisible()
-  await page.close()
-})
-
 test('on open, past sessions are asked about and saved', async ({ page }) => {
   await page.clock.setFixedTime(new Date('2026-09-24T10:02:00'))
   await page.goto('./')
@@ -98,7 +93,7 @@ test('on open, past sessions are asked about and saved', async ({ page }) => {
   await page.getByLabel('Monday', { exact: true }).fill('10:00')
   await page.getByLabel('First session').fill('2026-09-07')
   await page.getByLabel('Sessions in pass').fill('8')
-  await page.getByRole('button', { name: 'Create and add to calendar' }).click()
+  await page.getByRole('button', { name: 'Create', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Gym' })).toBeVisible()
 
   // Reopening the app runs the check: Sep 7, 14, 21 have ended.
@@ -120,6 +115,11 @@ test('sessions are written to the app calendar', async ({ page }) => {
   await page.getByRole('button', { name: 'Mo', exact: true }).click()
   await page.getByLabel('Monday', { exact: true }).fill('10:00')
   await page.getByLabel('Sessions in pass').fill('2')
+  await page.getByRole('switch', { name: /Add to Google Calendar/ }).click()
+  await page.getByRole('button', { name: /Color of paid sessions/ }).click()
+  await page.getByRole('button', { name: 'Grape' }).click()
+  await page.getByLabel(/Guests/).fill('wife@gmail.com')
+  await page.getByRole('button', { name: 'Add', exact: true }).click()
   await page.getByRole('button', { name: 'Create and add to calendar' }).click()
 
   await expect
@@ -128,6 +128,8 @@ test('sessions are written to the app calendar', async ({ page }) => {
   expect(calendarWrites[0]?.body).toMatchObject({ summary: 'My Subscriptions' })
   expect(calendarWrites.map((w) => w.body.summary)).toContain('Gym · Paid')
   expect(calendarWrites.map((w) => w.body.summary)).toContain('Gym · Unpaid')
+  const paid = calendarWrites.find((w) => w.body.summary === 'Gym · Paid')?.body
+  expect(paid).toMatchObject({ colorId: '3', attendees: [{ email: 'wife@gmail.com' }] })
 })
 
 test('settings: language and scheme apply at once, About is reachable', async ({ page }) => {

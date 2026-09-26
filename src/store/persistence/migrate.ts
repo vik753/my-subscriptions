@@ -1,3 +1,4 @@
+import type { Hobby } from '../../domain'
 import { LANGUAGES, type Language } from '../../i18n'
 import { MODES, SCHEMES } from '../../theme/types'
 import { SCHEMA_VERSION, type PersistedState, type Settings } from '../types'
@@ -42,6 +43,29 @@ const isHobbyLike = (v: unknown): boolean =>
   Array.isArray(v.sched) &&
   Array.isArray(v.payments)
 
+const readGoogle = (raw: unknown, legacy: boolean): Hobby['google'] => {
+  const on = isRecord(raw) ? raw : {}
+  return {
+    calendar: typeof on.calendar === 'boolean' ? on.calendar : legacy,
+    backup: typeof on.backup === 'boolean' ? on.backup : legacy,
+    // Duplicate or malformed attendees would make Google reject the event.
+    guests: Array.isArray(on.guests)
+      ? [
+          ...new Set(
+            on.guests
+              .filter((g): g is string => typeof g === 'string')
+              .map((g) => g.trim().toLowerCase())
+              .filter((g) => /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(g)),
+          ),
+        ]
+      : [],
+    paidColor:
+      typeof on.paidColor === 'string' && /^([1-9]|1[01])$/.test(on.paidColor)
+        ? on.paidColor
+        : '10',
+  }
+}
+
 const pick = <T>(allowed: readonly T[], value: unknown, fallback: T): T =>
   allowed.includes(value as T) ? (value as T) : fallback
 
@@ -63,6 +87,8 @@ const readSettings = (raw: unknown, language: Language): Settings => {
  * - current version → same data; missing or invalid settings fields filled from defaults, missing
  *   `hobbies` → [], missing `deletedHobbies` → {}, missing `settingsUpdatedAt` → ''
  * - v1 → v2: adds `settingsUpdatedAt: ''`
+ * - v2 → v3: adds `hobby.google`; older hobbies keep Calendar + Drive on, missing flags in v3 = off
+ * - v3 → v4: adds `hobby.google.guests` ([]) and `paidColor` ('10' Basil — the previous green)
  * - version newer than SCHEMA_VERSION → throws (never silently drop data written by a newer app)
  */
 export function migrate(raw: unknown, language: Language): PersistedState {
@@ -73,10 +99,15 @@ export function migrate(raw: unknown, language: Language): PersistedState {
     )
   }
   // v1 → v2: `settingsUpdatedAt` added; old settings count as never changed ('').
+  // v2 → v3: per-hobby `google` flags; hobbies from before v3 were always synced, so they keep
+  // Calendar + Drive on. New hobbies are local only.
+  const legacy = raw.schemaVersion < 3
   return {
     schemaVersion: SCHEMA_VERSION,
     hobbies: Array.isArray(raw.hobbies)
-      ? (structuredClone(raw.hobbies.filter(isHobbyLike)) as PersistedState['hobbies'])
+      ? (structuredClone(raw.hobbies.filter(isHobbyLike)) as Record<string, unknown>[]).map(
+          (h) => ({ ...h, google: readGoogle(h.google, legacy) }) as unknown as Hobby,
+        )
       : [],
     settings: readSettings(raw.settings, language),
     settingsUpdatedAt: typeof raw.settingsUpdatedAt === 'string' ? raw.settingsUpdatedAt : '',

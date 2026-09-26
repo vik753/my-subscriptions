@@ -26,6 +26,10 @@ All items of `docs/design-brief-pwa.md` are covered. The brief is now historical
 10. **Edit form without pass fields.** Edit hides _Sessions in pass_ and _Pass price_ (screenshot 07 shows them): payments are a history, new ones go through _Add payment_. Currency is editable only while the hobby has a single payment. (User-approved 2026-09-25.)
 11. **Delete hobby asks for confirmation** in a sheet (the prototype deletes immediately). (User-approved 2026-09-25.)
 
+12. **Local first, Google per hobby** (user decision 2026-09-26, overrides README "Sign in" screen and "On first sign-in create a calendar"): no sign-in screen — the app opens straight into local use. Each hobby has two independent options in the Create/Edit form, off by default: **Add to Google Calendar** and **Back up to Google Drive** (`hobby.google`, schema v3; hobbies from before v3 keep both on). Google sign-in is asked for the first time an option is turned on (right after saving) or from Settings; local-only users are never redirected to Google. Turning the calendar option off removes that hobby's events; turning the backup off removes it from the Drive copy. Local hobbies show "Stored only on this phone" instead of the sync status.
+
+13. **Calendar guests and paid color, per hobby** (user decision 2026-09-26): with the calendar option on, the hobby form offers _Color of paid sessions_ (Google Calendar's 11 event colors with Google's names, default Basil; unpaid stay Graphite, attended Sage) and _Guests_ (emails → event `attendees`, so the sessions appear in their calendars). Events are written with `sendUpdates=none` (no email per session); guests can't modify or invite others. Schema v4.
+
 ## Accessibility adjustments (stage 11)
 
 - **Light-mode secondary text.** `neutral-400` / `neutral-500` in all four light schemes measured 4.0:1 / 2.6:1 on `--color-bg` (WCAG AA needs 4.5:1). Darkened to L 0.50 / 0.535 (≥ 4.6:1); dark modes unchanged. Checked by `e2e/a11y.spec.ts` (axe, WCAG 2 A/AA, every screen, light + dark).

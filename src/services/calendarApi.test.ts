@@ -80,7 +80,7 @@ describe('events', () => {
     await upsertEvent('tok', 'c@group', 'ms00ab', BODY)
     expect(calls[0]).toMatchObject({
       method: 'POST',
-      url: 'https://www.googleapis.com/calendar/v3/calendars/c%40group/events',
+      url: 'https://www.googleapis.com/calendar/v3/calendars/c%40group/events?sendUpdates=none',
       body: { id: 'ms00ab', summary: 'Gym · Paid' },
     })
   })
@@ -90,7 +90,7 @@ describe('events', () => {
     await upsertEvent('tok', 'c', 'ms00ab', BODY)
     expect(calls[1]).toMatchObject({
       method: 'PATCH',
-      url: 'https://www.googleapis.com/calendar/v3/calendars/c/events/ms00ab',
+      url: 'https://www.googleapis.com/calendar/v3/calendars/c/events/ms00ab?sendUpdates=none',
       body: { summary: 'Gym · Paid', status: 'confirmed' },
     })
   })

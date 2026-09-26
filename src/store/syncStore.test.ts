@@ -128,6 +128,7 @@ const gymInput = {
   sessions: 2,
   price: 200_000,
   paymentDate: '2026-09-20',
+  google: { calendar: true, backup: true, guests: [], paidColor: '10' },
 }
 const addGym = (sessions = 2) => useApp.getState().addHobby({ ...gymInput, sessions })
 
@@ -192,8 +193,31 @@ describe('eventBody', () => {
       start: { dateTime: '2026-09-28T23:30:00', timeZone: 'Europe/Kyiv' },
       end: { dateTime: '2026-09-29T00:30:00', timeZone: 'Europe/Kyiv' },
       reminders: { useDefault: false, overrides: [{ method: 'popup', minutes: 30 }] },
+      attendees: [],
+      guestsCanModify: false,
+      guestsCanInviteOthers: false,
       extendedProperties: { private: { hobbyId: 'gym', sessionKey: '2026-09-28' } },
     })
+  })
+
+  it('uses the hobby color for paid sessions only, and adds the guests', () => {
+    const base = {
+      key: 'k',
+      hobbyId: 'h',
+      sessionKey: '2026-09-28',
+      name: 'Gym',
+      date: '2026-09-28',
+      time: '10:00',
+      dur: 60,
+      lastPaid: false,
+    }
+    const options = { paidColor: '3', guests: ['wife@gmail.com'] }
+    const paid = eventBody({ ...base, status: 'paid' }, 'en', 0, 'u', 'UTC', options)
+    expect(paid).toMatchObject({ colorId: '3', attendees: [{ email: 'wife@gmail.com' }] })
+    expect(eventBody({ ...base, status: 'unpaid' }, 'en', 0, 'u', 'UTC', options).colorId).toBe('8')
+    expect(eventBody({ ...base, status: 'attended' }, 'en', 0, 'u', 'UTC', options).colorId).toBe(
+      '2',
+    )
   })
 
   it('uses Graphite for unpaid, Sage for attended, no reminder when off', () => {
@@ -366,17 +390,34 @@ describe('calendar sync', () => {
     expect(google.live('cal2')).toHaveLength(13)
   })
 
-  it('another Google account starts clean: the previous account data does not leak', async () => {
-    addGym()
+  it('another Google account: backed-up hobbies leave, local ones stay (calendar off)', async () => {
+    addGym() // calendar + backup
+    useApp.getState().addHobby({
+      ...gymInput,
+      id: 'loc',
+      name: 'Local',
+      google: { calendar: false, backup: false, guests: [], paidColor: '10' },
+    })
+    useApp.getState().addHobby({
+      ...gymInput,
+      id: 'cal',
+      name: 'CalOnly',
+      google: { calendar: true, backup: false, guests: [], paidColor: '10' },
+    })
     signIn('me@gmail.com')
     stop = startSync(meta)
     await run()
     signIn('other@gmail.com')
     google.drive.clear() // each account has its own Drive
     await run()
-    expect(useApp.getState().data.hobbies).toEqual([])
-    expect(google.calendars.size).toBe(1) // only the first account's calendar
-    expect(backupHobbies()).toEqual([])
+    const hobbies = useApp.getState().data.hobbies
+    expect(hobbies.map((h) => h.id)).toEqual(['loc', 'cal'])
+    expect(hobbies.find((h) => h.id === 'cal')?.google).toMatchObject({
+      calendar: false,
+      backup: false,
+    })
+    expect(google.calendars.size).toBe(1) // nothing written for the new account
+    expect(google.drive.size).toBe(0)
     expect(meta.value).toMatchObject({ account: 'other@gmail.com', calendarId: null })
   })
 
@@ -491,6 +532,153 @@ describe('calendar sync', () => {
     }
   })
 
+  describe('per-hobby Google options', () => {
+    it('a local-only hobby never reaches Google (no calendar, no backup file)', async () => {
+      useApp.getState().addHobby({
+        ...gymInput,
+        google: { calendar: false, backup: false, guests: [], paidColor: '10' },
+      })
+      signIn()
+      stop = startSync(meta)
+      await run()
+      expect(google.calendars.size).toBe(0)
+      expect(google.drive.size).toBe(0)
+    })
+
+    it('calendar and backup are independent', async () => {
+      useApp.getState().addHobby({
+        ...gymInput,
+        google: { calendar: true, backup: false, guests: [], paidColor: '10' },
+      })
+      useApp.getState().addHobby({
+        ...gymInput,
+        id: 'eng',
+        name: 'English',
+        google: { calendar: false, backup: true, guests: [], paidColor: '10' },
+      })
+      signIn()
+      stop = startSync(meta)
+      await run()
+      const cal = google.live('cal1')
+      expect(cal).toHaveLength(13)
+      expect(cal.every((e) => String(e.summary).startsWith('Gym'))).toBe(true)
+      expect((backupHobbies() as { id: string }[]).map((h) => h.id)).toEqual(['eng'])
+    })
+
+    it('switching the calendar off removes the hobby events; on again brings them back', async () => {
+      addGym()
+      signIn()
+      stop = startSync(meta)
+      await run()
+      const set = (calendar: boolean) =>
+        useApp.getState().updateHobby('gym', (h) => ({ ...h, google: { ...h.google, calendar } }))
+      set(false)
+      await run()
+      expect(google.live('cal1')).toEqual([])
+      expect(useApp.getState().data.hobbies).toHaveLength(1) // data stays on the phone
+      set(true)
+      await run()
+      expect(google.live('cal1')).toHaveLength(13)
+      set(false)
+      await run()
+      expect(google.live('cal1')).toEqual([])
+    })
+
+    it('a changed color or guest list rewrites the hobby events', async () => {
+      addGym()
+      signIn()
+      stop = startSync(meta)
+      await run()
+      useApp.getState().updateHobby('gym', (h) => ({
+        ...h,
+        google: { ...h.google, paidColor: '9', guests: ['wife@gmail.com'] },
+      }))
+      await run()
+      const events = google.live('cal1')
+      const paid = events.filter((e) => e.colorId === '9')
+      expect(paid).toHaveLength(2)
+      expect(
+        events.every((e) => JSON.stringify(e.attendees) === '[{"email":"wife@gmail.com"}]'),
+      ).toBe(true)
+    })
+
+    it('switching the backup off takes the hobby out of the Drive copy', async () => {
+      addGym()
+      signIn()
+      stop = startSync(meta)
+      await run()
+      useApp
+        .getState()
+        .updateHobby('gym', (h) => ({ ...h, google: { ...h.google, backup: false } }))
+      await run()
+      expect(backupHobbies()).toEqual([])
+      expect(useApp.getState().data.hobbies).toHaveLength(1)
+    })
+  })
+
+  it('backup switched off on one device stops it on the other (kept locally)', async () => {
+    addGym()
+    signIn()
+    stop = startSync(meta)
+    await run()
+    const deviceA = meta
+    const stateA = useApp.getState().data
+    stop()
+
+    // Device B restores gym from the backup.
+    resetAppStore(initial)
+    await useApp.getState().load(createMemoryStorage(), 'en')
+    meta = createMemoryMeta()
+    stop = startSync(meta)
+    await run()
+    const stateB = useApp.getState().data
+    expect(stateB.hobbies[0]?.google.backup).toBe(true)
+    stop()
+
+    // Device A switches the backup off.
+    resetAppStore(initial)
+    await useApp.getState().load(createMemoryStorage(stateA), 'en')
+    meta = deviceA
+    stop = startSync(meta)
+    await run()
+    useApp.getState().updateHobby('gym', (h) => ({ ...h, google: { ...h.google, backup: false } }))
+    await run()
+    expect(backupHobbies()).toEqual([])
+    stop()
+
+    // Device B learns it and keeps its copy, locally.
+    const deviceB = createMemoryMeta()
+    resetAppStore(initial)
+    await useApp.getState().load(createMemoryStorage(stateB), 'en')
+    meta = deviceB
+    stop = startSync(meta)
+    await run()
+    expect(useApp.getState().data.hobbies[0]?.google.backup).toBe(false)
+    expect(backupHobbies()).toEqual([])
+  })
+
+  it('ids of never-backed-up hobbies do not reach Drive', async () => {
+    addGym()
+    useApp.getState().addHobby({
+      ...gymInput,
+      id: 'loc',
+      google: { calendar: false, backup: false, guests: [], paidColor: '10' },
+    })
+    useApp.getState().snoozeRenewal('loc', '2026-09-25')
+    useApp.getState().deleteHobby('loc')
+    useApp.getState().addHobby({
+      ...gymInput,
+      id: 'loc2',
+      google: { calendar: false, backup: false, guests: [], paidColor: '10' },
+    })
+    useApp.getState().snoozeRenewal('loc2', '2026-09-25')
+    signIn()
+    stop = startSync(meta)
+    await run()
+    const doc = JSON.stringify([...google.drive.values()][0])
+    expect(doc).not.toContain('loc')
+  })
+
   describe('Drive backup', () => {
     const backup = () => [...google.drive.values()][0] as Record<string, unknown> | undefined
 
@@ -500,7 +688,7 @@ describe('calendar sync', () => {
       stop = startSync(meta)
       await run()
       expect(backup()).toMatchObject({
-        schemaVersion: 2,
+        schemaVersion: 4,
         calendarId: 'cal1',
         hobbies: [{ id: 'gym' }],
       })

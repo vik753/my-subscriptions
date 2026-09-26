@@ -20,7 +20,9 @@ export function Home() {
   const navigate = useNavigate()
   const hobbies = useApp((s) => s.data.hobbies)
   const loadError = useApp((s) => s.loadError)
-  const sync = useSyncState()
+  const syncState = useSyncState()
+  // The header icon is about Google; a local-only app has nothing to report.
+  const sync = hobbies.some((h) => h.google.calendar || h.google.backup) ? syncState : 'ok'
   // Tab and selected day live in the URL, so Back from a hobby returns to the same view.
   const [params, setParams] = useSearchParams()
   const tab = params.get('tab') === 'all' && hobbies.length > 0 ? 'all' : 'list'

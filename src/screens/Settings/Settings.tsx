@@ -4,6 +4,7 @@ import {
   CalendarBlank,
   CaretLeft,
   DownloadSimple,
+  GoogleLogo,
   Info,
   Moon,
   SignOut,
@@ -34,8 +35,8 @@ import styles from './Settings.module.css'
 const NATIVE = { uk: 'Українська', en: 'English', ru: 'Русский' } as const
 const REMINDERS = [15, 30, 60] as const
 
-const initials = (name: string) =>
-  name
+const initials = (name: string | undefined) =>
+  (name ?? '')
     .split(/\s+/)
     .filter(Boolean)
     .slice(0, 2)
@@ -124,10 +125,18 @@ export function Settings() {
       </ListSection>
 
       <ListSection title={t.account}>
+        {!user && (
+          <ListRow
+            icon={<GoogleLogo />}
+            label={t.signIn}
+            sub={t.signInSub}
+            onClick={() => useAuth.getState().signIn()}
+          />
+        )}
         {user && (
           <div className={styles.account}>
             <span className={styles.avatar} aria-hidden="true">
-              {initials(user.name || user.email)}
+              {initials(user.name || user.email) || '?'}
             </span>
             <span className={styles.accountText}>
               <span className={styles.accountName}>{user.name}</span>
@@ -136,13 +145,17 @@ export function Settings() {
             </span>
           </div>
         )}
-        <ListRow
-          icon={sync === 'syncing' ? <Spinner /> : <ArrowsClockwise />}
-          label={sync === 'reauth' ? t.reauthBtn : t.syncNow}
-          sub={sync === 'reauth' ? t.reauth : undefined}
-          onClick={() => void syncNow()}
-        />
-        <ListRow icon={<SignOut />} label={t.signOut} onClick={signOut} />
+        {user && (
+          <>
+            <ListRow
+              icon={sync === 'syncing' ? <Spinner /> : <ArrowsClockwise />}
+              label={sync === 'reauth' ? t.reauthBtn : t.syncNow}
+              sub={sync === 'reauth' ? t.reauth : undefined}
+              onClick={() => void syncNow()}
+            />
+            <ListRow icon={<SignOut />} label={t.signOut} onClick={signOut} />
+          </>
+        )}
       </ListSection>
 
       <ListSection title={t.calendarSection}>

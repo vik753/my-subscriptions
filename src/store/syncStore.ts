@@ -21,7 +21,14 @@ import { deleteFile, downloadJson, findStateFile, uploadJson } from '../services
 import { GoogleHttpError } from '../services/googleAuth'
 import { useApp } from './appStore'
 import { accessToken, useAuth } from './authStore'
-import { mergeState, NewerBackupError, readBackup, sameState, type BackupDoc } from './backup'
+import {
+  backupDoc,
+  mergeState,
+  NewerBackupError,
+  readBackup,
+  sameState,
+  type BackupDoc,
+} from './backup'
 import { defaultState } from './persistence/migrate'
 import { localClock } from './clock'
 import type { MetaStorage } from './persistence/storage'
@@ -44,6 +51,8 @@ export interface SyncMeta {
   driveFileId: string | null
   /** hobbyId → tombstone time whose events were already purged from this calendar. */
   purged: Record<string, string>
+  /** Hobbies ever written to this account's backup (their ids may appear in it). */
+  backedUp: string[]
 }
 
 const emptyMeta = (account: string | null): SyncMeta => ({
@@ -53,6 +62,7 @@ const emptyMeta = (account: string | null): SyncMeta => ({
   lastSync: null,
   driveFileId: null,
   purged: {},
+  backedUp: [],
 })
 
 const readMeta = (raw: unknown): SyncMeta => {
@@ -64,6 +74,9 @@ const readMeta = (raw: unknown): SyncMeta => {
     lastSync: typeof m.lastSync === 'string' ? m.lastSync : null,
     driveFileId: typeof m.driveFileId === 'string' ? m.driveFileId : null,
     purged: m.purged && typeof m.purged === 'object' ? { ...m.purged } : {},
+    backedUp: Array.isArray(m.backedUp)
+      ? m.backedUp.filter((id): id is string => typeof id === 'string')
+      : [],
   }
 }
 
@@ -74,6 +87,8 @@ export const eventBody = (
   reminderMinutes: number,
   appUrl: string,
   timeZone: string,
+  /** The hobby's calendar options: color of paid sessions, guests. */
+  options: { paidColor: string; guests: readonly string[] } = { paidColor: COLOR.paid, guests: [] },
 ): EventBody => {
   const t = messages[lang]
   const label = { paid: t.paid, unpaid: t.unpaid, attended: t.attended }[e.status]
@@ -82,13 +97,17 @@ export const eventBody = (
     description: [label, t.evDur(e.dur), ...(e.lastPaid ? [t.lastPaidNote] : []), appUrl].join(
       '\n',
     ),
-    colorId: COLOR[e.status],
+    colorId: e.status === 'paid' ? options.paidColor : COLOR[e.status],
     start: { dateTime: `${e.date}T${e.time}:00`, timeZone },
     end: { dateTime: `${addMinutes(e.date, e.time, e.dur)}:00`, timeZone },
     reminders: {
       useDefault: false,
       overrides: reminderMinutes > 0 ? [{ method: 'popup', minutes: reminderMinutes }] : [],
     },
+    // Guests see the sessions in their own calendar; they can't change or re-invite.
+    attendees: options.guests.map((email) => ({ email })),
+    guestsCanModify: false,
+    guestsCanInviteOthers: false,
     extendedProperties: { private: { hobbyId: e.hobbyId, sessionKey: e.sessionKey } },
   }
 }
@@ -152,14 +171,20 @@ const sync = async (store: MetaStorage): Promise<void> => {
 
   let m = readMeta(await store.load())
   if (m.account !== account) {
-    // Another Google account signed in on this device: the local hobbies belong to the previous
-    // account and must not leak into this account's calendar and backup.
+    // Another Google account signed in on this device. Backed-up hobbies belong to the previous
+    // account (they stay safe in its Drive) and leave this device; local hobbies stay, but their
+    // calendar option is switched off so they don't land in the new account's calendar.
     // Device preferences (theme, language) stay.
     if (m.account !== null) {
-      const { settings, settingsUpdatedAt } = useApp.getState().data
-      useApp
-        .getState()
-        .applyMerged({ ...defaultState(settings.language), settings, settingsUpdatedAt })
+      const data = useApp.getState().data
+      useApp.getState().applyMerged({
+        ...defaultState(data.settings.language),
+        settings: data.settings,
+        settingsUpdatedAt: data.settingsUpdatedAt,
+        hobbies: data.hobbies
+          .filter((h) => !h.google.backup)
+          .map((h) => (h.google.calendar ? { ...h, google: { ...h.google, calendar: false } } : h)),
+      })
     }
     m = emptyMeta(account)
   }
@@ -176,6 +201,8 @@ const sync = async (store: MetaStorage): Promise<void> => {
       throw e
     }
   }
+  // This account already has (or had) a backup: keep writing it, if only to spread deletions.
+  const hadBackup = m.driveFileId !== null
   let fileId = m.driveFileId ?? (await findStateFile(token))
   let remote = await download(fileId)
   if (!remote && m.driveFileId) {
@@ -186,6 +213,14 @@ const sync = async (store: MetaStorage): Promise<void> => {
   }
   if (!remote) fileId = null
   if (remote) {
+    // Everything in the backup counts as backed up here too (e.g. to spread a later deletion).
+    m.backedUp = [
+      ...new Set([
+        ...m.backedUp,
+        ...remote.hobbies.map((h) => h.id),
+        ...Object.keys(remote.deletedHobbies),
+      ]),
+    ]
     const local = useApp.getState().data
     const merged = mergeState(local, remote)
     if (!sameState(merged, local)) useApp.getState().applyMerged(merged)
@@ -200,13 +235,17 @@ const sync = async (store: MetaStorage): Promise<void> => {
   const { hobbies, settings } = useApp.getState().data
   const now = localClock.now()
   const bodies = new Map<string, { model: CalendarEventModel; body: EventBody; hash: string }>()
-  for (const model of calendarEvents(hobbies, now)) {
+  // Only hobbies that opted in get events.
+  const withCalendar = hobbies.filter((h) => h.google.calendar)
+  const byId = new Map(withCalendar.map((h) => [h.id, h.google]))
+  for (const model of calendarEvents(withCalendar, now)) {
     const body = eventBody(
       model,
       settings.language,
       settings.reminderMinutes,
       syncEnv.appUrl(),
       syncEnv.timeZone(),
+      byId.get(model.hobbyId),
     )
     bodies.set(model.key, { model, body, hash: hashText(JSON.stringify(body)) })
   }
@@ -230,8 +269,16 @@ const sync = async (store: MetaStorage): Promise<void> => {
     // seconds, before the user can switch apps (a backgrounded PWA is frozen mid-sync).
     // A deleted hobby loses every event, not only the ones this device remembers writing
     // (another device may have written later sessions, or the bookkeeping may be gone).
-    const tombstones = useApp.getState().data.deletedHobbies
-    for (const [hobbyId, deletedAt] of Object.entries(tombstones)) {
+    // Same for a hobby whose calendar option was switched off (marker 'off').
+    const { deletedHobbies: tombstones, hobbies: current } = useApp.getState().data
+    for (const h of current)
+      if (h.google.calendar && h.id in m.purged)
+        m.purged = Object.fromEntries(Object.entries(m.purged).filter(([id]) => id !== h.id))
+    const purges: [string, string][] = [
+      ...Object.entries(tombstones),
+      ...current.filter((h) => !h.google.calendar).map((h): [string, string] => [h.id, 'off']),
+    ]
+    for (const [hobbyId, deletedAt] of purges) {
       if (m.purged[hobbyId] === deletedAt) continue
       const ids = await listHobbyEventIds(token, calendarId, hobbyId)
       await inParallel(ids, (id) => deleteEvent(token, calendarId, id))
@@ -268,8 +315,12 @@ const sync = async (store: MetaStorage): Promise<void> => {
   }
 
   // 3. Backup: write the merged state back when it differs from the Drive copy.
-  const doc: BackupDoc = { ...useApp.getState().data, calendarId: m.calendarId }
-  if (!remote || !sameState(doc, remote)) fileId = await uploadJson(token, fileId, doc)
+  // Only hobbies that opted in are backed up; no file is created until one does.
+  const doc = backupDoc(useApp.getState().data, remote, m.backedUp, m.calendarId)
+  if ((remote || hadBackup || doc.hobbies.length > 0) && !(remote && sameState(doc, remote))) {
+    fileId = await uploadJson(token, fileId, doc)
+    m.backedUp = [...new Set([...m.backedUp, ...doc.hobbies.map((h) => h.id)])]
+  }
   m.driveFileId = fileId
 
   m.lastSync = new Date().toISOString()
@@ -429,7 +480,9 @@ export const wipeAllData = async (): Promise<void> => {
   }
   if (removed) {
     verified = false
-    await meta?.save(emptyMeta(m.account))
+    // The deleted file's id stays: the next sync writes a fresh backup with the tombstones, so
+    // other devices drop their copies instead of restoring them.
+    await meta?.save({ ...emptyMeta(m.account), driveFileId: m.driveFileId, backedUp: m.backedUp })
     useSync.setState({ lastSync: null })
   }
   useApp.getState().wipe()

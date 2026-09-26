@@ -13,6 +13,7 @@ const hobby = (id: string, updatedAt: string) => ({
   marks: {},
   moves: {},
   updatedAt,
+  google: { calendar: false, backup: false, guests: [], paidColor: '10' },
 })
 
 const state = (patch: Partial<PersistedState>): PersistedState => ({
@@ -71,7 +72,7 @@ describe('mergeState', () => {
 describe('readBackup', () => {
   it('migrates the state and keeps the calendar id', () => {
     expect(readBackup({ schemaVersion: 1, hobbies: [], calendarId: 'cal1' }, 'en')).toMatchObject({
-      schemaVersion: 2,
+      schemaVersion: 4,
       settingsUpdatedAt: '',
       calendarId: 'cal1',
     })

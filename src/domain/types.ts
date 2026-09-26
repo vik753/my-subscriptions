@@ -54,6 +54,19 @@ export interface Hobby {
   moves: Record<SessionKey, Move>
   /** ISO timestamp, stamped by the store on every change (used for sync merge). */
   updatedAt: string
+  /** Opt-in Google features; by default a hobby lives only on this device. */
+  google: HobbyGoogle
+}
+
+export interface HobbyGoogle {
+  /** Sessions are written to the "My Subscriptions" Google calendar. */
+  calendar: boolean
+  /** The hobby is included in the Google Drive backup. */
+  backup: boolean
+  /** Guests (emails) added to every calendar event, so the sessions show in their calendars too. */
+  guests: string[]
+  /** Google Calendar event color of paid sessions (`colorId` "1"–"11"; default "10" Basil). */
+  paidColor: string
 }
 
 /** `missed` covers both `missed` and `cancelled` marks. */
@@ -111,4 +124,6 @@ export interface NewHobbyInput {
   price: number
   paymentDate: ISODate
   updatedAt: string
+  /** Default: local only, no guests, Basil. */
+  google?: Partial<HobbyGoogle>
 }

@@ -39,7 +39,7 @@ const createGym = async (page: Page) => {
   await page.getByLabel('Monday', { exact: true }).fill('10:00')
   await page.getByLabel('First session').fill('2026-09-14')
   await page.getByLabel('Sessions in pass').fill('8')
-  await page.getByRole('button', { name: 'Create and add to calendar' }).click()
+  await page.getByRole('button', { name: 'Create', exact: true }).click()
   await expect(page.getByRole('heading', { name: 'Gym' })).toBeVisible()
 }
 
@@ -71,11 +71,3 @@ for (const mode of ['dark', 'light'] as const) {
     await audit(page)
   })
 }
-
-test('sign-in screen passes axe', async ({ browser }) => {
-  const context = await browser.newContext()
-  const page = await context.newPage()
-  await page.goto('./')
-  await audit(page)
-  await context.close()
-})

@@ -14,7 +14,8 @@ import { Button } from '../../ui/Button'
 import { ListRow, ListSection } from '../../ui/List'
 import styles from './About.module.css'
 
-const AUTHOR = 'Ihor Korenets'
+// Same in every language: a product name, not translated.
+const CLAUDE = 'Claude (Anthropic)'
 const SUPPORT = 'vik753@gmail.com'
 const GITHUB = 'https://github.com/vik753?tab=repositories'
 
@@ -65,7 +66,16 @@ export function About() {
       </div>
 
       <ListSection>
-        <ListRow label={t.author} trailing={<span className={styles.value}>{AUTHOR}</span>} />
+        <ListRow label={t.ideaL} trailing={<span className={styles.value}>{t.ideaName}</span>} />
+        <ListRow
+          label={t.developersL}
+          trailing={
+            <span className={styles.people}>
+              <span>{t.developerName}</span>
+              <span>{CLAUDE}</span>
+            </span>
+          }
+        />
         <ListRow
           label={t.licenseL}
           trailing={<span className={styles.value}>{t.proprietary}</span>}
@@ -91,7 +101,7 @@ export function About() {
       </ListSection>
 
       <p className={styles.rights}>
-        © {new Date().getFullYear()} {AUTHOR}. {t.rights}
+        © {new Date().getFullYear()} {t.developerName}. {t.rights}
       </p>
     </div>
   )

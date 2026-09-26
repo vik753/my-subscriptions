@@ -4,7 +4,10 @@
 
 My Subscriptions shows how many paid sessions are left on each pass, asks after every session whether
 you went, moves the payment on when a session is cancelled, and reminds you when it's time to renew.
-Every session appears in your Google Calendar: paid ones in green, unpaid in grey.
+
+**Your data stays on your phone by default** — no account, no sign-in. For each hobby you can
+choose to also put its sessions into **Google Calendar** (paid ones in green) and to back it up
+to **Google Drive**.
 
 It is a **PWA (Progressive Web App)** made for phones. You don't need an app store: open a link, add it to
 the Home Screen, and it runs full screen like a regular app, offline too.
@@ -29,12 +32,16 @@ the Home Screen, and it runs full screen like a regular app, offline too.
 - **Move sessions:** move one session, or all following ones, to another day and time.
 - **Renewal reminder:** when one paid session is left, the app suggests adding a payment. You can
   snooze it until tomorrow.
-- **Google Calendar:** a separate "My Subscriptions" calendar with one event per session:
-  - Paid sessions are green, unpaid grey, attended sage.
+- **Local first:** everything is stored on the phone; the app works without an account or internet.
+- **Google Calendar (optional, per hobby):** a separate "My Subscriptions" calendar with one event
+  per session:
+  - Paid sessions in the color you pick (Google's 11 event colors; green by default), unpaid grey,
+    attended sage.
+  - **Guests:** add someone's email (e.g. your partner) and the sessions show in their calendar too.
   - An optional popup reminder before each session is sent by Google Calendar.
-- **Backup in your Google Drive:** your data lives in a hidden app folder in your own Drive.
-  Several phones and computers stay in sync.
-- **Works offline:** changes are saved on the device and sync when the internet is back.
+- **Google Drive backup (optional, per hobby):** a copy in a hidden app folder in your own Drive,
+  so several phones and computers stay in sync.
+- **Works offline:** with the Google options on, changes sync when the internet is back.
 - **Three languages** (Ukrainian, English, Russian), **light and dark themes**, **four color schemes**.
 
 ## Install
@@ -57,35 +64,53 @@ the Home Screen, and it runs full screen like a regular app, offline too.
 Open the link and click the install icon in the address bar, or just use it in a browser tab.
 On wide screens the app shows as a centered column.
 
-## Sign in
+## Google Calendar and Drive (optional)
 
-<img src="docs/screenshots/sign-in.png" width="240" align="right" alt="Sign-in screen">
+You don't need a Google account to use the app. Google is only involved for the hobbies where you
+turn it on, in the hobby form:
 
-1. Tap **Sign in with Google** and choose your account.
+- **Add to Google Calendar:** the hobby's sessions appear in a separate "My Subscriptions"
+  calendar and stay up to date. Turning it off later removes them from the calendar; the hobby
+  stays on your phone. With it on you can also pick the **color of paid sessions** and add
+  **guests**: people whose Google Calendar should show the sessions too (they get the events
+  without an email per session). A guest needs a Google account; if the sessions don't show up
+  for them, they set Google Calendar → Settings → "Add invitations to my calendar" to
+  "From everyone".
+- **Back up to Google Drive:** the hobby is saved to a hidden app folder in your Drive and synced
+  to your other devices.
+
+The first time you turn one on, the app asks you to sign in with Google (you can also sign in from
+Settings):
+
+1. Choose your account.
 2. Google may warn that **"Google hasn't verified this app"**. This is a family app that isn't
    published in a store. Tap **Advanced → Go to My Subscriptions**.
 3. Allow both permissions:
    - **Calendar:** only the app's own "My Subscriptions" calendar. Your other calendars stay private.
    - **Google Drive:** only the app's hidden folder. Your files stay private.
 
-The app has no server. Your data stays on your device and in your own Google account; nobody else,
-including the author, can see it.
-
-<br clear="right">
+The app has no server. Your data stays on your device and, if you choose, in your own Google
+account; nobody else, including the author, can see it.
 
 ## How to use
 
 ### 1. Add a hobby
+
+<img src="docs/screenshots/form.png" width="240" align="right" alt="New hobby form with the Google options">
 
 Tap **+** on the Home screen and fill in:
 
 - the name;
 - the days of the week, with a time and duration for each;
 - the date of the first session;
-- how many sessions the pass has and what it cost.
+- how many sessions the pass has and what it cost;
+- optionally, **Add to Google Calendar** and **Back up to Google Drive**.
 
-The summary under the form shows what will be created. **Create and add to calendar** creates the
-hobby, and its sessions appear in Google Calendar a moment later.
+The summary under the form shows what will be created. **Create** saves the hobby on the phone
+(with the calendar option on, the button says **Create and add to calendar**, and the sessions
+appear in Google Calendar a moment later).
+
+<br clear="right">
 
 To change the schedule later, open the hobby → ✏️. Changes apply from the date you choose; past
 sessions and marks stay as they are.
@@ -155,7 +180,8 @@ Tap a day to see its sessions, and tap a session to open its hobby.
 Tap ⚙️ on the Home screen:
 
 - **Theme** (light / dark), **color scheme** (Nocturne, Sea, Clay, Graphite) and **language**.
-- **Google account:** the time of the last sync, **Sync now** and **Sign out**.
+- **Google account:** **Sign in with Google**, or, once signed in, the time of the last sync,
+  **Sync now** and **Sign out**.
 - **Reminder before session:** a Google Calendar popup 15, 30 or 60 minutes before each session.
 - **Install the app** (if it isn't installed yet), **About**, and **Delete all data**, which
   removes your hobbies, the "My Subscriptions" calendar and the Drive backup.
@@ -164,12 +190,19 @@ Tap ⚙️ on the Home screen:
 
 ### Good to know
 
-- **Sync status:** the hobby screen shows "Synced with Google Calendar". "Offline — changes will
-  sync later" means you have no internet right now.
+- **Where a hobby lives:** a local hobby shows "Stored only on this phone". A hobby with a Google
+  option shows its sync status: "Synced with Google Calendar", or "Offline — changes will sync later"
+  when you have no internet right now.
 - **"Sign in again to sync":** Google sessions expire from time to time. Tap **Sign in**; your data
   stays on the phone meanwhile.
-- **Several devices:** sign in with the same Google account and your data is merged automatically.
+- **Several devices:** turn on the Drive backup and sign in with the same Google account; the
+  backed-up hobbies are merged automatically.
 - **Updates:** when a new version is out, a banner appears at the top. Tap **Update**.
+
+## Credits
+
+- **Idea:** Netrebko Olena (Нетребко Олена)
+- **Developed by:** Ihor Korenets (Ігор Коренець) with Claude (Anthropic)
 
 ## Questions and support
 
@@ -182,8 +215,9 @@ family and friends is in [`docs/family-guide.md`](docs/family-guide.md).
 
 - Stack: Vite, React, TypeScript (strict), vite-plugin-pwa (Workbox), React Router, Zustand,
   IndexedDB (`idb`), Vitest + Testing Library, Playwright (WebKit + Chromium), CSS Modules.
-- Google only: OAuth 2.0 token flow in the browser (no client secret, no backend). Scopes are
-  `calendar.app.created` and `drive.appdata`.
+- Local first: IndexedDB is the source of truth. Google is opt-in per hobby (`hobby.google`):
+  OAuth 2.0 token flow in the browser (no client secret, no backend) with the scopes
+  `calendar.app.created` and `drive.appdata`, requested only when a hobby opts in.
 - The product spec is [`design_handoff_my_subscriptions/README.md`](design_handoff_my_subscriptions/README.md)
   plus [`docs/design-review.md`](docs/design-review.md). The plan is [`docs/roadmap.md`](docs/roadmap.md).
   Engineering rules are in [`CLAUDE.md`](CLAUDE.md).

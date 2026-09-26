@@ -1,5 +1,5 @@
-import { Copy, GoogleLogo, Trash } from '@phosphor-icons/react'
-import { useState } from 'react'
+import { CalendarBlank, Copy, GoogleDriveLogo, Trash } from '@phosphor-icons/react'
+import { useId, useState } from 'react'
 import { Navigate, useLocation, useNavigate, useParams } from 'react-router'
 import {
   editSchedule,
@@ -22,9 +22,14 @@ import { DayChips } from '../../ui/DayChips'
 import { DurationField } from '../../ui/DurationField'
 import { Field, SelectInput, TextInput } from '../../ui/Field'
 import { Sheet } from '../../ui/Sheet'
+import { ColorPicker } from '../../ui/ColorPicker'
+import { GuestList } from '../../ui/GuestList'
+import { Switch } from '../../ui/Switch'
 import styles from './HobbyForm.module.css'
 
 const CURRENCIES: Currency[] = ['UAH', 'USD', 'EUR']
+// Deliberately loose: Google rejects what it can't deliver; this only catches typos.
+const EMAIL = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
 const WEEK: Weekday[] = [0, 1, 2, 3, 4, 5, 6]
 
 type Times = Partial<Record<Weekday, HHMM>>
@@ -70,6 +75,16 @@ function Form({
   const now = useNow()
   const today = now.slice(0, 10)
   const email = useAuth((s) => s.user?.email ?? '')
+  const authStatus = useAuth((s) => s.status)
+  const [calendarOn, setCalendarOn] = useState(hobby?.google.calendar ?? false)
+  const [backupOn, setBackupOn] = useState(hobby?.google.backup ?? false)
+  const [guests, setGuests] = useState<string[]>(hobby?.google.guests ?? [])
+  const [paidColor, setPaidColor] = useState(hobby?.google.paidColor ?? '10')
+  const [guestDraft, setGuestDraft] = useState('')
+  const calId = useId()
+  const backupId = useId()
+  // Offline counts as signed in: the session is there, sync waits for the network.
+  const signedIn = authStatus === 'signedIn' || authStatus === 'offline'
   const { addHobby, updateHobby, deleteHobby } = useApp.getState()
   const toast = useToast((s) => s.show)
   const edit = Boolean(hobby)
@@ -143,6 +158,18 @@ function Form({
     const cleanDurs = Object.fromEntries(days.map((d) => [d, durOf(d)])) as Partial<
       Record<Weekday, number>
     >
+    // An email typed but not added yet still counts; a malformed one stops the save.
+    const typed = guestDraft.trim().toLowerCase()
+    if (calendarOn && typed && !EMAIL.test(typed)) return toast(t.guestInvalid)
+    const allGuests = calendarOn && typed && !guests.includes(typed) ? [...guests, typed] : guests
+    const google = { calendar: calendarOn, backup: backupOn, guests: allGuests, paidColor }
+    // An option switched on just now needs an account: sign in right after saving, then come
+    // back to the hobby. Saving a hobby whose options were already on never asks again.
+    const newlyOn = (calendarOn && !hobby?.google.calendar) || (backupOn && !hobby?.google.backup)
+    const done = (to: string) => {
+      onDone(to)
+      if (newlyOn && !signedIn) useAuth.getState().signIn(to)
+    }
     if (hobby) {
       const unchanged =
         base !== undefined &&
@@ -152,8 +179,9 @@ function Form({
         ...(unchanged ? h : editSchedule(h, effective, filled(times), cleanDurs)),
         name: name.trim() || h.name,
         currency: h.payments.length <= 1 ? currency : h.currency,
+        google,
       }))
-      return onDone(`/hobby/${hobby.id}`)
+      return done(`/hobby/${hobby.id}`)
     }
     const created = addHobby({
       id: crypto.randomUUID(),
@@ -165,8 +193,9 @@ function Form({
       sessions: n,
       price: minor ?? 0,
       paymentDate: today,
+      google,
     })
-    onDone(`/hobby/${created.id}`)
+    done(`/hobby/${created.id}`)
   }
 
   return (
@@ -291,17 +320,60 @@ function Form({
         </div>
       )}
 
-      <p className={styles.info}>
-        <GoogleLogo aria-hidden="true" />
-        {t.calInfo(email)}
-      </p>
+      <div className={styles.options}>
+        <div className={styles.option}>
+          <CalendarBlank className={styles.optionIcon} aria-hidden="true" />
+          <span className={styles.optionText} id={calId}>
+            {t.optCalendar}
+            <span className={styles.optionSub}>
+              {signedIn && email ? t.calInfo(email) : t.googleSignInNeeded}
+            </span>
+          </span>
+          <Switch checked={calendarOn} onChange={setCalendarOn} labelledBy={calId} />
+        </div>
+        {calendarOn && (
+          <div className={styles.calendarExtras}>
+            <ColorPicker
+              label={t.optColor}
+              value={paidColor}
+              options={t.gcalColors.map((name, i) => ({ id: String(i + 1), name }))}
+              onChange={setPaidColor}
+            />
+            <GuestList
+              label={t.optGuests}
+              hint={t.guestsSub}
+              guests={guests}
+              placeholder={t.guestPh}
+              addLabel={t.guestAdd}
+              draft={guestDraft}
+              onDraft={setGuestDraft}
+              removeLabel={t.guestRemove}
+              onAdd={(value) => {
+                const email = value.toLowerCase()
+                if (!EMAIL.test(email)) return t.guestInvalid
+                if (!guests.includes(email)) setGuests([...guests, email])
+                return null
+              }}
+              onRemove={(email) => setGuests(guests.filter((g) => g !== email))}
+            />
+          </div>
+        )}
+        <div className={styles.option}>
+          <GoogleDriveLogo className={styles.optionIcon} aria-hidden="true" />
+          <span className={styles.optionText} id={backupId}>
+            {t.optBackup}
+            <span className={styles.optionSub}>{t.optBackupSub}</span>
+          </span>
+          <Switch checked={backupOn} onChange={setBackupOn} labelledBy={backupId} />
+        </div>
+      </div>
 
       <p className={styles.summary} aria-live="polite">
         {summary}
       </p>
 
       <Button variant="primary" block onClick={submit}>
-        {edit ? t.save : t.createBtn}
+        {edit ? t.save : calendarOn ? t.createBtn : t.createLocal}
       </Button>
       {hobby && (
         <Button variant="ghost" block icon={<Trash />} onClick={() => setConfirmDelete(true)}>
@@ -318,7 +390,8 @@ function Form({
             block
             icon={<Trash />}
             onClick={() => {
-              announceDeletion(hobby.id)
+              // Confirm the calendar cleanup only where there was a calendar to clean.
+              if (hobby.google.calendar) announceDeletion(hobby.id)
               deleteHobby(hobby.id)
               toast(t.tDeleted)
               onDone('/')
