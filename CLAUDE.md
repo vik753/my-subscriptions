@@ -91,7 +91,7 @@ Never store derived values (`remaining`, statuses, `paid`/`price` totals) — co
 Use exactly these, at these points — no others, no ad-hoc subagents:
 
 - `spec-tester` — before implementing or changing a rule in `src/domain`: writes tests from the spec, without seeing the implementation.
-- `ui-verifier` — after building or changing a screen/sheet: compares with design screenshots, returns text only.
+- `ui-verifier` — after building or changing a screen/sheet: compares with design screenshots, returns text only. Scope the brief to the change (user decision 2026-09-26): **small style fix** → `nocturne` light + dark, 390×844 only, the longest language (uk or ru), plus touch-target measurements; **new screen or sheet** → the full matrix.
 - `reviewer` — before opening/updating the PR (part of `/ship`).
 
 Give agents a precise brief (rule/screen, files, screenshot names); they start cold.
