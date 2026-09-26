@@ -3,7 +3,7 @@
 **Scope reviewed (2026-09-25):** PR #16, `origin/main...origin/dev` (7 commits): App auth gate + router, 404 fallback, SignIn, Home (HobbyCard, InstallCard), HobbyForm, HobbyDetail, clock / install / syncState stores, spike removal, e2e core flow.
 **Verdict:** CHANGES REQUESTED. Fixes go into a follow-up PR (agreed with the user).
 **Checked and fine:** BrowserRouter + basename and `#access_token` cleanup, first-session auto-fill, delete confirm (i18n in uk/en/ru), Detail numbers from `summarize`, no console.log / new deps, spike fully removed.
-**Not yet done:** `ui-verifier` visual pass of the four screens; e2e not rerun by the reviewer.
+**Visual pass:** done 2026-09-26 (see below).
 
 ## Findings
 
@@ -25,6 +25,8 @@
 
 **Fixes (2026-09-26):** #1–#11 fixed with unit tests; e2e covers the expired-session case. Not in scope: the small offline/reauth icon in the Home header (README Home spec) — lands with sync in stage 8.
 
+**ui-verifier (2026-09-26):** Sign-in / Home / Detail / Form match in nocturne + sea × light/dark, 390px and desktop. Fixed from its report: schedule line wrapped inside a group (design-review #3) and screens kept the previous scroll offset. Not checked live: sign-in error/denied states, uk/ru overflow.
+
 ## Next steps
 
-Run `ui-verifier` on Sign-in / Home / Detail / Form → reviewer on the follow-up PR → update this file.
+Reviewer on the follow-up PR (together with the next stages).
