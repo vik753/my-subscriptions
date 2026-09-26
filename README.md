@@ -148,8 +148,8 @@ Tap a session in the calendar or in **Upcoming sessions**:
 
 - **Move to another day:** pick a date and time. Turn on **"Also move all following sessions on
   this day"** to change the schedule from then on.
-- **Cancel session:** by default the payment moves to the next unpaid session. Turn the switch off
-  to deduct the session from the pass instead.
+- **Cancel session:** for a paid session the app asks **"Carry the payment over?"** — move the
+  payment to the next unpaid session, or don't carry it (the session is deducted from the pass).
 - **Restore session:** tap a cancelled session to undo the cancellation.
 
 <br clear="right">
@@ -165,6 +165,9 @@ Tap **Add payment** on the hobby. Choose one of:
 
 Empty fields repeat your last payment. The hint shows which sessions the payment will cover, and
 they turn green in the app and in Google Calendar.
+
+Made a mistake? Tap a payment in the hobby's **Payments** list (or in ✏️ edit) to correct its
+date, sessions or amount, or to delete it.
 
 When only one paid session is left, the app suggests this by itself. **Remind me later** snoozes it
 until tomorrow.
