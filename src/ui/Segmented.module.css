@@ -12,8 +12,8 @@
   justify-content: center;
   gap: 6px;
   min-width: 0;
-  height: 38px;
-  padding: 0 8px;
+  min-height: 38px;
+  padding: 2px 8px;
   border: 1px solid transparent;
   border-radius: 6px;
   background: transparent;
@@ -23,9 +23,10 @@
 }
 
 .text {
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  /* Long labels (uk "Спільний календар") wrap to two lines instead of losing words. */
+  line-height: 1.15;
+  text-align: center;
+  overflow-wrap: anywhere;
 }
 
 .selected {
