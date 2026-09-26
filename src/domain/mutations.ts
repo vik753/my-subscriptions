@@ -43,6 +43,21 @@ export const addPayment = (hobby: Hobby, payment: Payment): Hobby => ({
   payments: [...hobby.payments, { ...payment }],
 })
 
+/** Corrects a recorded payment (a typo in the amount or the number of sessions). */
+export const editPayment = (hobby: Hobby, index: number, payment: Payment): Hobby =>
+  index in hobby.payments
+    ? {
+        ...hobby,
+        payments: hobby.payments.map((p, i) => (i === index ? { ...payment } : p)),
+      }
+    : hobby
+
+/** Drops a payment recorded by mistake. */
+export const removePayment = (hobby: Hobby, index: number): Hobby =>
+  index in hobby.payments
+    ? { ...hobby, payments: hobby.payments.filter((_, i) => i !== index) }
+    : hobby
+
 export const markSession = (hobby: Hobby, key: SessionKey, mark: Mark): Hobby => ({
   ...hobby,
   marks: { ...hobby.marks, [key]: mark },

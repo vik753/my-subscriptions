@@ -777,6 +777,55 @@ describe('calendar sync', () => {
     })
   })
 
+  describe('guests', () => {
+    const withWife = () =>
+      useApp.getState().addHobby({
+        ...gymInput,
+        google: { calendar: true, backup: false, guests: ['wife@gmail.com'], paidColor: '10' },
+      })
+    const wifeSees = () =>
+      google.live('cal1').filter((e) => JSON.stringify(e.attendees).includes('wife@gmail.com'))
+        .length
+
+    it('every change reaches the guest copies (same events), removing the guest takes them away', async () => {
+      withWife()
+      signIn()
+      stop = startSync(meta)
+      await run()
+      expect(wifeSees()).toBe(13)
+      useApp.getState().updateHobby('gym', (h) => ({ ...h, name: 'Swim' }))
+      await run()
+      expect(google.live('cal1').every((e) => String(e.summary).startsWith('Swim'))).toBe(true)
+      useApp.getState().updateHobby('gym', (h) => ({ ...h, google: { ...h.google, guests: [] } }))
+      await run()
+      expect(wifeSees()).toBe(0)
+    })
+
+    it('deleting the hobby deletes every shared event', async () => {
+      withWife()
+      signIn()
+      stop = startSync(meta)
+      await run()
+      useApp.getState().deleteHobby('gym')
+      await run()
+      expect(google.live('cal1')).toEqual([])
+    })
+
+    it('delete all data deletes shared events one by one before the calendar', async () => {
+      withWife()
+      signIn()
+      stop = startSync(meta)
+      await run()
+      google.requests.length = 0
+      await wipeAllData()
+      const eventDeletes = google.requests.filter((r) =>
+        /^DELETE \/calendars\/cal1\/events\//.test(r),
+      )
+      expect(eventDeletes).toHaveLength(13)
+      expect(google.requests.at(-2)).toBe('DELETE /calendars/cal1') // then the calendar, then Drive
+    })
+  })
+
   describe('delete all data', () => {
     it('removes the calendar, the backup and the local hobbies', async () => {
       addGym()

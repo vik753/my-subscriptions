@@ -1,5 +1,11 @@
-import { ArrowCounterClockwise, CalendarDots, XCircle } from '@phosphor-icons/react'
-import { useId, useState } from 'react'
+import {
+  ArrowBendUpRight,
+  ArrowCounterClockwise,
+  CalendarDots,
+  MinusCircle,
+  XCircle,
+} from '@phosphor-icons/react'
+import { useState } from 'react'
 import { cancelSession, restoreSession, summarize, type Hobby, type SessionKey } from '../../domain'
 import { formatDate } from '../../i18n/format'
 import { useApp } from '../../store/appStore'
@@ -8,7 +14,6 @@ import { useFlow } from '../../store/flowStore'
 import { useToast } from '../../store/toastStore'
 import { useLanguage, useT } from '../../store/useT'
 import { Button } from '../../ui/Button'
-import { Switch } from '../../ui/Switch'
 import { StatusPill } from '../../ui/Tag'
 import { MovePicker } from './MovePicker'
 import styles from './sheets.module.css'
@@ -21,8 +26,8 @@ export function SessionSheet({ hobby, sessionKey }: { hobby: Hobby; sessionKey: 
   const s = summarize(hobby, now)
   const session = s.sessions.find((x) => x.key === sessionKey)
   const [moving, setMoving] = useState(false)
-  const [carry, setCarry] = useState(true)
-  const carryId = useId()
+  // A paid session asks what happens to its payment before it is cancelled.
+  const [asking, setAsking] = useState(false)
   if (!session) return null
 
   const cancelled = session.mark === 'cancelled' || session.mark === 'forfeit'
@@ -31,7 +36,7 @@ export function SessionSheet({ hobby, sessionKey }: { hobby: Hobby; sessionKey: 
   const close = () => useFlow.getState().close()
   const at = (x: { date: string; time: string }) => `${formatDate(lang, x.date)}, ${x.time}`
 
-  const cancel = () => {
+  const cancel = (carry: boolean) => {
     const wasPaid = session.status === 'paid'
     updateHobby(hobby.id, (h) => cancelSession(h, sessionKey, carry, now))
     close()
@@ -89,6 +94,34 @@ export function SessionSheet({ hobby, sessionKey }: { hobby: Hobby; sessionKey: 
           sessions={s.sessions}
           onBack={() => setMoving(false)}
         />
+      ) : asking ? (
+        <>
+          <div className={styles.head}>
+            <h3 className={styles.title}>{t.cxAsk}</h3>
+            <p className={styles.body}>{t.cxAskBody}</p>
+          </div>
+          <Button
+            variant="primary"
+            block
+            tall
+            icon={<ArrowBendUpRight />}
+            onClick={() => cancel(true)}
+          >
+            {t.cxYes}
+          </Button>
+          <Button
+            variant="secondary"
+            block
+            tall
+            icon={<MinusCircle />}
+            onClick={() => cancel(false)}
+          >
+            {t.cxNo}
+          </Button>
+          <Button variant="ghost" block onClick={() => setAsking(false)}>
+            {t.back}
+          </Button>
+        </>
       ) : (
         <>
           <Button
@@ -100,16 +133,13 @@ export function SessionSheet({ hobby, sessionKey }: { hobby: Hobby; sessionKey: 
           >
             {t.moveBtn}
           </Button>
-          {session.status === 'paid' && (
-            <div className={styles.switchRow}>
-              <span className={styles.switchText} id={carryId}>
-                {t.cxL}
-                <span className={styles.switchSub}>{carry ? t.cxOn : t.cxOff}</span>
-              </span>
-              <Switch checked={carry} onChange={setCarry} labelledBy={carryId} />
-            </div>
-          )}
-          <Button variant="secondary" block tall icon={<XCircle />} onClick={cancel}>
+          <Button
+            variant="secondary"
+            block
+            tall
+            icon={<XCircle />}
+            onClick={() => (session.status === 'paid' ? setAsking(true) : cancel(true))}
+          >
             {t.cancelBtn}
           </Button>
           <Button variant="ghost" block onClick={close}>

@@ -470,7 +470,19 @@ export const wipeAllData = async (): Promise<void> => {
   let removed = false
   if (token && useSync.getState().online) {
     try {
-      if (m.calendarId) await deleteCalendar(token, m.calendarId)
+      if (m.calendarId) {
+        // Guests hold copies of these events. Deleting each event is documented to cancel it
+        // for every attendee; deleting the whole calendar is not, so shared events go first.
+        const calendarId = m.calendarId
+        const shared = useApp
+          .getState()
+          .data.hobbies.filter((h) => h.google.calendar && h.google.guests.length > 0)
+        for (const h of shared) {
+          const ids = await listHobbyEventIds(token, calendarId, h.id)
+          await inParallel(ids, (id) => deleteEvent(token, calendarId, id))
+        }
+        await deleteCalendar(token, calendarId)
+      }
       const fileId = m.driveFileId ?? (await findStateFile(token))
       if (fileId) await deleteFile(token, fileId)
       removed = true

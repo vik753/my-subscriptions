@@ -73,7 +73,10 @@ turn it on, in the hobby form:
   calendar and stay up to date. Turning it off later removes them from the calendar; the hobby
   stays on your phone. With it on you can also pick the **color of paid sessions** and add
   **guests**: people whose Google Calendar should show the sessions too (they get the events
-  without an email per session). A guest needs a Google account; if the sessions don't show up
+  without an email per session). Every change (a moved or cancelled session, a new payment, a
+  deleted hobby, removing the guest) reaches their calendar too, since it's the same event. The
+  color is personal in Google Calendar: guests see the sessions in their own calendar's color.
+  A guest needs a Google account; if the sessions don't show up
   for them, they set Google Calendar → Settings → "Add invitations to my calendar" to
   "From everyone".
 - **Back up to Google Drive:** the hobby is saved to a hidden app folder in your Drive and synced
@@ -145,8 +148,8 @@ Tap a session in the calendar or in **Upcoming sessions**:
 
 - **Move to another day:** pick a date and time. Turn on **"Also move all following sessions on
   this day"** to change the schedule from then on.
-- **Cancel session:** by default the payment moves to the next unpaid session. Turn the switch off
-  to deduct the session from the pass instead.
+- **Cancel session:** for a paid session the app asks **"Carry the payment over?"** — move the
+  payment to the next unpaid session, or don't carry it (the session is deducted from the pass).
 - **Restore session:** tap a cancelled session to undo the cancellation.
 
 <br clear="right">
@@ -162,6 +165,9 @@ Tap **Add payment** on the hobby. Choose one of:
 
 Empty fields repeat your last payment. The hint shows which sessions the payment will cover, and
 they turn green in the app and in Google Calendar.
+
+Made a mistake? Tap a payment in the hobby's **Payments** list (or in ✏️ edit) to correct its
+date, sessions or amount, or to delete it.
 
 When only one paid session is left, the app suggests this by itself. **Remind me later** snoozes it
 until tomorrow.

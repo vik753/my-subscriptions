@@ -153,22 +153,95 @@ describe('Add payment', () => {
   })
 })
 
+describe('Edit payment', () => {
+  it('corrects the amount and the number of sessions', async () => {
+    show({ kind: 'editPayment', hobbyId: 'gym', index: 0 })
+    expect(screen.getByLabelText('Amount, UAH')).toHaveValue('4000')
+    await userEvent.clear(screen.getByLabelText('Amount, UAH'))
+    await userEvent.type(screen.getByLabelText('Amount, UAH'), '4500,50')
+    await userEvent.clear(screen.getByLabelText('Sessions'))
+    await userEvent.type(screen.getByLabelText('Sessions'), '5')
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    expect(gym()?.payments).toEqual([{ date: '2026-09-05', n: 5, price: 450_050 }])
+    expect(toast).toHaveBeenCalledWith('Payment updated')
+  })
+
+  it('refuses empty sessions, an empty amount and a malformed amount', async () => {
+    show({ kind: 'editPayment', hobbyId: 'gym', index: 0 })
+    const sessions = screen.getByLabelText('Sessions')
+    const amount = screen.getByLabelText('Amount, UAH')
+    await userEvent.clear(sessions)
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    await userEvent.type(sessions, '4')
+    await userEvent.clear(amount)
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    await userEvent.type(amount, '1.234')
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    expect(gym()?.payments).toEqual([{ date: '2026-09-05', n: 4, price: 400_000 }])
+    expect(toast).toHaveBeenCalledTimes(3)
+  })
+
+  it('deletes a payment after confirmation', async () => {
+    show({ kind: 'editPayment', hobbyId: 'gym', index: 0 })
+    await userEvent.click(screen.getByRole('button', { name: 'Delete payment' }))
+    expect(gym()?.payments).toHaveLength(1)
+    expect(screen.getByRole('heading', { name: 'Delete this payment?' })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }))
+    expect(gym()?.payments).toEqual([])
+    expect(toast).toHaveBeenCalledWith('Payment deleted')
+  })
+
+  it('never touches another payment if the list changed while the sheet was open', async () => {
+    useApp.getState().updateHobby('gym', (h) => ({
+      ...h,
+      payments: [...h.payments, { date: '2026-09-20', n: 2, price: 1 }],
+    }))
+    show({ kind: 'editPayment', hobbyId: 'gym', index: 0 })
+    // A sync from another device drops the first payment meanwhile.
+    act(() =>
+      useApp.getState().updateHobby('gym', (h) => ({ ...h, payments: h.payments.slice(1) })),
+    )
+    await userEvent.clear(screen.getByLabelText('Amount, UAH'))
+    await userEvent.type(screen.getByLabelText('Amount, UAH'), '9999')
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    expect(gym()?.payments).toEqual([{ date: '2026-09-20', n: 2, price: 1 }])
+    expect(toast).toHaveBeenCalledWith('This payment was changed on another device — open it again')
+  })
+})
+
 describe('Session sheet', () => {
-  it('cancels a paid session and carries the payment over', async () => {
+  it('asks about the payment when cancelling a paid session — carry it over', async () => {
     show({ kind: 'session', hobbyId: 'gym', key: '2026-09-28' })
-    expect(screen.getByRole('switch')).toBeChecked()
+    expect(screen.queryByRole('switch')).toBeNull()
     await userEvent.click(screen.getByRole('button', { name: 'Cancel session' }))
+    expect(screen.getByRole('heading', { name: 'Carry the payment over?' })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Move payment to the next session' }))
     expect(gym()?.marks['2026-09-28']).toBe('cancelled')
     expect(toast).toHaveBeenCalledWith('Session cancelled. Payment moved to Mon, Oct 5, 10:00')
   })
 
-  it('deducts the session when the carry-over switch is off', async () => {
+  it('… or deduct it from the pass', async () => {
     show({ kind: 'session', hobbyId: 'gym', key: '2026-09-28' })
-    await userEvent.click(screen.getByRole('switch'))
-    expect(screen.getByText('The session will be deducted from your pass')).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Cancel session' }))
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Don’t carry — deduct from the pass' }),
+    )
     expect(gym()?.marks['2026-09-28']).toBe('forfeit')
     expect(toast).toHaveBeenCalledWith('Session cancelled and deducted from your pass')
+  })
+
+  it('Back from the question keeps the session', async () => {
+    show({ kind: 'session', hobbyId: 'gym', key: '2026-09-28' })
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel session' }))
+    await userEvent.click(screen.getByRole('button', { name: 'Back' }))
+    expect(screen.getByRole('button', { name: 'Cancel session' })).toBeInTheDocument()
+    expect(gym()?.marks).toEqual({})
+  })
+
+  it('cancels an unpaid session straight away (no payment to ask about)', async () => {
+    show({ kind: 'session', hobbyId: 'gym', key: '2026-10-19' })
+    await userEvent.click(screen.getByRole('button', { name: 'Cancel session' }))
+    expect(gym()?.marks['2026-10-19']).toBe('cancelled')
   })
 
   it('restores a cancelled session', async () => {

@@ -4,6 +4,7 @@ import { MemoryRouter, Route, Routes } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { resetAppStore, useApp } from '../../store/appStore'
 import { useAuth } from '../../store/authStore'
+import { useFlow } from '../../store/flowStore'
 import { localClock } from '../../store/clock'
 import { createMemoryStorage } from '../../store/persistence/storage'
 import { useToast } from '../../store/toastStore'
@@ -354,6 +355,14 @@ describe('HobbyForm — edit', () => {
       calendar: false,
       backup: true,
     })
+  })
+
+  it('lists the payments and opens one for correction', async () => {
+    renderAt('/hobby/gym/edit')
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Edit payment: Sat, Sep 5, 8 sessions, 8 000 ₴' }),
+    )
+    expect(useFlow.getState().sheet).toEqual({ kind: 'editPayment', hobbyId: 'gym', index: 0 })
   })
 
   it('deletes only after confirmation', async () => {

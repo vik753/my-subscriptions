@@ -5,6 +5,8 @@ export { renewalDue } from './renewal'
 export { addDays, addMinutes, weekdayOf } from './dates'
 export {
   addPayment,
+  editPayment,
+  removePayment,
   cancelSession,
   createHobby,
   editSchedule,

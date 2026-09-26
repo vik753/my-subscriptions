@@ -12,6 +12,8 @@ export type FlowSheet =
   | { kind: 'reminder'; hobbyId: string; queue: string[] }
   | { kind: 'payment'; hobbyId: string; queue: string[] }
   | { kind: 'session'; hobbyId: string; key: SessionKey }
+  /** Correct or delete a recorded payment (`index` into `hobby.payments`). */
+  | { kind: 'editPayment'; hobbyId: string; index: number }
   | { kind: 'install' }
   | { kind: 'wipe' }
 
