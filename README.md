@@ -219,6 +219,13 @@ Tap ⚙️ on the Home screen:
 - **Idea:** Netrebko Olena (Нетребко Олена)
 - **Developed by:** Ihor Korenets (Ігор Коренець) with Claude (Anthropic)
 
+## Privacy
+
+The app has no server and no analytics; by default data never leaves your device. Google access is
+opt-in per hobby and limited to the app's own calendar and hidden Drive folder. Full text:
+[Privacy Policy](https://vik753.github.io/my-subscriptions/privacy.html) ·
+[About the app](https://vik753.github.io/my-subscriptions/home.html).
+
 ## Questions and support
 
 Write to vik753@gmail.com (also in Settings → About → Contact support). A short guide to send to
@@ -269,6 +276,11 @@ The images in `docs/screenshots/` come from a real build with Google faked:
 BASE_PATH=/ npm run build && npx vite preview --port 4173 &
 node scripts/capture-screenshots.mjs
 ```
+
+### Google OAuth publishing
+
+Publishing the OAuth app and Google's verification (pages, consent screen fields, scope
+justifications, demo video): [`docs/google-verification.md`](docs/google-verification.md).
 
 ### Workflow
 
