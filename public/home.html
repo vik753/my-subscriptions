@@ -1,0 +1,105 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>My Subscriptions — track your class passes</title>
+    <meta
+      name="description"
+      content="Track prepaid class passes: paid sessions left, attendance and renewals. Optional Google Calendar and Drive."
+    />
+    <link rel="icon" type="image/svg+xml" href="icons/icon.svg" />
+    <!-- Standalone static page (outside the React app): its own minimal styles, light/dark. -->
+    <style>
+      :root {
+        color-scheme: light dark;
+        --fg: #1d1d24;
+        --muted: #5d5f6b;
+        --bg: #f7f7fb;
+        --accent: #5b4fc4;
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
+          --fg: #ececf3;
+          --muted: #a3a5b3;
+          --bg: #141520;
+          --accent: #b8adff;
+        }
+      }
+      body {
+        margin: 0;
+        background: var(--bg);
+        color: var(--fg);
+        font:
+          16px/1.6 system-ui,
+          -apple-system,
+          sans-serif;
+      }
+      main {
+        max-width: 720px;
+        margin: 0 auto;
+        padding: 40px 20px 64px;
+      }
+      img.icon {
+        border-radius: 20px;
+      }
+      h1 {
+        font-size: 30px;
+        font-weight: 600;
+        margin: 16px 0 4px;
+      }
+      h2 {
+        font-size: 19px;
+        font-weight: 600;
+        margin: 28px 0 8px;
+      }
+      .muted {
+        color: var(--muted);
+      }
+      a {
+        color: var(--accent);
+      }
+      .open {
+        display: inline-block;
+        margin: 16px 0;
+        padding: 12px 20px;
+        border: 1px solid var(--accent);
+        border-radius: 8px;
+        text-decoration: none;
+      }
+    </style>
+  </head>
+  <body>
+    <main>
+      <img class="icon" src="icons/icon-192.png" width="96" height="96" alt="" />
+      <h1>My Subscriptions</h1>
+      <p class="muted">Track prepaid class passes — gym, lessons, any hobby.</p>
+      <a class="open" href="./">Open the app</a>
+
+      <h2>What it does</h2>
+      <ul>
+        <li>Shows how many paid sessions are left on each pass and when to renew.</li>
+        <li>
+          Asks after each session whether you attended; moves the payment on if it didn't happen.
+        </li>
+        <li>Lets you move or cancel sessions and correct payments.</li>
+        <li>Works offline as an app on your phone's Home Screen (no app store needed).</li>
+      </ul>
+
+      <h2>Your data</h2>
+      <p>
+        By default everything stays on your device — no account needed. For each hobby you can
+        optionally put its sessions into a separate “My Subscriptions” Google Calendar (and share
+        them with guests), and back it up to the app's hidden Google Drive folder. The app has no
+        server; the author never sees your data. Details:
+        <a href="privacy.html">Privacy Policy</a>.
+      </p>
+
+      <h2>Contact</h2>
+      <p>
+        Ihor Korenets · <a href="mailto:vik753@gmail.com">vik753@gmail.com</a> · Idea: Netrebko
+        Olena
+      </p>
+    </main>
+  </body>
+</html>

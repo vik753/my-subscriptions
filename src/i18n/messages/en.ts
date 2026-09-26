@@ -41,6 +41,7 @@ export const en = {
   proprietary: 'Proprietary',
   support: 'Contact support',
   share: 'Share the app',
+  privacy: 'Privacy policy',
   rights: 'All rights reserved.',
   tShare: 'App link copied',
   signIn: 'Sign in with Google',
