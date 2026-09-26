@@ -38,6 +38,19 @@ describe('whatsNew', () => {
     expect(localStorage.getItem(KEY)).toBe('9.9.9')
   })
 
+  it('a rollback to an older version is not announced', () => {
+    localStorage.setItem(KEY, '1.4.0')
+    useWhatsNew.getState().init('1.3.0', true)
+    expect(useWhatsNew.getState().announce).toBeNull()
+    expect(localStorage.getItem(KEY)).toBe('1.3.0')
+  })
+
+  it('compares versions numerically', () => {
+    localStorage.setItem(KEY, '1.2.10')
+    useWhatsNew.getState().init('1.3.0', true)
+    expect(useWhatsNew.getState().announce).toBe('1.3.0')
+  })
+
   it('seen without a note changes nothing', () => {
     useWhatsNew.getState().seen()
     expect(localStorage.getItem(KEY)).toBeNull()

@@ -31,6 +31,7 @@ three languages under **About → What's new** (`src/i18n/changelog.ts`) — kee
 ## [1.0.1] — 2026-09-26
 
 - Deleting a hobby removes all its calendar events without a manual sync, and confirms it.
+- A failed sync retries by itself.
 
 ## [1.0.0] — 2026-09-26
 

@@ -99,14 +99,17 @@ export const CHANGELOG: readonly Release[] = [
       en: [
         'Deleting a hobby removes all its sessions from Google Calendar, no manual sync needed.',
         'A message confirms the deletion.',
+        'A failed sync retries by itself.',
       ],
       uk: [
         'Видалення хобі прибирає всі його заняття з Google Календаря без ручної синхронізації.',
         'Повідомлення підтверджує видалення.',
+        'Невдала синхронізація повторюється сама.',
       ],
       ru: [
         'Удаление хобби убирает все его занятия из Google Календаря без ручной синхронизации.',
         'Сообщение подтверждает удаление.',
+        'Неудачная синхронизация повторяется сама.',
       ],
     },
   },

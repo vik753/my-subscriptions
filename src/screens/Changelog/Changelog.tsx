@@ -1,6 +1,6 @@
 import { CaretLeft } from '@phosphor-icons/react'
 import { useEffect } from 'react'
-import { useNavigate } from 'react-router'
+import { useLocation, useNavigate } from 'react-router'
 import { CHANGELOG } from '../../i18n/changelog'
 import { formatDate } from '../../i18n/format'
 import { useLanguage, useT } from '../../store/useT'
@@ -13,14 +13,25 @@ export function Changelog() {
   const t = useT()
   const lang = useLanguage()
   const navigate = useNavigate()
+  const location = useLocation()
+  const announce = useWhatsNew((s) => s.announce)
 
-  // Reading the list counts as having seen the update note.
-  useEffect(() => useWhatsNew.getState().seen(), [])
+  // Reading the list counts as having seen the update note (also when it appears after mount).
+  useEffect(() => {
+    if (announce) useWhatsNew.getState().seen()
+  }, [announce])
 
   return (
     <div className={styles.screen}>
       <header className={styles.topBar}>
-        <Button variant="ghost" icon={<CaretLeft />} onClick={() => navigate('/about')}>
+        <Button
+          variant="ghost"
+          icon={<CaretLeft />}
+          onClick={() =>
+            // Opened from the update note on any screen: go back there; opened directly: About.
+            location.key === 'default' ? navigate('/about') : navigate(-1)
+          }
+        >
           {t.about}
         </Button>
       </header>
@@ -30,7 +41,7 @@ export function Changelog() {
       {CHANGELOG.map((r) => (
         <section key={r.version} className={styles.release} aria-labelledby={`v${r.version}`}>
           <h2 id={`v${r.version}`} className={styles.version}>
-            {t.version} {r.version}
+            {t.version} {r.version}{' '}
             {r.version === __APP_VERSION__ && (
               <span className={styles.current}>{t.currentVersion}</span>
             )}

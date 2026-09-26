@@ -1,4 +1,4 @@
-import { render, screen } from '@testing-library/react'
+import { act, render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes } from 'react-router'
 import { beforeEach, describe, expect, it } from 'vitest'
@@ -33,7 +33,7 @@ describe('Changelog', () => {
     renderAt('/changelog')
     const headings = screen.getAllByRole('heading', { level: 2 })
     expect(headings).toHaveLength(CHANGELOG.length)
-    expect(headings[0]).toHaveTextContent(`Version ${__APP_VERSION__}current`)
+    expect(headings[0]).toHaveTextContent(`Version ${__APP_VERSION__} current`)
     for (const note of CHANGELOG[0]?.notes.en ?? []) expect(screen.getByText(note)).toBeVisible()
   })
 
@@ -59,6 +59,21 @@ describe('WhatsNewBanner', () => {
     expect(screen.getByRole('heading', { level: 1, name: 'What’s new' })).toBeInTheDocument()
     expect(screen.queryByText('Updated to version 1.3.0')).toBeNull()
     expect(localStorage.getItem('ui.seenVersion')).toBe('1.3.0')
+  })
+
+  it('a note that appears while the list is open is marked as seen', () => {
+    renderAt('/changelog')
+    act(() => useWhatsNew.setState({ announce: '1.3.0' }))
+    expect(useWhatsNew.getState().announce).toBeNull()
+    expect(localStorage.getItem('ui.seenVersion')).toBe('1.3.0')
+  })
+
+  it('Back returns to the screen the note was opened from', async () => {
+    useWhatsNew.setState({ announce: '1.3.0' })
+    renderAt('/')
+    await userEvent.click(screen.getByRole('button', { name: 'What’s new' }))
+    await userEvent.click(screen.getByRole('button', { name: 'About' }))
+    expect(screen.getByText('Home')).toBeInTheDocument()
   })
 
   it('closes with the × button', async () => {

@@ -19,6 +19,13 @@ const write = (version: string) => {
   }
 }
 
+/** a > b for 'X.Y.Z' versions. */
+const newer = (a: string, b: string): boolean => {
+  const [x, y] = [a.split('.').map(Number), b.split('.').map(Number)]
+  for (let i = 0; i < 3; i++) if (x[i] !== y[i]) return (x[i] ?? 0) > (y[i] ?? 0)
+  return false
+}
+
 interface WhatsNewState {
   /** Version to announce ("Updated to …"), or null. */
   announce: string | null
@@ -38,7 +45,8 @@ export const useWhatsNew = create<WhatsNewState>((set, get) => ({
     const known = CHANGELOG.some((r) => r.version === current)
     if (last === current) return
     if (last === null && !hasData) return write(current)
-    if (known) set({ announce: current })
+    // A rollback to an older build is not an update.
+    if (known && (last === null || newer(current, last))) set({ announce: current })
     else write(current)
   },
   seen: () => {
