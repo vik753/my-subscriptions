@@ -56,7 +56,7 @@ The first time, the app asks you to sign in with Google:
 
 - **After a session** — the next time you open the app it asks "Did you attend the session?".
   "Didn't happen" moves the payment to the next session.
-- **Cancel or move a session** — open the hobby, tap the session in the calendar.
+- **Cancel, move or pay for one session** — open the hobby, tap the session in the calendar.
 - **Running out** — when one paid session is left the app suggests adding a payment.
 - **Reminders** (with Google Calendar on) — Settings → Google Calendar → "Reminder before session".
 - **Several devices** — turn on the Drive backup and sign in with the same Google account; data is
