@@ -151,6 +151,7 @@ Tap a card to see:
 
 Tap a session in the calendar or in **Upcoming sessions**:
 
+- **Pay for this session** (unpaid sessions): opens _Add payment_ for exactly this session.
 - **Move to another day:** pick a date and time. Turn on **"Also move all following sessions on
   this day"** to change the schedule from then on.
 - **Cancel session:** for a paid session the app asks **"Carry the payment over?"** — move the
@@ -168,8 +169,10 @@ Tap **Add payment** on the hobby. Choose one of:
 - **One session:** a single paid session.
 - **Several sessions:** a new pass.
 
-Empty fields repeat your last payment. The hint shows which sessions the payment will cover, and
-they turn green in the app and in Google Calendar.
+**First paid session** is the next unpaid session by default; pick any other unpaid session to
+start the payment there (earlier unpaid ones stay unpaid). Empty fields repeat your last payment.
+The hint shows which sessions the payment will cover, and they turn green in the app and in Google
+Calendar.
 
 Made a mistake? Tap a payment in the hobby's **Payments** list (or in ✏️ edit) to correct its
 date, sessions or amount, or to delete it.

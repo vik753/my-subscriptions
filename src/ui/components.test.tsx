@@ -114,12 +114,21 @@ describe('DurationField', () => {
     expect(input).toHaveValue('')
   })
 
-  it('picks a preset and closes the preset row', async () => {
+  it('picks a preset and closes the preset list', async () => {
     render(<Harness />)
     await userEvent.click(screen.getByRole('button', { name: 'Presets' }))
-    await userEvent.click(screen.getByRole('button', { name: '90' }))
+    await userEvent.click(screen.getByRole('button', { name: '90 min' }))
     expect(screen.getByRole('textbox', { name: 'Duration' })).toHaveValue('90')
-    expect(screen.queryByRole('button', { name: '90' })).toBeNull()
+    expect(screen.queryByRole('button', { name: '90 min' })).toBeNull()
+  })
+
+  it('Escape closes the presets and returns focus to the caret', async () => {
+    render(<Harness />)
+    await userEvent.click(screen.getByRole('button', { name: 'Presets' }))
+    screen.getByRole('button', { name: '45 min' }).focus()
+    await userEvent.keyboard('{Escape}')
+    expect(screen.queryByRole('button', { name: '45 min' })).toBeNull()
+    expect(screen.getByRole('button', { name: 'Presets' })).toHaveFocus()
   })
 })
 

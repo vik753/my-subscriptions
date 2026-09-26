@@ -129,10 +129,15 @@ describe('Add payment', () => {
     expect(screen.getByLabelText('Sessions')).toHaveAttribute('placeholder', '4')
     expect(screen.getByLabelText('Amount, UAH')).toHaveAttribute('placeholder', '4000')
     expect(
-      screen.getByText('Covers the next 4 unpaid sessions, starting Mon, Oct 5, 10:00.'),
+      screen.getByText('Covers 4 sessions, starting Mon, Oct 5, 10:00. Missed ones carry over.'),
     ).toBeInTheDocument()
     await userEvent.click(screen.getByRole('button', { name: 'Paid' }))
-    expect(gym()?.payments.at(-1)).toEqual({ date: '2026-09-24', n: 4, price: 400_000 })
+    expect(gym()?.payments.at(-1)).toEqual({
+      date: '2026-09-24',
+      n: 4,
+      price: 400_000,
+      from: '2026-10-05',
+    })
     expect(toast).toHaveBeenCalledWith(expect.stringContaining('4'))
   })
 
@@ -142,7 +147,34 @@ describe('Add payment', () => {
     expect(screen.queryByLabelText('Sessions')).toBeNull()
     await userEvent.type(screen.getByLabelText('Amount, UAH'), '950,5')
     await userEvent.click(screen.getByRole('button', { name: 'Paid' }))
-    expect(gym()?.payments.at(-1)).toEqual({ date: '2026-09-24', n: 1, price: 95_050 })
+    expect(gym()?.payments.at(-1)).toEqual({
+      date: '2026-09-24',
+      n: 1,
+      price: 95_050,
+      from: '2026-10-05',
+    })
+  })
+
+  it('starts at another unpaid session chosen by the user', async () => {
+    show({ kind: 'payment', hobbyId: 'gym', queue: [] })
+    const start = screen.getByLabelText('First paid session')
+    expect(start).toHaveValue('2026-10-05')
+    await userEvent.selectOptions(start, '2026-10-19')
+    expect(
+      screen.getByText('Covers 4 sessions, starting Mon, Oct 19, 10:00. Missed ones carry over.'),
+    ).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Paid' }))
+    expect(gym()?.payments.at(-1)?.from).toBe('2026-10-19')
+  })
+
+  it('opened for one session: One session mode on that session', () => {
+    show({ kind: 'payment', hobbyId: 'gym', queue: [], from: '2026-10-19', one: true })
+    expect(screen.getByRole('button', { name: 'One session' })).toHaveAttribute(
+      'aria-pressed',
+      'true',
+    )
+    expect(screen.getByLabelText('First paid session')).toHaveValue('2026-10-19')
+    expect(screen.getByText('Covers the session on Mon, Oct 19, 10:00.')).toBeInTheDocument()
   })
 
   it('refuses a malformed amount', async () => {
@@ -256,6 +288,23 @@ describe('Session sheet', () => {
     await userEvent.click(screen.getByRole('button', { name: 'Back' }))
     expect(screen.getByRole('button', { name: 'Cancel session' })).toBeInTheDocument()
     expect(gym()?.marks).toEqual({})
+  })
+
+  it('pays for an unpaid session: Add payment opens on it, one session', async () => {
+    show({ kind: 'session', hobbyId: 'gym', key: '2026-10-19' })
+    await userEvent.click(screen.getByRole('button', { name: 'Pay for this session' }))
+    expect(useFlow.getState().next).toEqual({
+      kind: 'payment',
+      hobbyId: 'gym',
+      queue: [],
+      from: '2026-10-19',
+      one: true,
+    })
+  })
+
+  it('offers no payment for a paid session', () => {
+    show({ kind: 'session', hobbyId: 'gym', key: '2026-09-28' })
+    expect(screen.queryByRole('button', { name: 'Pay for this session' })).toBeNull()
   })
 
   it('cancels an unpaid session straight away (no payment to ask about)', async () => {

@@ -228,8 +228,11 @@ export const en = {
   payN: (n: number) => n + ' ' + pluralEn(n, 'session', 'sessions'),
   payHint: (n: number, d: string) =>
     n === 1
-      ? 'Covers the next unpaid session — ' + d + '.'
-      : 'Covers the next ' + n + ' unpaid sessions, starting ' + d + '.',
+      ? 'Covers the session on ' + d + '.'
+      : 'Covers ' + n + ' sessions, starting ' + d + '. Missed ones carry over.',
+  payFrom: 'First paid session',
+  payStarts: (d: string) => 'from ' + d,
+  payThis: 'Pay for this session',
   buyNew: 'Add payment',
   remindLater: 'Remind me later',
   rSessions: 'Sessions',
