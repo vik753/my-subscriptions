@@ -128,6 +128,7 @@ const gymInput = {
   sessions: 2,
   price: 200_000,
   paymentDate: '2026-09-20',
+  google: { calendar: true, backup: true },
 }
 const addGym = (sessions = 2) => useApp.getState().addHobby({ ...gymInput, sessions })
 
@@ -376,7 +377,7 @@ describe('calendar sync', () => {
     await run()
     expect(useApp.getState().data.hobbies).toEqual([])
     expect(google.calendars.size).toBe(1) // only the first account's calendar
-    expect(backupHobbies()).toEqual([])
+    expect(google.drive.size).toBe(0) // nothing to back up yet
     expect(meta.value).toMatchObject({ account: 'other@gmail.com', calendarId: null })
   })
 
@@ -489,6 +490,66 @@ describe('calendar sync', () => {
     } finally {
       vi.useRealTimers()
     }
+  })
+
+  describe('per-hobby Google options', () => {
+    it('a local-only hobby never reaches Google (no calendar, no backup file)', async () => {
+      useApp.getState().addHobby({ ...gymInput, google: { calendar: false, backup: false } })
+      signIn()
+      stop = startSync(meta)
+      await run()
+      expect(google.calendars.size).toBe(0)
+      expect(google.drive.size).toBe(0)
+    })
+
+    it('calendar and backup are independent', async () => {
+      useApp.getState().addHobby({ ...gymInput, google: { calendar: true, backup: false } })
+      useApp.getState().addHobby({
+        ...gymInput,
+        id: 'eng',
+        name: 'English',
+        google: { calendar: false, backup: true },
+      })
+      signIn()
+      stop = startSync(meta)
+      await run()
+      const cal = google.live('cal1')
+      expect(cal).toHaveLength(13)
+      expect(cal.every((e) => String(e.summary).startsWith('Gym'))).toBe(true)
+      expect((backupHobbies() as { id: string }[]).map((h) => h.id)).toEqual(['eng'])
+    })
+
+    it('switching the calendar off removes the hobby events; on again brings them back', async () => {
+      addGym()
+      signIn()
+      stop = startSync(meta)
+      await run()
+      const set = (calendar: boolean) =>
+        useApp.getState().updateHobby('gym', (h) => ({ ...h, google: { ...h.google, calendar } }))
+      set(false)
+      await run()
+      expect(google.live('cal1')).toEqual([])
+      expect(useApp.getState().data.hobbies).toHaveLength(1) // data stays on the phone
+      set(true)
+      await run()
+      expect(google.live('cal1')).toHaveLength(13)
+      set(false)
+      await run()
+      expect(google.live('cal1')).toEqual([])
+    })
+
+    it('switching the backup off takes the hobby out of the Drive copy', async () => {
+      addGym()
+      signIn()
+      stop = startSync(meta)
+      await run()
+      useApp
+        .getState()
+        .updateHobby('gym', (h) => ({ ...h, google: { ...h.google, backup: false } }))
+      await run()
+      expect(backupHobbies()).toEqual([])
+      expect(useApp.getState().data.hobbies).toHaveLength(1)
+    })
   })
 
   describe('Drive backup', () => {
