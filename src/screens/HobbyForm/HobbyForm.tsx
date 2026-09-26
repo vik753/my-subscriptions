@@ -274,6 +274,8 @@ function Form({
             {(fid) => (
               <SelectInput
                 id={fid}
+                // Create shows a blank label (aligned with the price field) — name it for AT.
+                aria-label={edit ? undefined : t.fCurrency}
                 value={currency}
                 onChange={(e) => setCurrency(e.target.value as Currency)}
               >

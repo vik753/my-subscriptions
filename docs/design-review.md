@@ -26,6 +26,11 @@ All items of `docs/design-brief-pwa.md` are covered. The brief is now historical
 10. **Edit form without pass fields.** Edit hides _Sessions in pass_ and _Pass price_ (screenshot 07 shows them): payments are a history, new ones go through _Add payment_. Currency is editable only while the hobby has a single payment. (User-approved 2026-09-25.)
 11. **Delete hobby asks for confirmation** in a sheet (the prototype deletes immediately). (User-approved 2026-09-25.)
 
+## Accessibility adjustments (stage 11)
+
+- **Light-mode secondary text.** `neutral-400` / `neutral-500` in all four light schemes measured 4.0:1 / 2.6:1 on `--color-bg` (WCAG AA needs 4.5:1). Darkened to L 0.50 / 0.535 (≥ 4.6:1); dark modes unchanged. Checked by `e2e/a11y.spec.ts` (axe, WCAG 2 A/AA, every screen, light + dark).
+- **Neighbouring-month days** in calendars stay dimmed (opacity 0.3, as designed) and are excluded from the contrast check — they repeat the adjacent month.
+
 ## Visual defects to fix during implementation
 
 | Screen                      | Defect                                                                    | Fix                                                                                                                |

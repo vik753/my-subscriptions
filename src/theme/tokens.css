@@ -1,5 +1,6 @@
 /* My Subscriptions — theme tokens. 4 schemes x light/dark.
    Apply: <root data-scheme="sea" data-mode="light">. Values in OKLCH.
+   Light modes: neutral-400/500 darkened (0.57/0.68 → 0.50/0.535) for WCAG AA text contrast.
    Shared: font Inter 400/500/600; radius sm 4 / md 8 / lg 14 / sheet 28; spacing 2.8/5.6/8.4/11.2/16.8/22.4 px. */
 
 :root {
@@ -55,9 +56,9 @@
   --color-accent-200: oklch(0.37 0.12 289);
   --color-neutral-300: oklch(0.47 0.022 280);
   --color-accent-300: oklch(0.47 0.12 289);
-  --color-neutral-400: oklch(0.57 0.022 280);
+  --color-neutral-400: oklch(0.5 0.022 280);
   --color-accent-400: oklch(0.57 0.12 289);
-  --color-neutral-500: oklch(0.68 0.022 280);
+  --color-neutral-500: oklch(0.535 0.022 280);
   --color-accent-500: oklch(0.68 0.12 289);
   --color-neutral-600: oklch(0.79 0.022 280);
   --color-accent-600: oklch(0.79 0.12 289);
@@ -119,9 +120,9 @@
   --color-accent-200: oklch(0.37 0.11 222);
   --color-neutral-300: oklch(0.47 0.026 235);
   --color-accent-300: oklch(0.47 0.11 222);
-  --color-neutral-400: oklch(0.57 0.026 235);
+  --color-neutral-400: oklch(0.5 0.026 235);
   --color-accent-400: oklch(0.57 0.11 222);
-  --color-neutral-500: oklch(0.68 0.026 235);
+  --color-neutral-500: oklch(0.535 0.026 235);
   --color-accent-500: oklch(0.68 0.11 222);
   --color-neutral-600: oklch(0.79 0.026 235);
   --color-accent-600: oklch(0.79 0.11 222);
@@ -183,9 +184,9 @@
   --color-accent-200: oklch(0.37 0.13 42);
   --color-neutral-300: oklch(0.47 0.016 60);
   --color-accent-300: oklch(0.47 0.13 42);
-  --color-neutral-400: oklch(0.57 0.016 60);
+  --color-neutral-400: oklch(0.5 0.016 60);
   --color-accent-400: oklch(0.57 0.13 42);
-  --color-neutral-500: oklch(0.68 0.016 60);
+  --color-neutral-500: oklch(0.535 0.016 60);
   --color-accent-500: oklch(0.68 0.13 42);
   --color-neutral-600: oklch(0.79 0.016 60);
   --color-accent-600: oklch(0.79 0.13 42);
@@ -247,9 +248,9 @@
   --color-accent-200: oklch(0.37 0.14 5);
   --color-neutral-300: oklch(0.47 0 0);
   --color-accent-300: oklch(0.47 0.14 5);
-  --color-neutral-400: oklch(0.57 0 0);
+  --color-neutral-400: oklch(0.5 0 0);
   --color-accent-400: oklch(0.57 0.14 5);
-  --color-neutral-500: oklch(0.68 0 0);
+  --color-neutral-500: oklch(0.535 0 0);
   --color-accent-500: oklch(0.68 0.14 5);
   --color-neutral-600: oklch(0.79 0 0);
   --color-accent-600: oklch(0.79 0.14 5);
