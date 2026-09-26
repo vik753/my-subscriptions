@@ -8,6 +8,7 @@ three languages under **About → What's new** (`src/i18n/changelog.ts`) — kee
 
 - Session length presets open in the phone's native picker, like the currency; the schedule
   row no longer stretches.
+- The Settings button on Home is an outlined circle like the "+" next to it.
 
 ## [1.3.0] — 2026-09-26
 

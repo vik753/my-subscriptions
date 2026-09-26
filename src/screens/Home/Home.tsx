@@ -53,7 +53,12 @@ export function Home() {
           <h1 className={styles.title}>{t.title}</h1>
         </div>
         <span className={styles.actions}>
-          <IconButton label={t.settings} icon={<GearSix />} onClick={() => navigate('/settings')} />
+          <IconButton
+            variant="primary"
+            label={t.settings}
+            icon={<GearSix />}
+            onClick={() => navigate('/settings')}
+          />
           <IconButton
             variant="primary"
             label={t.newHobby}

@@ -16,12 +16,15 @@ export const CHANGELOG: readonly Release[] = [
     date: '2026-09-26',
     notes: {
       en: [
+        'The Settings button is a circle like “+” next to it.',
         'Session length is picked with the phone’s own picker, like the currency — the form no longer stretches.',
       ],
       uk: [
+        'Кнопка налаштувань — такий самий кружок, як «+» поруч.',
         'Тривалість заняття обирається системним списком телефона, як валюта, — форма більше не розтягується.',
       ],
       ru: [
+        'Кнопка настроек — такой же кружок, как «+» рядом.',
         'Длительность занятия выбирается системным списком телефона, как валюта, — форма больше не растягивается.',
       ],
     },
