@@ -166,18 +166,46 @@ describe('Edit payment', () => {
     expect(toast).toHaveBeenCalledWith('Payment updated')
   })
 
-  it('refuses an empty or malformed amount', async () => {
+  it('refuses empty sessions, an empty amount and a malformed amount', async () => {
     show({ kind: 'editPayment', hobbyId: 'gym', index: 0 })
-    await userEvent.clear(screen.getByLabelText('Sessions'))
+    const sessions = screen.getByLabelText('Sessions')
+    const amount = screen.getByLabelText('Amount, UAH')
+    await userEvent.clear(sessions)
     await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
-    expect(gym()?.payments[0]?.n).toBe(4)
+    await userEvent.type(sessions, '4')
+    await userEvent.clear(amount)
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    await userEvent.type(amount, '1.234')
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    expect(gym()?.payments).toEqual([{ date: '2026-09-05', n: 4, price: 400_000 }])
+    expect(toast).toHaveBeenCalledTimes(3)
   })
 
-  it('deletes a payment', async () => {
+  it('deletes a payment after confirmation', async () => {
     show({ kind: 'editPayment', hobbyId: 'gym', index: 0 })
     await userEvent.click(screen.getByRole('button', { name: 'Delete payment' }))
+    expect(gym()?.payments).toHaveLength(1)
+    expect(screen.getByRole('heading', { name: 'Delete this payment?' })).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Delete' }))
     expect(gym()?.payments).toEqual([])
     expect(toast).toHaveBeenCalledWith('Payment deleted')
+  })
+
+  it('never touches another payment if the list changed while the sheet was open', async () => {
+    useApp.getState().updateHobby('gym', (h) => ({
+      ...h,
+      payments: [...h.payments, { date: '2026-09-20', n: 2, price: 1 }],
+    }))
+    show({ kind: 'editPayment', hobbyId: 'gym', index: 0 })
+    // A sync from another device drops the first payment meanwhile.
+    act(() =>
+      useApp.getState().updateHobby('gym', (h) => ({ ...h, payments: h.payments.slice(1) })),
+    )
+    await userEvent.clear(screen.getByLabelText('Amount, UAH'))
+    await userEvent.type(screen.getByLabelText('Amount, UAH'), '9999')
+    await userEvent.click(screen.getByRole('button', { name: 'Save changes' }))
+    expect(gym()?.payments).toEqual([{ date: '2026-09-20', n: 2, price: 1 }])
+    expect(toast).toHaveBeenCalledWith('This payment was changed on another device — open it again')
   })
 })
 

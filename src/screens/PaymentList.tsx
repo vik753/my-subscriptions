@@ -5,7 +5,7 @@ import { useFlow } from '../store/flowStore'
 import { useLanguage, useT } from '../store/useT'
 import styles from './PaymentList.module.css'
 
-/** Payments, newest first; tap one to correct or delete it (hobby detail and edit form). */
+/** Payments, most recently added first; tap one to correct or delete it (detail, edit form). */
 export function PaymentList({ hobby }: { hobby: Hobby }) {
   const t = useT()
   const lang = useLanguage()

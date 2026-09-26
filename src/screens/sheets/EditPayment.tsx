@@ -15,30 +15,61 @@ import styles from './sheets.module.css'
 export function EditPayment({ hobby, index }: { hobby: Hobby; index: number }) {
   const t = useT()
   const lang = useLanguage()
-  const payment = hobby.payments[index]
+  // The payment as it was when the sheet opened: a sync may reorder or shorten the list meanwhile,
+  // and then this sheet must not touch whatever now sits at `index`.
+  const [original] = useState(() => hobby.payments[index])
+  const payment = original
+  const [confirming, setConfirming] = useState(false)
   const [date, setDate] = useState(payment?.date ?? '')
   const [count, setCount] = useState(String(payment?.n ?? ''))
   const [price, setPrice] = useState(payment ? priceInput(payment.price) : '')
   if (!payment) return null
 
   const n = Number(count)
-  const minor = parsePrice(price)
+  // Unlike a new pass, a corrected amount can't be left empty (that would silently mean 0).
+  const minor = price.trim() === '' ? null : parsePrice(price)
   const close = () => useFlow.getState().close()
   const { updateHobby } = useApp.getState()
   const toast = useToast.getState().show
 
-  const save = () => {
-    if (!(n > 0) || minor === null || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return toast(t.fillAll)
-    updateHobby(hobby.id, (h) => editPayment(h, index, { date, n, price: minor }))
+  const unchanged = (h: Hobby) => {
+    const p = h.payments[index]
+    return (
+      p !== undefined && p.date === payment.date && p.n === payment.n && p.price === payment.price
+    )
+  }
+  // Applies the change only if the payment is still where it was; otherwise says so.
+  const apply = (change: (h: Hobby) => Hobby, done: string) => {
+    const current = useApp.getState().data.hobbies.find((h) => h.id === hobby.id)
+    const ok = current !== undefined && unchanged(current)
+    if (ok) updateHobby(hobby.id, (h) => (unchanged(h) ? change(h) : h))
     close()
-    toast(t.tPayUpdated)
+    toast(ok ? done : t.tPayChanged)
   }
 
-  const remove = () => {
-    updateHobby(hobby.id, (h) => removePayment(h, index))
-    close()
-    toast(t.tPayDeleted)
+  const save = () => {
+    if (!(n > 0) || minor === null || !/^\d{4}-\d{2}-\d{2}$/.test(date)) return toast(t.fillAll)
+    apply((h) => editPayment(h, index, { date, n, price: minor }), t.tPayUpdated)
   }
+
+  const remove = () => apply((h) => removePayment(h, index), t.tPayDeleted)
+
+  if (confirming)
+    return (
+      <>
+        <div className={styles.head}>
+          <span className={styles.kicker}>{hobby.name}</span>
+          <h2 className={styles.title}>{t.delPayTitle}</h2>
+          <p className={styles.body}>{t.delPayBody}</p>
+        </div>
+        <Button variant="primary" block tall icon={<Trash />} onClick={remove}>
+          {t.wipeBtn}
+        </Button>
+        <Button variant="ghost" block onClick={() => setConfirming(false)}>
+          {t.cancel}
+        </Button>
+      </>
+    )
 
   return (
     <>
@@ -76,7 +107,7 @@ export function EditPayment({ hobby, index }: { hobby: Hobby; index: number }) {
       <Button variant="primary" block tall onClick={save}>
         {t.save}
       </Button>
-      <Button variant="ghost" block icon={<Trash />} onClick={remove}>
+      <Button variant="ghost" block icon={<Trash />} onClick={() => setConfirming(true)}>
         {t.delPayment}
       </Button>
       <Button variant="ghost" block onClick={close}>

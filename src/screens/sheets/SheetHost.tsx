@@ -53,6 +53,8 @@ export function SheetHost() {
       case 'payment':
         return <AddPayment key={hobby.id} hobby={hobby} queue={shown.queue} />
       case 'editPayment':
+        // Payment gone meanwhile (e.g. merged from another device): nothing to edit.
+        if (!(shown.index in hobby.payments)) return null
         return <EditPayment key={`${hobby.id}-${shown.index}`} hobby={hobby} index={shown.index} />
       case 'session':
         return <SessionSheet key={shown.key} hobby={hobby} sessionKey={shown.key} />
