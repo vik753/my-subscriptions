@@ -1,10 +1,13 @@
-import { CaretDown } from '@phosphor-icons/react'
+import { CaretDown, Check } from '@phosphor-icons/react'
 import { useState } from 'react'
 import styles from './DurationField.module.css'
 
 const DURATION_PRESETS = [30, 45, 60, 90, 120] as const
 
-/** Minutes input + "min" + caret revealing preset chips (design Create/Edit §3). */
+/**
+ * Minutes input + "min" + caret revealing the presets (design Create/Edit §3). The presets drop
+ * down as a vertical list in the flow: a row of chips did not fit the narrow schedule column.
+ */
 export function DurationField({
   value,
   onChange,
@@ -46,23 +49,32 @@ export function DurationField({
           aria-expanded={open}
           onClick={() => setOpen((o) => !o)}
         >
-          <CaretDown size={14} aria-hidden="true" />
+          <CaretDown size={14} aria-hidden="true" className={open ? styles.flipped : undefined} />
         </button>
       </div>
       {open && (
-        <div className={styles.presets}>
+        <div
+          className={styles.presets}
+          role="group"
+          aria-label={presetsLabel}
+          onKeyDown={(e) => e.key === 'Escape' && setOpen(false)}
+        >
           {DURATION_PRESETS.map((m) => (
             <button
               key={m}
               type="button"
               aria-pressed={value === m}
+              aria-label={String(m)}
               className={`${styles.preset} ${value === m ? styles.selected : ''}`}
               onClick={() => {
                 onChange(m)
                 setOpen(false)
               }}
             >
-              {m}
+              <span>
+                {m} {minLabel}
+              </span>
+              {value === m && <Check size={16} aria-hidden="true" />}
             </button>
           ))}
         </div>

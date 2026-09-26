@@ -114,7 +114,7 @@ describe('DurationField', () => {
     expect(input).toHaveValue('')
   })
 
-  it('picks a preset and closes the preset row', async () => {
+  it('picks a preset and closes the preset list', async () => {
     render(<Harness />)
     await userEvent.click(screen.getByRole('button', { name: 'Presets' }))
     await userEvent.click(screen.getByRole('button', { name: '90' }))
