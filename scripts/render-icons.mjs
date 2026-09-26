@@ -10,11 +10,13 @@ const targets = [
   { file: 'favicon-32.png', size: 32, scale: 1 },
   // Maskable: launchers crop to a circle/squircle; keep the pass inside the 80% safe zone.
   { file: 'icon-maskable-512.png', size: 512, scale: 0.78 },
+  // OAuth consent screen logo (Google asks for 120×120).
+  { file: 'oauth-logo-120.png', size: 120, scale: 1, dir: 'docs' },
 ]
 
 const browser = await chromium.launch()
 const page = await browser.newPage()
-for (const { file, size, scale } of targets) {
+for (const { file, size, scale, dir } of targets) {
   await page.setViewportSize({ width: size, height: size })
   await page.setContent(
     `<html><body style="margin:0;background:#262044">
@@ -22,6 +24,6 @@ for (const { file, size, scale } of targets) {
         <div style="width:${size * scale}px;height:${size * scale}px">${svg.replace('<svg ', '<svg width="100%" height="100%" ')}</div>
       </div></body></html>`,
   )
-  await page.screenshot({ path: `public/icons/${file}`, omitBackground: false })
+  await page.screenshot({ path: `${dir ?? 'public/icons'}/${file}`, omitBackground: false })
 }
 await browser.close()

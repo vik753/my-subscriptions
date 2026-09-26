@@ -36,6 +36,10 @@ describe('About', () => {
       'href',
       'mailto:vik753@gmail.com',
     )
+    expect(screen.getByRole('link', { name: /Privacy policy/ })).toHaveAttribute(
+      'href',
+      '/privacy.html',
+    )
     expect(screen.getByRole('link', { name: /GitHub/ })).toHaveAttribute(
       'href',
       'https://github.com/vik753?tab=repositories',

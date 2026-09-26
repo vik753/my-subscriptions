@@ -55,6 +55,8 @@ export default defineConfig(({ command }) => ({
       workbox: {
         // Google API calls are never cached: offline must look offline, and the outbox retries them.
         globPatterns: ['**/*.{js,css,html,png,svg,woff2}'],
+        // Static pages (privacy policy, homepage for Google's OAuth review) are not app routes.
+        navigateFallbackDenylist: [/\/(privacy|home)\.html$/],
       },
     }),
   ],

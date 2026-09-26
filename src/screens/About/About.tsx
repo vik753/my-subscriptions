@@ -4,6 +4,7 @@ import {
   EnvelopeSimple,
   GithubLogo,
   ShareNetwork,
+  ShieldCheck,
 } from '@phosphor-icons/react'
 import { useNavigate } from 'react-router'
 import { APP_NAME } from '../../i18n'
@@ -98,6 +99,12 @@ export function About() {
           trailing={<ArrowUpRight size={14} className={styles.external} aria-hidden="true" />}
         />
         <ListRow icon={<ShareNetwork />} label={t.share} chevron onClick={() => void share()} />
+        <ListRow
+          icon={<ShieldCheck />}
+          label={t.privacy}
+          href={`${import.meta.env.BASE_URL}privacy.html`}
+          trailing={<ArrowUpRight size={14} className={styles.external} aria-hidden="true" />}
+        />
       </ListSection>
 
       <p className={styles.rights}>
