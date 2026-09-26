@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { addPayment, summarize, type Hobby } from '../../domain'
+import { addPayment, summarize, type Hobby, type SessionKey } from '../../domain'
 import { currencyLabel, formatDate, formatSchedule } from '../../i18n/format'
 import { parsePrice, priceInput } from '../../i18n/money'
 import { useApp } from '../../store/appStore'
@@ -8,14 +8,28 @@ import { useFlow } from '../../store/flowStore'
 import { useToast } from '../../store/toastStore'
 import { useLanguage, useT } from '../../store/useT'
 import { Button } from '../../ui/Button'
-import { Field, TextInput } from '../../ui/Field'
+import { Field, SelectInput, TextInput } from '../../ui/Field'
 import { Segmented } from '../../ui/Segmented'
 import styles from './sheets.module.css'
 
 type Mode = 'one' | 'many'
 
-/** New payment: one session or a pass; empty fields repeat the last payment. */
-export function AddPayment({ hobby, queue }: { hobby: Hobby; queue: string[] }) {
+/**
+ * New payment: one session or a pass, starting at a chosen unpaid session (the first one by
+ * default); empty fields repeat the last payment.
+ */
+export function AddPayment({
+  hobby,
+  queue,
+  from,
+  one = false,
+}: {
+  hobby: Hobby
+  queue: string[]
+  /** Preselected first paid session. */
+  from?: SessionKey
+  one?: boolean
+}) {
   const t = useT()
   const lang = useLanguage()
   const now = localClock.now()
@@ -23,7 +37,8 @@ export function AddPayment({ hobby, queue }: { hobby: Hobby; queue: string[] }) 
   const last = hobby.payments[hobby.payments.length - 1]
   const segment = hobby.sched[hobby.sched.length - 1]
 
-  const [mode, setMode] = useState<Mode>('many')
+  const [mode, setMode] = useState<Mode>(one ? 'one' : 'many')
+  const [startKey, setStartKey] = useState(from)
   const [count, setCount] = useState('')
   const [price, setPrice] = useState('')
 
@@ -33,7 +48,10 @@ export function AddPayment({ hobby, queue }: { hobby: Hobby; queue: string[] }) 
   const n = mode === 'one' ? 1 : count === '' ? defaultN : Number(count)
   const minor = price === '' ? defaultPrice : parsePrice(price)
   const valid = n > 0 && minor !== null
-  const firstUnpaid = s.sessions.find((x) => x.status === 'unpaid' && !x.mark)
+  const unpaid = s.sessions.filter((x) => x.status === 'unpaid' && !x.mark)
+  // The chosen session may have been paid meanwhile (e.g. a sync): fall back to the first one.
+  const start = unpaid.find((x) => x.key === startKey) ?? unpaid[0]
+  const at = (x: { date: string; time: string }) => `${formatDate(lang, x.date)}, ${x.time}`
 
   const next = () => {
     const [id, ...rest] = queue
@@ -44,9 +62,14 @@ export function AddPayment({ hobby, queue }: { hobby: Hobby; queue: string[] }) 
 
   const save = () => {
     if (!valid || minor === null) return useToast.getState().show(t.fillAll)
-    useApp
-      .getState()
-      .updateHobby(hobby.id, (h) => addPayment(h, { date: now.slice(0, 10), n, price: minor }))
+    useApp.getState().updateHobby(hobby.id, (h) =>
+      addPayment(h, {
+        date: now.slice(0, 10),
+        n,
+        price: minor,
+        ...(start && { from: start.date }),
+      }),
+    )
     useToast.getState().show(t.tRenewed(n))
     next()
   }
@@ -98,11 +121,20 @@ export function AddPayment({ hobby, queue }: { hobby: Hobby; queue: string[] }) 
           )}
         </Field>
       </div>
-      {firstUnpaid && n > 0 && (
-        <p className={styles.hint}>
-          {t.payHint(n, `${formatDate(lang, firstUnpaid.date)}, ${firstUnpaid.time}`)}
-        </p>
+      {start && (
+        <Field label={t.payFrom}>
+          {(id) => (
+            <SelectInput id={id} value={start.key} onChange={(e) => setStartKey(e.target.value)}>
+              {unpaid.map((x) => (
+                <option key={x.key} value={x.key}>
+                  {at(x)}
+                </option>
+              ))}
+            </SelectInput>
+          )}
+        </Field>
       )}
+      {start && n > 0 && <p className={styles.hint}>{t.payHint(n, at(start))}</p>}
       <Button variant="primary" block tall onClick={save}>
         {t.paidBtn}
       </Button>

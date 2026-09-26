@@ -3,6 +3,7 @@ import {
   ArrowCounterClockwise,
   CalendarDots,
   MinusCircle,
+  Wallet,
   XCircle,
 } from '@phosphor-icons/react'
 import { useState } from 'react'
@@ -18,7 +19,10 @@ import { StatusPill } from '../../ui/Tag'
 import { MovePicker } from './MovePicker'
 import styles from './sheets.module.css'
 
-/** Tapped session: move it, cancel it (carrying the payment over or not), or restore a cancelled one. */
+/**
+ * Tapped session: pay for it (when unpaid), move it, cancel it (carrying the payment over or not),
+ * or restore a cancelled one.
+ */
 export function SessionSheet({ hobby, sessionKey }: { hobby: Hobby; sessionKey: SessionKey }) {
   const t = useT()
   const lang = useLanguage()
@@ -124,6 +128,25 @@ export function SessionSheet({ hobby, sessionKey }: { hobby: Hobby; sessionKey: 
         </>
       ) : (
         <>
+          {session.status === 'unpaid' && (
+            <Button
+              variant="secondary"
+              block
+              tall
+              icon={<Wallet />}
+              onClick={() =>
+                useFlow.getState().open({
+                  kind: 'payment',
+                  hobbyId: hobby.id,
+                  queue: [],
+                  from: sessionKey,
+                  one: true,
+                })
+              }
+            >
+              {t.payThis}
+            </Button>
+          )}
           <Button
             variant="secondary"
             block
