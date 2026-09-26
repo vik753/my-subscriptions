@@ -40,9 +40,10 @@ export function DurationField({
           onChange(digits ? Number(digits) : null)
         }}
       />
-      <span className={styles.unit}>{minLabel}</span>
-      <span className={styles.caret}>
-        <CaretDown size={14} aria-hidden="true" />
+      {/* "min ▾" is one tap target over the native select, so it stays wide in a narrow row. */}
+      <span className={styles.pick}>
+        <span className={styles.unit}>{minLabel}</span>
+        <CaretDown size={14} className={styles.caret} aria-hidden="true" />
         <select
           className={styles.picker}
           aria-label={presetsLabel}
