@@ -14,6 +14,7 @@ import { parsePrice } from '../../i18n/money'
 import { useApp } from '../../store/appStore'
 import { useAuth } from '../../store/authStore'
 import { useNow } from '../../store/clock'
+import { announceDeletion } from '../../store/syncStore'
 import { useToast } from '../../store/toastStore'
 import { useLanguage, useT } from '../../store/useT'
 import { Button } from '../../ui/Button'
@@ -317,6 +318,7 @@ function Form({
             block
             icon={<Trash />}
             onClick={() => {
+              announceDeletion(hobby.id)
               deleteHobby(hobby.id)
               toast(t.tDeleted)
               onDone('/')

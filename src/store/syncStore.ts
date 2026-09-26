@@ -119,6 +119,14 @@ const inParallel = async <T>(items: readonly T[], fn: (item: T) => Promise<void>
 }
 
 let meta: MetaStorage | null = null
+// Hobbies deleted on this device while the app is open: confirm once the calendar is clean.
+// (Old tombstones cleaned up at launch stay silent.)
+let announce = new Set<string>()
+
+/** "Delete hobby" on this device: show "Deleted successfully" once its events are gone. */
+export const announceDeletion = (hobbyId: string) => {
+  announce.add(hobbyId)
+}
 // Failed runs retry by themselves (5 s, 15 s, 1 min, then every 5 min) until one succeeds.
 let failures = 0
 let retryTimer: number | undefined
@@ -296,12 +304,19 @@ export const useSync = create<SyncState>((set, get) => ({
     set({ running: true })
     let ok = false
     try {
+      let confirming = new Set<string>()
       do {
         rerun = false
+        confirming = new Set(announce)
         await sync(store)
       } while (rerun)
       ok = true
       retried404 = false
+      // The last pass started after these deletions and removed all their events.
+      if (confirming.size > 0) {
+        useToast.getState().show(messages[useApp.getState().data.settings.language].tDeleteDone)
+        for (const id of confirming) announce.delete(id)
+      }
       failures = 0
       window.clearTimeout(retryTimer)
     } catch (e) {
@@ -389,6 +404,7 @@ export const startSync = (store: MetaStorage): (() => void) => {
     window.clearTimeout(timer)
     window.clearTimeout(retryTimer)
     failures = 0
+    announce = new Set()
     meta = null
   }
 }

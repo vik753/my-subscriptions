@@ -203,7 +203,9 @@ export const en = {
     dt +
     '. Past sessions and marks stay as they are; future calendar events will be updated.',
   tUpdated: (n: number) => 'Calendar updated: ' + n + ' future ' + pluralEn(n, 'event', 'events'),
-  tDeleted: 'Hobby deleted, events removed from calendar',
+  tDeleted: 'Hobby deleted',
+  // Shown once the calendar has no events of the deleted hobby left.
+  tDeleteDone: 'Deleted successfully',
   // Added after generation (design-review 11).
   delTitle: 'Delete hobby?',
   delBody:

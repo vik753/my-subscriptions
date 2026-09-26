@@ -238,7 +238,9 @@ export const ru: Messages = {
     n +
     ' ' +
     pluralSlav(n, 'будущее событие', 'будущих события', 'будущих событий'),
-  tDeleted: 'Хобби удалено, события убраны из календаря',
+  tDeleted: 'Хобби удалено',
+  // Shown once the calendar has no events of the deleted hobby left.
+  tDeleteDone: 'Удаление прошло успешно',
   // Added after generation (design-review 11).
   delTitle: 'Удалить хобби?',
   delBody: 'Занятия и оплаты будут удалены, а события — убраны из календаря. Отменить нельзя.',
