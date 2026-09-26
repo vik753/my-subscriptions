@@ -30,6 +30,10 @@ All items of `docs/design-brief-pwa.md` are covered. The brief is now historical
 
 13. **Calendar guests and paid color, per hobby** (user decision 2026-09-26): with the calendar option on, the hobby form offers _Color of paid sessions_ (Google Calendar's 11 event colors with Google's names, default Basil; unpaid stay Graphite, attended Sage) and _Guests_ (emails → event `attendees`, so the sessions appear in their calendars). Events are written with `sendUpdates=none` (no email per session); guests can't modify or invite others. Schema v4. Guest copies are the same events, so updates and deletions propagate (Google: shared properties propagate, `sendUpdates` only controls emails); `colorId` and reminders are private per calendar, so guests see their own color. "Delete all data" deletes shared events one by one before deleting the calendar.
 
+14. **Forfeit sessions in Google Calendar** (user decision 2026-09-26, overrides README "Forfeit → Sage"): a session cancelled without carrying the payment over keeps its event but no longer looks attended — the hobby name is crossed out (Unicode combining stroke, titles have no formatting), the status reads "Cancelled · deducted" and the color is Graphite (the only grey in Google's palette; unpaid sessions are told apart by the plain title).
+
+15. **Delete data: everything or only Google** (user decision 2026-09-26): Settings → _Delete data…_ offers _Delete everything_ (phone + calendar + Drive; offline the Google part follows on the next sync) and, when a hobby uses Google, _Delete only from Google_ (calendar incl. guests' copies + Drive backup; the hobbies stay local with their Google options switched off so the next sync doesn't recreate them; needs a connection and a sign-in, otherwise nothing changes).
+
 ## Accessibility adjustments (stage 11)
 
 - **Light-mode secondary text.** `neutral-400` / `neutral-500` in all four light schemes measured 4.0:1 / 2.6:1 on `--color-bg` (WCAG AA needs 4.5:1). Darkened to L 0.50 / 0.535 (≥ 4.6:1); dark modes unchanged. Checked by `e2e/a11y.spec.ts` (axe, WCAG 2 A/AA, every screen, light + dark).

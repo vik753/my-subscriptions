@@ -6,7 +6,15 @@ import { useAuth } from './authStore'
 import { useToast } from './toastStore'
 import { localClock } from './clock'
 import { createMemoryMeta, createMemoryStorage } from './persistence/storage'
-import { announceDeletion, eventBody, startSync, syncEnv, useSync, wipeAllData } from './syncStore'
+import {
+  announceDeletion,
+  eventBody,
+  startSync,
+  syncEnv,
+  useSync,
+  wipeAllData,
+  wipeGoogleData,
+} from './syncStore'
 
 /** In-memory Google Calendar: enough of calendars + events to exercise the sync. */
 const server = () => {
@@ -198,6 +206,30 @@ describe('eventBody', () => {
       guestsCanInviteOthers: false,
       extendedProperties: { private: { hobbyId: 'gym', sessionKey: '2026-09-28' } },
     })
+  })
+
+  it('shows a session cancelled without carry-over crossed out and in Graphite', () => {
+    const body = eventBody(
+      {
+        key: 'k',
+        hobbyId: 'h',
+        sessionKey: '2026-09-28',
+        name: 'Зал',
+        date: '2026-09-28',
+        time: '10:00',
+        dur: 60,
+        status: 'forfeit',
+        lastPaid: false,
+      },
+      'uk',
+      30,
+      'u',
+      'UTC',
+      { paidColor: '3', guests: [] },
+    )
+    expect(body.summary).toBe('З\u0336а\u0336л\u0336 · Скасовано · списано')
+    expect(body.colorId).toBe('8')
+    expect(body.description.startsWith('Скасовано · списано')).toBe(true)
   })
 
   it('uses the hobby color for paid sessions only, and adds the guests', () => {
@@ -823,6 +855,46 @@ describe('calendar sync', () => {
       )
       expect(eventDeletes).toHaveLength(13)
       expect(google.requests.at(-2)).toBe('DELETE /calendars/cal1') // then the calendar, then Drive
+    })
+  })
+
+  describe('delete only from Google', () => {
+    it('removes the calendar and the backup, keeps the hobbies locally with Google off', async () => {
+      useApp.getState().addHobby({
+        ...gymInput,
+        google: { calendar: true, backup: true, guests: ['wife@gmail.com'], paidColor: '3' },
+      })
+      signIn()
+      stop = startSync(meta)
+      await run()
+      expect(await wipeGoogleData()).toBe(true)
+      expect(google.calendars.size).toBe(0)
+      expect(google.drive.size).toBe(0)
+      const [hobby] = useApp.getState().data.hobbies
+      expect(hobby?.google).toEqual({
+        calendar: false,
+        backup: false,
+        guests: ['wife@gmail.com'],
+        paidColor: '3',
+      })
+      // The next sync doesn't bring anything back.
+      await run()
+      expect(google.calendars.size).toBe(0)
+      expect(google.drive.size).toBe(0)
+    })
+
+    it('does nothing without a connection or a sign-in', async () => {
+      addGym()
+      signIn()
+      stop = startSync(meta)
+      await run()
+      useSync.setState({ online: false })
+      expect(await wipeGoogleData()).toBe(false)
+      useSync.setState({ online: true })
+      sessionStorage.clear()
+      expect(await wipeGoogleData()).toBe(false)
+      expect(google.live('cal1')).toHaveLength(13)
+      expect(useApp.getState().data.hobbies[0]?.google.calendar).toBe(true)
     })
   })
 

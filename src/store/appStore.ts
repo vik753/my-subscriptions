@@ -16,6 +16,8 @@ export interface AppState {
   /** Applies a pure domain mutation and stamps `updatedAt`. */
   updateHobby: (id: string, mutate: (hobby: Hobby) => Hobby) => void
   deleteHobby: (id: string) => void
+  /** After "Delete only from Google": every hobby becomes local (guests and color are kept). */
+  disableGoogle: () => void
   /** "Delete all data" locally: no hobbies; tombstones so other copies drop them too. */
   wipe: () => void
   /** Replace the data with a merged copy from the Drive backup (timestamps kept as merged). */
@@ -108,6 +110,19 @@ export const useApp = create<AppState>((set, get) => {
     },
 
     applyMerged: (data) => commit(data),
+
+    disableGoogle: () => {
+      const { data } = get()
+      const updatedAt = appClock.nowIso()
+      commit({
+        ...data,
+        hobbies: data.hobbies.map((h) =>
+          h.google.calendar || h.google.backup
+            ? { ...h, google: { ...h.google, calendar: false, backup: false }, updatedAt }
+            : h,
+        ),
+      })
+    },
 
     wipe: () => {
       const { data } = get()

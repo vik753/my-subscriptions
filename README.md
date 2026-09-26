@@ -36,7 +36,7 @@ the Home Screen, and it runs full screen like a regular app, offline too.
 - **Google Calendar (optional, per hobby):** a separate "My Subscriptions" calendar with one event
   per session:
   - Paid sessions in the color you pick (Google's 11 event colors; green by default), unpaid grey,
-    attended sage.
+    attended sage; a session cancelled without carrying the payment over is crossed out in grey.
   - **Guests:** add someone's email (e.g. your partner) and the sessions show in their calendar too.
   - An optional popup reminder before each session is sent by Google Calendar.
 - **Google Drive backup (optional, per hobby):** a copy in a hidden app folder in your own Drive,
@@ -46,12 +46,17 @@ the Home Screen, and it runs full screen like a regular app, offline too.
 
 ## Install
 
-### iPhone / iPad (Safari)
+### iPhone / iPad (Safari or Chrome)
 
-1. Open https://vik753.github.io/my-subscriptions/ in **Safari**. If the link opened inside
-   Telegram, Instagram or another app, choose **Open in Safari** first.
-2. Tap **Share** (the square with an arrow) → **Add to Home Screen** → **Add**.
+<img src="docs/screenshots/install-add-to-home-screen.png" width="240" align="right" alt="Share menu with Add to Home Screen highlighted">
+
+1. Open https://vik753.github.io/my-subscriptions/ in **Safari** or **Chrome**. If the link
+   opened inside Telegram, Instagram or another app, open it in the browser first.
+2. Tap **Share** (the square with an arrow), scroll down and tap **Add to Home Screen** (see the
+   picture), then **Add**.
 3. Start the app from its new icon on the Home Screen.
+
+<br clear="right">
 
 ### Android (Chrome)
 
@@ -189,8 +194,12 @@ Tap ⚙️ on the Home screen:
 - **Google account:** **Sign in with Google**, or, once signed in, the time of the last sync,
   **Sync now** and **Sign out**.
 - **Reminder before session:** a Google Calendar popup 15, 30 or 60 minutes before each session.
-- **Install the app** (if it isn't installed yet), **About**, and **Delete all data**, which
-  removes your hobbies, the "My Subscriptions" calendar and the Drive backup.
+- **Install the app** (if it isn't installed yet), **About**, and **Delete data…**, which asks what
+  to delete:
+  - **Delete everything:** hobbies on this phone, the "My Subscriptions" calendar (guests' copies
+    too) and the Drive backup.
+  - **Delete only from Google:** the calendar and the backup go; the hobbies stay on the phone
+    with their Google options switched off. Needs an internet connection and a Google sign-in.
 
 <br clear="right">
 
