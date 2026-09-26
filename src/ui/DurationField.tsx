@@ -1,5 +1,5 @@
 import { CaretDown, Check } from '@phosphor-icons/react'
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import styles from './DurationField.module.css'
 
 const DURATION_PRESETS = [30, 45, 60, 90, 120] as const
@@ -27,6 +27,7 @@ export function DurationField({
   placeholder?: string
 }) {
   const [open, setOpen] = useState(false)
+  const caret = useRef<HTMLButtonElement>(null)
   return (
     <div className={styles.wrap}>
       <div className={styles.combo}>
@@ -44,6 +45,7 @@ export function DurationField({
         <span className={styles.unit}>{minLabel}</span>
         <button
           type="button"
+          ref={caret}
           className={styles.caret}
           aria-label={presetsLabel}
           aria-expanded={open}
@@ -57,14 +59,18 @@ export function DurationField({
           className={styles.presets}
           role="group"
           aria-label={presetsLabel}
-          onKeyDown={(e) => e.key === 'Escape' && setOpen(false)}
+          onKeyDown={(e) => {
+            if (e.key !== 'Escape') return
+            setOpen(false)
+            // The focused preset unmounts: keep focus on the field instead of the page.
+            caret.current?.focus()
+          }}
         >
           {DURATION_PRESETS.map((m) => (
             <button
               key={m}
               type="button"
               aria-pressed={value === m}
-              aria-label={String(m)}
               className={`${styles.preset} ${value === m ? styles.selected : ''}`}
               onClick={() => {
                 onChange(m)

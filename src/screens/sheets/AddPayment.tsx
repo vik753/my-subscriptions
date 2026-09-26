@@ -49,8 +49,12 @@ export function AddPayment({
   const minor = price === '' ? defaultPrice : parsePrice(price)
   const valid = n > 0 && minor !== null
   const unpaid = s.sessions.filter((x) => x.status === 'unpaid' && !x.mark)
-  // The chosen session may have been paid meanwhile (e.g. a sync): fall back to the first one.
-  const start = unpaid.find((x) => x.key === startKey) ?? unpaid[0]
+  // The chosen session may have been paid meanwhile (e.g. a sync): never start earlier than it.
+  const chosen = s.sessions.find((x) => x.key === startKey)
+  const start =
+    unpaid.find((x) => x.key === startKey) ??
+    (chosen ? unpaid.find((x) => x.date >= chosen.date) : undefined) ??
+    unpaid[0]
   const at = (x: { date: string; time: string }) => `${formatDate(lang, x.date)}, ${x.time}`
 
   const next = () => {
