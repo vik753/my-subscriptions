@@ -36,7 +36,7 @@ the Home Screen, and it runs full screen like a regular app, offline too.
 - **Google Calendar (optional, per hobby):** a separate "My Subscriptions" calendar with one event
   per session:
   - Paid sessions in the color you pick (Google's 11 event colors; green by default), unpaid grey,
-    attended sage.
+    attended sage; a session cancelled without carrying the payment over is crossed out in grey.
   - **Guests:** add someone's email (e.g. your partner) and the sessions show in their calendar too.
   - An optional popup reminder before each session is sent by Google Calendar.
 - **Google Drive backup (optional, per hobby):** a copy in a hidden app folder in your own Drive,

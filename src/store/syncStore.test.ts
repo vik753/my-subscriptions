@@ -200,6 +200,30 @@ describe('eventBody', () => {
     })
   })
 
+  it('shows a session cancelled without carry-over crossed out and in Graphite', () => {
+    const body = eventBody(
+      {
+        key: 'k',
+        hobbyId: 'h',
+        sessionKey: '2026-09-28',
+        name: 'Зал',
+        date: '2026-09-28',
+        time: '10:00',
+        dur: 60,
+        status: 'forfeit',
+        lastPaid: false,
+      },
+      'uk',
+      30,
+      'u',
+      'UTC',
+      { paidColor: '3', guests: [] },
+    )
+    expect(body.summary).toBe('З\u0336а\u0336л\u0336 · Скасовано · списано')
+    expect(body.colorId).toBe('8')
+    expect(body.description.startsWith('Скасовано · списано')).toBe(true)
+  })
+
   it('uses the hobby color for paid sessions only, and adds the guests', () => {
     const base = {
       key: 'k',
