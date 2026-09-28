@@ -4,15 +4,21 @@ How to take the app's Google sign-in from _Testing_ to _In production_, and, whe
 Google's verification. Only users who turn on Google Calendar or Drive for a hobby are affected;
 the local-only app needs none of this.
 
-| Mode                      | Who can sign in                                | Catch                                                |
-| ------------------------- | ---------------------------------------------- | ---------------------------------------------------- |
-| Testing                   | Only the ≤ 100 "Test users" you add by hand    | Google revokes access every 7 days                   |
-| In production, unverified | Any Google account, **100 users lifetime** cap | "Google hasn't verified this app" warning at sign-in |
-| In production, verified   | Anyone, no cap                                 | —                                                    |
+| Mode                      | Who can sign in                                             | Catch                                         |
+| ------------------------- | ----------------------------------------------------------- | --------------------------------------------- |
+| Testing                   | Only the ≤ 100 "Test users" you add by hand                 | Google revokes access every 7 days            |
+| In production, unverified | Any Google account; 100-user cap only with sensitive scopes | Warning at sign-in only with sensitive scopes |
+| In production, verified   | Anyone, no cap                                              | —                                             |
 
-The app requests `calendar.app.created` (probably classified as _sensitive_ — the console shows the
-class next to each scope) and `drive.appdata` (non-sensitive), plus `openid email profile`. There
-are no _restricted_ scopes, so verification needs **no paid security assessment**.
+**All five scopes are non-sensitive** (checked in the console's Data Access page, 2026-09-28):
+`openid`, `userinfo.email`, `userinfo.profile`, `calendar.app.created`, `drive.appdata`. So:
+
+- no scope verification, **no demo video**, no security assessment;
+- once published, users get no "unverified app" warning and there is no 100-user cap;
+- only the optional **brand verification** remains (Steps 2–3 + submit in Verification Center),
+  so the consent screen shows the app name and logo. Usually a few days.
+
+Steps 4–5 below apply only if a sensitive scope is ever added.
 
 ## Pages already in place
 
@@ -28,8 +34,8 @@ The privacy policy contains the required **Limited Use** statement and explains 
 ## Step 1 — Publish (needed even for family)
 
 Google Cloud Console → **APIs & Services → OAuth consent screen** (in the new UI: **Google Auth
-Platform → Audience**) → **Publish app** → confirm. Users then see the "unverified app" warning;
-they tap **Advanced → Go to My Subscriptions**. Up to 100 users can sign in this way.
+Platform → Audience**) → **Publish app** → confirm. With this app's non-sensitive scopes there is
+no "unverified app" warning and no user cap.
 
 ## Step 2 — Prove you own the domain
 
