@@ -51,6 +51,18 @@ account that owns the Cloud project.
 
 (`github.io` is on the Public Suffix List, so `vik753.github.io` counts as your own domain.)
 
+**The site root must be verified too.** Brand verification kept failing with "home page URL … is not
+registered to you" while only the `/my-subscriptions/` prefix was verified. The fix (2026-09-28):
+
+1. A user Pages repo `vik753/vik753.github.io` (public) serves the same `google….html` file at
+   `https://vik753.github.io/` (plus an `index.html` that redirects to the app's homepage).
+2. Search Console → add the URL-prefix property `https://vik753.github.io/` → HTML file → Verify.
+3. Both properties must be verified by the Google account that owns the Cloud project.
+4. If the automatic re-check still fails, choose **I believe the issues found are incorrect** and
+   explain that both prefixes are verified (manual review, a few business days).
+
+Keep the `vik753.github.io` repo — deleting it can revoke the verification.
+
 ## Step 3 — Fill in the consent screen (Branding)
 
 | Field                        | Value                                                  |
