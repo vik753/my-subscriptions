@@ -193,6 +193,15 @@ describe('Add payment', () => {
     expect(gym()?.payments.at(-1)).toMatchObject({ n: 8, price: 550_000 })
   })
 
+  it('without an earlier payment the amount starts empty and must be filled', async () => {
+    useApp.getState().updateHobby('gym', (h) => ({ ...h, payments: [] }))
+    show({ kind: 'payment', hobbyId: 'gym', queue: [] })
+    expect(screen.getByLabelText('Amount, UAH')).toHaveValue('')
+    await userEvent.click(screen.getByRole('button', { name: 'Paid' }))
+    expect(gym()?.payments).toEqual([])
+    expect(toast).toHaveBeenCalledTimes(1)
+  })
+
   it('refuses an empty or malformed amount', async () => {
     show({ kind: 'payment', hobbyId: 'gym', queue: [] })
     const amount = screen.getByLabelText('Amount, UAH')
@@ -207,6 +216,7 @@ describe('Add payment', () => {
 describe('Edit payment', () => {
   it('corrects the amount and the number of sessions', async () => {
     show({ kind: 'editPayment', hobbyId: 'gym', index: 0 })
+    expect(screen.getByText(/Lower the number — the last ones become unpaid/)).toBeInTheDocument()
     expect(screen.getByLabelText('Amount, UAH')).toHaveValue('4000')
     await userEvent.clear(screen.getByLabelText('Amount, UAH'))
     await userEvent.type(screen.getByLabelText('Amount, UAH'), '4500,50')

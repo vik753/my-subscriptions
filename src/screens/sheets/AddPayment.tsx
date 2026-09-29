@@ -47,7 +47,9 @@ export function AddPayment({
   const n = mode === 'one' ? 1 : count === '' ? defaultN : Number(count)
   // Last price per session × sessions, so nobody has to multiply in their head.
   const suggested = last && last.n > 0 && n > 0 ? Math.round((last.price * n) / last.n) : 0
-  const minor = price === null ? suggested : price === '' ? null : parsePrice(price)
+  // Nothing to suggest (no earlier payment) and nothing typed: the amount is missing, not 0.
+  const minor =
+    price === null ? (suggested > 0 ? suggested : null) : price === '' ? null : parsePrice(price)
   const valid = n > 0 && minor !== null
   const unpaid = s.sessions.filter((x) => x.status === 'unpaid' && !x.mark)
   // The chosen session may have been paid meanwhile (e.g. a sync): never start earlier than it.

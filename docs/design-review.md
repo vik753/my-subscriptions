@@ -41,7 +41,7 @@ All items of `docs/design-brief-pwa.md` are covered. The brief is now historical
 18. **Correct payment from a session; price suggestion** (user request 2026-09-29):
     - A paid (unmarked) session's sheet offers _Correct payment_ → _Edit payment_ for the payment whose slot the session took.
     - Which payment that is (`sessionPayment(hobby, key, now)` → index into `hobby.payments`, or `null` for a session holding no slot — unpaid, missed/cancelled, or attended/forfeit without a slot): slots are used oldest-available first. Payments without `from` are available from the start in array order; payments with `from` become available in `from` order (array order breaks ties). Each consuming session takes its slot from the earliest-available payment that still has one. The statuses are the same as in decision 16, this only names the payment.
-    - _Add payment_ suggests the amount = last payment's price per session × the sessions entered (exact when the count equals the last payment's), shown as the field's value and recomputed while the user hasn't typed an amount.
+    - _Add payment_ suggests the amount = last payment's price per session × the sessions entered (exact when the count equals the last payment's), shown as the field's value and recomputed while the user hasn't typed an amount; without an earlier payment the field starts empty and must be filled. _Edit payment_ always shows the hint that lowering the number makes the last sessions unpaid (it opens from the session sheet and the payment list alike).
 
 ## Accessibility adjustments (stage 11)
 
