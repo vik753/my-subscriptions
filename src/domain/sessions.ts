@@ -1,6 +1,14 @@
 import { addDays, addMinutes, maxDate, splitDateTime, weekdayOf } from './dates'
 import { activeWeekdays, segmentAt } from './schedule'
-import type { Hobby, HobbySummary, ISODate, LocalDateTime, PendingItem, Session } from './types'
+import type {
+  Hobby,
+  HobbySummary,
+  ISODate,
+  LocalDateTime,
+  PendingItem,
+  Session,
+  SessionKey,
+} from './types'
 
 const MIN_WEEKS_AHEAD = 12
 
@@ -40,38 +48,55 @@ const generate = (hobby: Hobby, end: ISODate): Omit<Session, 'status' | 'pending
   )
 }
 
-export const summarize = (hobby: Hobby, now: LocalDateTime): HobbySummary => {
+/**
+ * The chronological walk that assigns paid slots (decisions 16, 18). Slots become available when
+ * the walk reaches a payment's `from` (older payments: at once); each consuming session takes one
+ * from the earliest-available payment that still has one. `payer`: session key → payment index.
+ */
+const walk = (hobby: Hobby, now: LocalDateTime) => {
   const paidTotal = hobby.payments.reduce((sum, p) => sum + p.n, 0)
-  const priceTotal = hobby.payments.reduce((sum, p) => sum + p.price, 0)
   const { date: today } = splitDateTime(now)
-
-  // Slots become available when the walk reaches a payment's `from` (older payments: at once);
-  // each consuming session takes one if any is available.
-  const anchored = hobby.payments
-    .flatMap((p) => (p.from === undefined ? [] : [{ from: p.from, n: p.n }]))
-    .sort((a, b) => a.from.localeCompare(b.from))
-  let available = hobby.payments.reduce((sum, p) => (p.from === undefined ? sum + p.n : sum), 0)
+  const slots = hobby.payments.map((p, index) => ({ index, from: p.from, left: p.n }))
+  const open = slots.filter((p) => p.from === undefined)
+  const anchored = slots
+    .flatMap((p) => (p.from === undefined ? [] : [{ ...p, from: p.from }]))
+    .sort((a, b) => a.from.localeCompare(b.from) || a.index - b.index)
+  const payer = new Map<SessionKey, number>()
   let usedByMarked = 0
-  const take = (date: ISODate): boolean => {
+
+  const take = (date: ISODate): number | null => {
     for (let first = anchored[0]; first && first.from <= date; first = anchored[0]) {
-      available += first.n
+      open.push(first)
       anchored.shift()
     }
-    if (available <= 0) return false
-    available--
-    return true
+    for (let head = open[0]; head; head = open[0]) {
+      if (head.left > 0) {
+        head.left--
+        return head.index
+      }
+      open.shift()
+    }
+    return null
   }
 
   const sessions: Session[] = generate(hobby, generationEnd(hobby, paidTotal, today)).map((s) => {
     const pending = !s.mark && addMinutes(s.date, s.time, s.dur) < now
     if (s.mark === 'missed' || s.mark === 'cancelled') return { ...s, status: 'missed', pending }
-    const paid = take(s.date)
-    if (paid && s.mark) usedByMarked++
+    const index = take(s.date)
+    if (index !== null) {
+      payer.set(s.key, index)
+      if (s.mark) usedByMarked++
+    }
     if (s.mark === 'forfeit') return { ...s, status: 'forfeit', pending }
     if (s.mark === 'attended') return { ...s, status: 'attended', pending }
-    return { ...s, status: paid ? 'paid' : 'unpaid', pending }
+    return { ...s, status: index !== null ? 'paid' : 'unpaid', pending }
   })
+  return { sessions, payer, paidTotal, usedByMarked }
+}
 
+export const summarize = (hobby: Hobby, now: LocalDateTime): HobbySummary => {
+  const { sessions, paidTotal, usedByMarked } = walk(hobby, now)
+  const priceTotal = hobby.payments.reduce((sum, p) => sum + p.price, 0)
   const attended = sessions.filter((s) => s.mark === 'attended').length
   const last = hobby.payments[hobby.payments.length - 1]
 
@@ -86,6 +111,10 @@ export const summarize = (hobby: Hobby, now: LocalDateTime): HobbySummary => {
     pending: sessions.filter((s) => s.pending),
   }
 }
+
+/** Index (in `hobby.payments`) of the payment whose slot the session holds; null if none. */
+export const sessionPayment = (hobby: Hobby, key: SessionKey, now: LocalDateTime): number | null =>
+  walk(hobby, now).payer.get(key) ?? null
 
 /** Pending sessions of all hobbies, oldest first by start (the order payments are assigned in). */
 export const collectPending = (hobbies: readonly Hobby[], now: LocalDateTime): PendingItem[] =>

@@ -12,6 +12,24 @@ export interface Release {
 /** The in-app "What's new", newest first. Keep in step with CHANGELOG.md (English). */
 export const CHANGELOG: readonly Release[] = [
   {
+    version: '1.4.0',
+    date: '2026-09-29',
+    notes: {
+      en: [
+        'Correct payment right from a paid session — e.g. when too many sessions were recorded.',
+        'A new payment suggests the amount: last price per session × sessions. You can change it.',
+      ],
+      uk: [
+        'Виправити оплату можна прямо з оплаченого заняття — наприклад, якщо записали забагато занять.',
+        'Нова оплата сама рахує суму: минула ціна за заняття × кількість. Її можна змінити.',
+      ],
+      ru: [
+        'Исправить оплату можно прямо из оплаченного занятия — например, если записали слишком много занятий.',
+        'Новая оплата сама считает сумму: прошлая цена за занятие × количество. Её можно изменить.',
+      ],
+    },
+  },
+  {
     version: '1.3.1',
     date: '2026-09-26',
     notes: {
