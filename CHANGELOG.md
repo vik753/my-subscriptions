@@ -4,6 +4,11 @@ User-facing changes, newest first. Versions follow [Semantic Versioning](https:/
 a new feature bumps the minor number, a fix the patch number. The app shows the same list in
 three languages under **About → What's new** (`src/i18n/changelog.ts`) — keep both in step.
 
+## [1.4.0] — 2026-09-29
+
+- _Correct payment_ in the session sheet of a paid session opens the payment that covers it.
+- _Add payment_ suggests the amount (last price per session × sessions) and keeps it editable.
+
 ## [1.3.1] — 2026-09-26
 
 - Session length presets open in the phone's native picker, like the currency; the schedule

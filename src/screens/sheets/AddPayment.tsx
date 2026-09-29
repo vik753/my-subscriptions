@@ -40,13 +40,14 @@ export function AddPayment({
   const [mode, setMode] = useState<Mode>(one ? 'one' : 'many')
   const [startKey, setStartKey] = useState(from)
   const [count, setCount] = useState('')
-  const [price, setPrice] = useState('')
+  // null: the amount follows the suggestion until the user types one.
+  const [price, setPrice] = useState<string | null>(null)
 
   const defaultN = last?.n ?? 1
-  const defaultPrice =
-    mode === 'one' ? (last && last.n > 0 ? Math.round(last.price / last.n) : 0) : (last?.price ?? 0)
   const n = mode === 'one' ? 1 : count === '' ? defaultN : Number(count)
-  const minor = price === '' ? defaultPrice : parsePrice(price)
+  // Last price per session × sessions, so nobody has to multiply in their head.
+  const suggested = last && last.n > 0 && n > 0 ? Math.round((last.price * n) / last.n) : 0
+  const minor = price === null ? suggested : price === '' ? null : parsePrice(price)
   const valid = n > 0 && minor !== null
   const unpaid = s.sessions.filter((x) => x.status === 'unpaid' && !x.mark)
   // The chosen session may have been paid meanwhile (e.g. a sync): never start earlier than it.
@@ -118,8 +119,8 @@ export function AddPayment({
             <TextInput
               id={id}
               inputMode="decimal"
-              placeholder={priceInput(defaultPrice)}
-              value={price}
+              placeholder={priceInput(0)}
+              value={price ?? (suggested > 0 ? priceInput(suggested) : '')}
               onChange={(e) => setPrice(e.target.value.replace(/[^\d.,]/g, ''))}
             />
           )}

@@ -238,6 +238,8 @@ export const uk: Messages = {
   addPayment: 'Додати оплату',
   payTitle: 'Нова оплата',
   editPayTitle: 'Редагувати оплату',
+  fixPay: 'Виправити оплату',
+  fixPayHint: 'Записали забагато занять? Зменште кількість — останні стануть неоплаченими.',
   payDate: 'Дата оплати',
   delPayment: 'Видалити оплату',
   delPayTitle: 'Видалити цю оплату?',

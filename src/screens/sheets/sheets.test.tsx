@@ -127,7 +127,7 @@ describe('Add payment', () => {
   it('repeats the last payment when fields are left empty', async () => {
     show({ kind: 'payment', hobbyId: 'gym', queue: [] })
     expect(screen.getByLabelText('Sessions')).toHaveAttribute('placeholder', '4')
-    expect(screen.getByLabelText('Amount, UAH')).toHaveAttribute('placeholder', '4000')
+    expect(screen.getByLabelText('Amount, UAH')).toHaveValue('4000')
     expect(
       screen.getByText('Covers 4 sessions, starting Mon, Oct 5, 10:00. Missed ones carry over.'),
     ).toBeInTheDocument()
@@ -145,6 +145,8 @@ describe('Add payment', () => {
     show({ kind: 'payment', hobbyId: 'gym', queue: [] })
     await userEvent.click(screen.getByRole('button', { name: 'One session' }))
     expect(screen.queryByLabelText('Sessions')).toBeNull()
+    expect(screen.getByLabelText('Amount, UAH')).toHaveValue('1000')
+    await userEvent.clear(screen.getByLabelText('Amount, UAH'))
     await userEvent.type(screen.getByLabelText('Amount, UAH'), '950,5')
     await userEvent.click(screen.getByRole('button', { name: 'Paid' }))
     expect(gym()?.payments.at(-1)).toEqual({
@@ -177,9 +179,26 @@ describe('Add payment', () => {
     expect(screen.getByText('Covers the session on Mon, Oct 19, 10:00.')).toBeInTheDocument()
   })
 
-  it('refuses a malformed amount', async () => {
+  it('suggests last price per session × sessions until an amount is typed', async () => {
     show({ kind: 'payment', hobbyId: 'gym', queue: [] })
-    await userEvent.type(screen.getByLabelText('Amount, UAH'), '1.2.3')
+    const amount = screen.getByLabelText('Amount, UAH')
+    await userEvent.type(screen.getByLabelText('Sessions'), '6')
+    expect(amount).toHaveValue('6000')
+    await userEvent.clear(amount)
+    await userEvent.type(amount, '5500')
+    await userEvent.clear(screen.getByLabelText('Sessions'))
+    await userEvent.type(screen.getByLabelText('Sessions'), '8')
+    expect(amount).toHaveValue('5500')
+    await userEvent.click(screen.getByRole('button', { name: 'Paid' }))
+    expect(gym()?.payments.at(-1)).toMatchObject({ n: 8, price: 550_000 })
+  })
+
+  it('refuses an empty or malformed amount', async () => {
+    show({ kind: 'payment', hobbyId: 'gym', queue: [] })
+    const amount = screen.getByLabelText('Amount, UAH')
+    await userEvent.clear(amount)
+    await userEvent.click(screen.getByRole('button', { name: 'Paid' }))
+    await userEvent.type(amount, '1.2.3')
     await userEvent.click(screen.getByRole('button', { name: 'Paid' }))
     expect(gym()?.payments).toHaveLength(1)
   })
@@ -300,6 +319,17 @@ describe('Session sheet', () => {
       from: '2026-10-19',
       one: true,
     })
+  })
+
+  it('a paid session opens its payment for correction', async () => {
+    show({ kind: 'session', hobbyId: 'gym', key: '2026-09-28' })
+    await userEvent.click(screen.getByRole('button', { name: 'Correct payment' }))
+    expect(useFlow.getState().next).toEqual({ kind: 'editPayment', hobbyId: 'gym', index: 0 })
+  })
+
+  it('an unpaid session has nothing to correct', () => {
+    show({ kind: 'session', hobbyId: 'gym', key: '2026-10-19' })
+    expect(screen.queryByRole('button', { name: 'Correct payment' })).toBeNull()
   })
 
   it('offers no payment for a paid session', () => {
