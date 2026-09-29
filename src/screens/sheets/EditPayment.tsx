@@ -81,6 +81,7 @@ export function EditPayment({ hobby, index }: { hobby: Hobby; index: number }) {
         <span className={styles.kicker}>{hobby.name}</span>
         <h2 className={styles.title}>{t.editPayTitle}</h2>
       </div>
+      <p className={styles.hint}>{t.fixPayHint}</p>
       <Field label={t.payDate}>
         {(id) => (
           <TextInput id={id} type="date" value={date} onChange={(e) => setDate(e.target.value)} />

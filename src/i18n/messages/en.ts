@@ -215,6 +215,8 @@ export const en = {
   addPayment: 'Add payment',
   payTitle: 'New payment',
   editPayTitle: 'Edit payment',
+  fixPay: 'Correct payment',
+  fixPayHint: 'Recorded too many sessions? Lower the number — the last ones become unpaid.',
   payDate: 'Payment date',
   delPayment: 'Delete payment',
   delPayTitle: 'Delete this payment?',

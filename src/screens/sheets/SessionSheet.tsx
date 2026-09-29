@@ -3,11 +3,19 @@ import {
   ArrowCounterClockwise,
   CalendarDots,
   MinusCircle,
+  PencilSimple,
   Wallet,
   XCircle,
 } from '@phosphor-icons/react'
 import { useState } from 'react'
-import { cancelSession, restoreSession, summarize, type Hobby, type SessionKey } from '../../domain'
+import {
+  cancelSession,
+  restoreSession,
+  sessionPayment,
+  summarize,
+  type Hobby,
+  type SessionKey,
+} from '../../domain'
 import { formatDate } from '../../i18n/format'
 import { useApp } from '../../store/appStore'
 import { localClock } from '../../store/clock'
@@ -29,6 +37,8 @@ export function SessionSheet({ hobby, sessionKey }: { hobby: Hobby; sessionKey: 
   const now = localClock.now()
   const s = summarize(hobby, now)
   const session = s.sessions.find((x) => x.key === sessionKey)
+  // A wrongly recorded payment is corrected where it was made, not by cancelling a session.
+  const payment = sessionPayment(hobby, sessionKey, now)
   const [moving, setMoving] = useState(false)
   // A paid session asks what happens to its payment before it is cancelled.
   const [asking, setAsking] = useState(false)
@@ -145,6 +155,19 @@ export function SessionSheet({ hobby, sessionKey }: { hobby: Hobby; sessionKey: 
               }
             >
               {t.payThis}
+            </Button>
+          )}
+          {payment !== null && session.status === 'paid' && (
+            <Button
+              variant="secondary"
+              block
+              tall
+              icon={<PencilSimple />}
+              onClick={() =>
+                useFlow.getState().open({ kind: 'editPayment', hobbyId: hobby.id, index: payment })
+              }
+            >
+              {t.fixPay}
             </Button>
           )}
           <Button
