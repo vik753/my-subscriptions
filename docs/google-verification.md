@@ -20,6 +20,14 @@ the local-only app needs none of this.
 
 Steps 4–5 below apply only if a sensitive scope is ever added.
 
+**Outcome (2026-09-29): brand verification was dropped.** Google rejected it: the homepage and
+privacy policy must be on a domain you own, and `github.io` counts as third-party hosting (like
+Google Sites). A custom domain would move the app to a new origin, and every user's local data
+(IndexedDB is per origin) would stay behind. So the logo was removed and the verification
+request cancelled by email. The app stays in production with non-sensitive scopes: anyone can sign
+in, no warning, no cap; the consent screen just shows Google's default text instead of the logo.
+Revisit only together with a data export/import feature.
+
 ## Pages already in place
 
 | What           | URL                                                    |
