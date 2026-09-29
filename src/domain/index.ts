@@ -1,5 +1,5 @@
 export type * from './types'
-export { summarize, collectPending } from './sessions'
+export { summarize, collectPending, sessionPayment } from './sessions'
 export { firstSessionDate, segmentAt } from './schedule'
 export { renewalDue } from './renewal'
 export { addDays, addMinutes, weekdayOf } from './dates'

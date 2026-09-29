@@ -38,6 +38,11 @@ All items of `docs/design-brief-pwa.md` are covered. The brief is now historical
 
 17. **Settings button on Home** (user request 2026-09-26): the gear is an outlined round button like the "+" next to it (the prototype's plain ghost icon looked smaller).
 
+18. **Correct payment from a session; price suggestion** (user request 2026-09-29):
+    - A paid (unmarked) session's sheet offers _Correct payment_ → _Edit payment_ for the payment whose slot the session took.
+    - Which payment that is (`sessionPayment(hobby, key, now)` → index into `hobby.payments`, or `null` for a session holding no slot — unpaid, missed/cancelled, or attended/forfeit without a slot): slots are used oldest-available first. Payments without `from` are available from the start in array order; payments with `from` become available in `from` order (array order breaks ties). Each consuming session takes its slot from the earliest-available payment that still has one. The statuses are the same as in decision 16, this only names the payment.
+    - _Add payment_ suggests the amount = last payment's price per session × the sessions entered (exact when the count equals the last payment's), shown as the field's value and recomputed while the user hasn't typed an amount.
+
 ## Accessibility adjustments (stage 11)
 
 - **Light-mode secondary text.** `neutral-400` / `neutral-500` in all four light schemes measured 4.0:1 / 2.6:1 on `--color-bg` (WCAG AA needs 4.5:1). Darkened to L 0.50 / 0.535 (≥ 4.6:1); dark modes unchanged. Checked by `e2e/a11y.spec.ts` (axe, WCAG 2 A/AA, every screen, light + dark).
