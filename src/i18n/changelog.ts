@@ -12,6 +12,21 @@ export interface Release {
 /** The in-app "What's new", newest first. Keep in step with CHANGELOG.md (English). */
 export const CHANGELOG: readonly Release[] = [
   {
+    version: '1.5.0',
+    date: '2026-10-09',
+    notes: {
+      en: [
+        'Pay after the fact: a new payment can start at a session you already attended. The oldest unpaid one is offered first.',
+      ],
+      uk: [
+        'Оплата після занять: нова оплата може починатися з уже відвіданого заняття. Першим пропонується найдавніше неоплачене.',
+      ],
+      ru: [
+        'Оплата после занятий: новая оплата может начинаться с уже посещённого занятия. Первым предлагается самое давнее неоплаченное.',
+      ],
+    },
+  },
+  {
     version: '1.4.0',
     date: '2026-09-29',
     notes: {

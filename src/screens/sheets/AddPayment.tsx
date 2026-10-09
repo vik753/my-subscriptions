@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { addPayment, summarize, type Hobby, type SessionKey } from '../../domain'
+import { addPayment, summarize, type Hobby, type Session, type SessionKey } from '../../domain'
 import { currencyLabel, formatDate, formatSchedule } from '../../i18n/format'
 import { parsePrice, priceInput } from '../../i18n/money'
 import { useApp } from '../../store/appStore'
@@ -15,8 +15,15 @@ import styles from './sheets.module.css'
 type Mode = 'one' | 'many'
 
 /**
- * New payment: one session or a pass, starting at a chosen unpaid session (the first one by
- * default); empty fields repeat the last payment.
+ * The session a new payment starts at until the user picks one: the oldest uncovered one, so
+ * paying after the fact needs no searching — but never a cancelled one by default (decision 19).
+ */
+const defaultStart = (payable: Session[]): Session | undefined =>
+  payable.find((x) => x.mark !== 'forfeit')
+
+/**
+ * New payment: one session or a pass, starting at a chosen session that no payment covers yet —
+ * attended ones included (decision 19); empty fields repeat the last payment.
  */
 export function AddPayment({
   hobby,
@@ -51,14 +58,17 @@ export function AddPayment({
   const minor =
     price === null ? (suggested > 0 ? suggested : null) : price === '' ? null : parsePrice(price)
   const valid = n > 0 && minor !== null
-  const unpaid = s.sessions.filter((x) => x.status === 'unpaid' && !x.mark)
+  const unpaid = s.payable
   // The chosen session may have been paid meanwhile (e.g. a sync): never start earlier than it.
   const chosen = s.sessions.find((x) => x.key === startKey)
   const start =
     unpaid.find((x) => x.key === startKey) ??
-    (chosen ? unpaid.find((x) => x.date >= chosen.date) : undefined) ??
-    unpaid[0]
+    (chosen ? defaultStart(unpaid.filter((x) => x.date >= chosen.date)) : undefined) ??
+    defaultStart(unpaid)
   const at = (x: { date: string; time: string }) => `${formatDate(lang, x.date)}, ${x.time}`
+  // An attended session in the list would otherwise look like a mistake.
+  const option = (x: Session) =>
+    x.mark ? `${at(x)} · ${x.mark === 'forfeit' ? t.forfeitTag : t.attended}` : at(x)
 
   const next = () => {
     const [id, ...rest] = queue
@@ -134,7 +144,7 @@ export function AddPayment({
             <SelectInput id={id} value={start.key} onChange={(e) => setStartKey(e.target.value)}>
               {unpaid.map((x) => (
                 <option key={x.key} value={x.key}>
-                  {at(x)}
+                  {option(x)}
                 </option>
               ))}
             </SelectInput>

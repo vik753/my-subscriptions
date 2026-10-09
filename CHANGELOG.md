@@ -4,6 +4,11 @@ User-facing changes, newest first. Versions follow [Semantic Versioning](https:/
 a new feature bumps the minor number, a fix the patch number. The app shows the same list in
 three languages under **About → What's new** (`src/i18n/changelog.ts`) — keep both in step.
 
+## [1.5.0] — 2026-10-09
+
+- Pay after the fact: _First paid session_ in _Add payment_ also lists sessions that were attended
+  but not paid, labelled with their status; the oldest one is preselected.
+
 ## [1.4.0] — 2026-09-29
 
 - _Correct payment_ in the session sheet of a paid session opens the payment that covers it.

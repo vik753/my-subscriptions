@@ -106,6 +106,11 @@ export interface HobbySummary {
   next: Session | null
   /** Pending sessions, chronological. */
   pending: Session[]
+  /**
+   * Sessions a new payment can start at, chronological: they consume a slot but hold none —
+   * unpaid ones and attended/forfeit ones no payment covers (decision 19).
+   */
+  payable: Session[]
 }
 
 export interface PendingItem {
