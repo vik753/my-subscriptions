@@ -180,6 +180,7 @@ export const ru: Messages = {
   cxOn: 'Оплата перейдёт на ближайшее неоплаченное',
   cxOff: 'Занятие будет списано из абонемента',
   histForfeit: 'Отменено · списано',
+  evAttendedPaid: 'Посещено · оплачено',
   histOwed: 'Посещено · не оплачено',
   histForfeitOwed: 'Отменено · не оплачено',
   forfeitTag: 'Списано',

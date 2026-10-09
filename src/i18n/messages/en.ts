@@ -163,6 +163,7 @@ export const en = {
   cxOn: 'Payment moves to the next unpaid session',
   cxOff: 'The session will be deducted from your pass',
   histForfeit: 'Cancelled · deducted',
+  evAttendedPaid: 'Attended · paid',
   histOwed: 'Attended · unpaid',
   histForfeitOwed: 'Cancelled · unpaid',
   forfeitTag: 'Deducted',

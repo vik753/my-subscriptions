@@ -12,6 +12,8 @@ three languages under **About → What's new** (`src/i18n/changelog.ts`) — kee
   calendar, "Attended · unpaid" in the history. Tapping it in the hobby calendar opens _Add payment_.
   A session cancelled with deduction that nobody paid for is crossed out and reads "Cancelled ·
   unpaid"; it can be paid from its sheet.
+- Google Calendar events of past sessions say whether they were paid for ("Attended · paid" /
+  "Attended · unpaid"); colors are unchanged.
 
 ## [1.4.0] — 2026-09-29
 

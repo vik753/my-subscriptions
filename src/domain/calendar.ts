@@ -14,6 +14,8 @@ export interface CalendarEventModel {
   dur: number
   /** `forfeit`: cancelled without carrying the payment over — shown crossed out, not as attended. */
   status: 'paid' | 'unpaid' | 'attended' | 'forfeit'
+  /** Attended or forfeit, but no payment covers it (decision 21); the text says so, not the color. */
+  owed: boolean
   /** The last paid session of the hobby — its event asks to renew. */
   lastPaid: boolean
 }
@@ -29,7 +31,8 @@ export const calendarEvents = (
 ): CalendarEventModel[] => {
   const until = addDays(now.slice(0, 10), weeksAhead * 7)
   return hobbies.flatMap((hobby) => {
-    const sessions = summarize(hobby, now).sessions
+    const { sessions, payable } = summarize(hobby, now)
+    const owed = new Set(payable.filter((s) => s.mark).map((s) => s.key))
     const lastPaid = sessions.filter((s) => s.status === 'paid').pop()
     return sessions
       .flatMap(({ status, ...s }) =>
@@ -44,6 +47,7 @@ export const calendarEvents = (
         time: s.time,
         dur: s.dur,
         status: s.status,
+        owed: owed.has(s.key),
         lastPaid: s.key === lastPaid?.key,
       }))
   })

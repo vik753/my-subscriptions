@@ -54,7 +54,12 @@ All items of `docs/design-brief-pwa.md` are covered. The brief is now historical
     - Labels: "Attended · unpaid" in the cell's accessible name, in History and in the All sessions day list.
     - All sessions tab: the day dot and the pill use the existing _unpaid_ style (grey outline) with the "Attended · unpaid" text; no new legend entry there.
     - **Forfeit without a payment** (user decision 2026-10-09): a session cancelled with deduction that no payment covers gets the same unpaid look plus the strike-through of a cancelled one (`neutral-500` border, `neutral-300` text, line-through), labelled "Cancelled · unpaid" in the cell name, History, the All sessions list (unpaid dot) and its Session sheet. The sheet offers _Pay for this session_ above _Restore_. Once a payment covers it, it is the usual forfeit again: paid-line border + line-through, "Cancelled · deducted".
-    - Google Calendar is unchanged (attended → Sage).
+    - Google Calendar: colors are unchanged (attended → Sage, forfeit → Graphite); the text carries the payment — see decision 21.
+
+21. **Paid / unpaid in Google Calendar events of past sessions** (user decision 2026-10-09): colors stay as they are; the event's status text (title suffix and first description line) says whether the session was paid for.
+    - `CalendarEventModel.owed: boolean` — `true` exactly for an event whose session is marked `attended` or `forfeit` and holds no paid slot (it is in `summarize().payable`, decision 19); `false` for every other event, including all `paid` / `unpaid` ones (their status already says it). `status` and `lastPaid` are unchanged.
+    - Text: attended → "Attended · paid" / "Attended · unpaid"; forfeit → "Cancelled · deducted" (covered, as before) / "Cancelled · unpaid". Paid / unpaid future sessions are unchanged.
+    - Existing attended events get the new text on the next sync (one update each, `sendUpdates=none`).
 
 ## Accessibility adjustments (stage 11)
 
