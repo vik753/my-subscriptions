@@ -34,28 +34,37 @@ export function HobbyDetail() {
   return hobby ? <Detail hobby={hobby} /> : <Navigate to="/" replace />
 }
 
-const cellStatus = (s: Session): SessionCellStatus => (s.pending ? 'pending' : s.status)
+const cellStatus = (s: Session, owed: boolean): SessionCellStatus =>
+  s.pending ? 'pending' : owed ? (s.mark === 'forfeit' ? 'owedForfeit' : 'owed') : s.status
 
-const statusLabel = (t: Messages, s: Session): string =>
+const statusLabel = (t: Messages, s: Session, owed = false): string =>
   s.pending
     ? t.legendPending
-    : (
-        {
-          paid: t.paid,
-          unpaid: t.unpaid,
-          attended: t.attended,
-          missed: t.missed,
-          forfeit: t.forfeitTag,
-        } satisfies Record<SessionStatus, string>
-      )[s.status]
+    : owed
+      ? s.mark === 'forfeit'
+        ? t.histForfeitOwed
+        : t.histOwed
+      : (
+          {
+            paid: t.paid,
+            unpaid: t.unpaid,
+            attended: t.attended,
+            missed: t.missed,
+            forfeit: t.forfeitTag,
+          } satisfies Record<SessionStatus, string>
+        )[s.status]
 
-const historyLabel = (t: Messages, s: Session): string =>
+const historyLabel = (t: Messages, s: Session, owed: boolean): string =>
   s.mark === 'attended'
-    ? t.attended
+    ? owed
+      ? t.histOwed
+      : t.attended
     : s.mark === 'cancelled'
       ? t.histCancelled
       : s.mark === 'forfeit'
-        ? t.histForfeit
+        ? owed
+          ? t.histForfeitOwed
+          : t.histForfeit
         : t.histMissed
 
 function Detail({ hobby }: { hobby: Hobby }) {
@@ -68,13 +77,18 @@ function Detail({ hobby }: { hobby: Hobby }) {
   const signIn = useAuth((s) => s.signIn)
   const s = summarize(hobby, now)
   const open = useFlow((f) => f.open)
-  // Pending → Attendance prompt; unmarked or cancelled → Session sheet; attended / missed are final.
+  // Attended or cancelled with deduction, but no payment covers it (decision 20).
+  const owed = (x: Session) => !!x.mark && s.payable.includes(x)
+  // Pending → Attendance prompt; unmarked or cancelled → Session sheet; attended without a payment
+  // → Add payment starting at it; attended / missed are final.
   const sheetFor = (x: Session): FlowSheet | null =>
     x.pending
       ? { kind: 'prompt', hobbyId: hobby.id, key: x.key }
       : !x.mark || x.mark === 'cancelled' || x.mark === 'forfeit'
         ? { kind: 'session', hobbyId: hobby.id, key: x.key }
-        : null
+        : owed(x)
+          ? { kind: 'payment', hobbyId: hobby.id, queue: [], from: x.key }
+          : null
   const segment = segmentAt(hobby.sched, today) ?? hobby.sched[hobby.sched.length - 1]
 
   // Opened from "All sessions": show the month of the tapped session.
@@ -178,8 +192,8 @@ function Detail({ hobby }: { hobby: Hobby }) {
               today={d.date === today}
               {...(x && {
                 time: x.time,
-                status: cellStatus(x),
-                label: `${formatDate(lang, x.date)}, ${x.time} — ${statusLabel(t, x)}`,
+                status: cellStatus(x, owed(x)),
+                label: `${formatDate(lang, x.date)}, ${x.time} — ${statusLabel(t, x, owed(x))}`,
                 ...(sheetFor(x) && { onClick: () => open(sheetFor(x) as FlowSheet) }),
               })}
             />
@@ -191,6 +205,7 @@ function Detail({ hobby }: { hobby: Hobby }) {
         <li className={styles.lgPaid}>{t.paid}</li>
         <li className={styles.lgUnpaid}>{t.unpaid}</li>
         <li className={styles.lgAttended}>{t.attended}</li>
+        <li className={styles.lgOwed}>{t.histOwed}</li>
         <li className={styles.lgPending}>{t.legendPending}</li>
         <li className={styles.lgCancelled}>{t.missed}</li>
       </ul>
@@ -243,7 +258,7 @@ function Detail({ hobby }: { hobby: Hobby }) {
                 <span className={styles.rowTitle}>
                   {formatDate(lang, x.date)}, {x.time}
                 </span>
-                <span className={styles.rowMeta}>{historyLabel(t, x)}</span>
+                <span className={styles.rowMeta}>{historyLabel(t, x, owed(x))}</span>
               </li>
             ))}
           </ul>

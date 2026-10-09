@@ -68,6 +68,26 @@ export function SessionSheet({ hobby, sessionKey }: { hobby: Hobby; sessionKey: 
     toast(t.tRestored)
   }
 
+  const payButton = (
+    <Button
+      variant="secondary"
+      block
+      tall
+      icon={<Wallet />}
+      onClick={() =>
+        useFlow.getState().open({
+          kind: 'payment',
+          hobbyId: hobby.id,
+          queue: [],
+          from: sessionKey,
+          one: true,
+        })
+      }
+    >
+      {t.payThis}
+    </Button>
+  )
+
   return (
     <>
       <div className={styles.head}>
@@ -78,7 +98,9 @@ export function SessionSheet({ hobby, sessionKey }: { hobby: Hobby; sessionKey: 
             {session.time} · {session.dur} {t.min}
           </span>
           {session.mark === 'forfeit' ? (
-            <StatusPill status="forfeit">{t.forfeitTag}</StatusPill>
+            <StatusPill status="forfeit">
+              {payment === null ? t.histForfeitOwed : t.forfeitTag}
+            </StatusPill>
           ) : cancelled ? (
             <StatusPill status="cancelled">{t.cancelledTag}</StatusPill>
           ) : (
@@ -94,6 +116,8 @@ export function SessionSheet({ hobby, sessionKey }: { hobby: Hobby; sessionKey: 
 
       {cancelled ? (
         <>
+          {/* Deducted, but nothing was paid for it: it can still be paid (decision 20). */}
+          {session.mark === 'forfeit' && payment === null && payButton}
           <Button variant="primary" block tall icon={<ArrowCounterClockwise />} onClick={restore}>
             {t.restore}
           </Button>
@@ -138,25 +162,7 @@ export function SessionSheet({ hobby, sessionKey }: { hobby: Hobby; sessionKey: 
         </>
       ) : (
         <>
-          {session.status === 'unpaid' && (
-            <Button
-              variant="secondary"
-              block
-              tall
-              icon={<Wallet />}
-              onClick={() =>
-                useFlow.getState().open({
-                  kind: 'payment',
-                  hobbyId: hobby.id,
-                  queue: [],
-                  from: sessionKey,
-                  one: true,
-                })
-              }
-            >
-              {t.payThis}
-            </Button>
-          )}
+          {session.status === 'unpaid' && payButton}
           {payment !== null && session.status === 'paid' && (
             <Button
               variant="secondary"

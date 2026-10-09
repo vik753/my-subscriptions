@@ -285,3 +285,91 @@ describe('diffEvents', () => {
     expect(remove).toEqual(['c'])
   })
 })
+
+describe('calendarEvents — owed (decision 21)', () => {
+  // Thursdays from 2026-09-24; 2 paid slots cover 09-24 and 10-01, so 10-08 and later hold none.
+  const PAID_1 = '2026-09-24'
+  const PAID_2 = '2026-10-01'
+  const BEYOND = '2026-10-08'
+  const BEYOND_2 = '2026-10-15'
+
+  it('an attended session holding a paid slot is not owed', () => {
+    const h = markSession(makeHobby(), PAID_1, 'attended')
+    const e = at(calendarEvents([h], NOW), PAID_1)
+    expect(e.status).toBe('attended')
+    expect(e.owed).toBe(false)
+  })
+
+  it('an attended session beyond every paid slot is owed and stays attended', () => {
+    const h = markSession(makeHobby(), BEYOND, 'attended')
+    const e = at(calendarEvents([h], NOW), BEYOND)
+    expect(e.status).toBe('attended')
+    expect(e.owed).toBe(true)
+  })
+
+  it('a forfeit session is owed only when it holds no paid slot', () => {
+    const h = markSession(markSession(makeHobby(), PAID_2, 'forfeit'), BEYOND, 'forfeit')
+    const events = calendarEvents([h], NOW)
+    expect(at(events, PAID_2).status).toBe('forfeit')
+    expect(at(events, PAID_2).owed).toBe(false)
+    expect(at(events, BEYOND).status).toBe('forfeit')
+    expect(at(events, BEYOND).owed).toBe(true)
+  })
+
+  it('unmarked paid and unmarked unpaid events are never owed, even a past pending unpaid one', () => {
+    // Paid slots start at 10-08, so the past pending 09-24 session is unpaid and unmarked.
+    const unpaidPast = addPayment(
+      { ...makeHobby(), payments: [] },
+      {
+        date: '2026-09-24',
+        n: 1,
+        price: 1000,
+        from: BEYOND,
+      },
+    )
+    const events = calendarEvents([unpaidPast], '2026-10-09T12:00')
+    expect(at(events, PAID_1).status).toBe('unpaid')
+    expect(at(events, PAID_1).owed).toBe(false)
+    expect(at(events, BEYOND).status).toBe('paid')
+    expect(at(events, BEYOND).owed).toBe(false)
+    expect(at(events, BEYOND_2).status).toBe('unpaid')
+    expect(at(events, BEYOND_2).owed).toBe(false)
+  })
+
+  it('paying from the owed attended session turns owed off', () => {
+    const h = markSession(makeHobby(), BEYOND, 'attended')
+    expect(at(calendarEvents([h], NOW), BEYOND).owed).toBe(true)
+    const paid = addPayment(h, { date: '2026-10-09', n: 1, price: 1000, from: BEYOND })
+    const e = at(calendarEvents([paid], NOW), BEYOND)
+    expect(e.status).toBe('attended')
+    expect(e.owed).toBe(false)
+  })
+
+  it('owed is computed per hobby independently', () => {
+    const a = markSession(makeHobby({ id: 'a' }), BEYOND, 'attended')
+    const b = markSession(makeHobby({ id: 'b', sessions: 10, price: 10000 }), BEYOND, 'attended')
+    const events = calendarEvents([a, b], NOW)
+    const ofA = events.filter((e) => e.hobbyId === 'a')
+    const ofB = events.filter((e) => e.hobbyId === 'b')
+    expect(at(ofA, BEYOND).owed).toBe(true)
+    expect(at(ofB, BEYOND).owed).toBe(false)
+  })
+
+  it('every event has a boolean owed, true only on attended or forfeit ones', () => {
+    let h = makeHobby()
+    h = markSession(h, PAID_1, 'attended')
+    h = markSession(h, PAID_2, 'forfeit')
+    h = markSession(h, BEYOND, 'attended')
+    h = markSession(h, BEYOND_2, 'forfeit')
+    h = markSession(h, '2026-10-22', 'missed')
+    h = cancelSession(h, '2026-10-29', true, NOW)
+    h = moveSession(h, '2026-11-05', { date: '2026-11-06', time: '11:00' })
+    const events = calendarEvents([h], NOW)
+    expect(events.length).toBeGreaterThan(5)
+    for (const e of events) {
+      expect(typeof e.owed).toBe('boolean')
+      if (e.owed) expect(['attended', 'forfeit']).toContain(e.status)
+    }
+    expect(events.filter((e) => e.owed).map((e) => e.sessionKey)).toEqual([BEYOND, BEYOND_2])
+  })
+})

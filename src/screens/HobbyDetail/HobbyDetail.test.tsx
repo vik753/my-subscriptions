@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, it, vi } from 'vitest'
 import { markSession } from '../../domain'
 import { resetAppStore, useApp } from '../../store/appStore'
 import { localClock } from '../../store/clock'
+import { useFlow } from '../../store/flowStore'
 import { createMemoryStorage } from '../../store/persistence/storage'
 import { HobbyDetail } from './HobbyDetail'
 
@@ -79,6 +80,39 @@ describe('HobbyDetail', () => {
     const payments = screen.getByRole('heading', { name: 'Payments' }).parentElement as HTMLElement
     expect(payments).toHaveTextContent('8 sessions')
     expect(payments).toHaveTextContent('8 000 ₴')
+  })
+
+  it('an attended session no payment covers looks unpaid and opens Add payment on it', async () => {
+    // Only two sessions were paid: Sep 14 was attended on credit.
+    useApp
+      .getState()
+      .updateHobby('gym', (h) => ({ ...h, payments: h.payments.map((p) => ({ ...p, n: 2 })) }))
+    renderDetail()
+    expect(screen.queryByRole('button', { name: /Sep 11, 18:00/ })).not.toBeInTheDocument()
+    const history = screen.getByRole('heading', { name: 'History' }).parentElement as HTMLElement
+    expect(within(history).getByText('Attended · unpaid')).toBeInTheDocument()
+    await userEvent.click(
+      screen.getByRole('button', { name: 'Mon, Sep 14, 10:00 — Attended · unpaid' }),
+    )
+    expect(useFlow.getState().sheet).toEqual({
+      kind: 'payment',
+      hobbyId: 'gym',
+      queue: [],
+      from: '2026-09-14',
+    })
+  })
+
+  it('a cancelled, deducted session no payment covers reads "Cancelled · unpaid"', () => {
+    useApp.getState().updateHobby('gym', (h) => ({
+      ...markSession(h, '2026-09-14', 'forfeit'),
+      payments: h.payments.map((p) => ({ ...p, n: 2 })),
+    }))
+    renderDetail()
+    expect(
+      screen.getByRole('button', { name: 'Mon, Sep 14, 10:00 — Cancelled · unpaid' }),
+    ).toBeInTheDocument()
+    const history = screen.getByRole('heading', { name: 'History' }).parentElement as HTMLElement
+    expect(within(history).getByText('Cancelled · unpaid')).toBeInTheDocument()
   })
 
   it('says a local-only hobby lives on this phone, and shows sync status once it uses Google', () => {

@@ -169,6 +169,43 @@ describe('Add payment', () => {
     expect(gym()?.payments.at(-1)?.from).toBe('2026-10-19')
   })
 
+  it('pays after the fact: attended sessions without a payment can be chosen', async () => {
+    // One session was paid; the next two were attended on credit.
+    act(() =>
+      useApp.getState().updateHobby('gym', (h) => ({
+        ...markSession(markSession(h, '2026-09-14', 'attended'), '2026-09-21', 'attended'),
+        payments: h.payments.map((p) => ({ ...p, n: 1, price: 100_000 })),
+      })),
+    )
+    show({ kind: 'payment', hobbyId: 'gym', queue: [] })
+    const start = screen.getByLabelText('First paid session')
+    // The oldest debt is offered first.
+    expect(start).toHaveValue('2026-09-14')
+    expect(
+      screen.getByRole('option', { name: 'Mon, Sep 14, 10:00 · Attended' }),
+    ).toBeInTheDocument()
+    await userEvent.type(screen.getByLabelText('Sessions'), '2')
+    await userEvent.click(screen.getByRole('button', { name: 'Paid' }))
+    expect(gym()?.payments.at(-1)).toMatchObject({ n: 2, price: 200_000, from: '2026-09-14' })
+    const hobby = gym()
+    expect(hobby && summarize(hobby, NOW).payable[0]?.key).toBe('2026-09-28')
+    expect(status('2026-09-21')?.status).toBe('attended')
+  })
+
+  it('a cancelled, deducted session is never the default start, but can be chosen', () => {
+    act(() =>
+      useApp.getState().updateHobby('gym', (h) => ({
+        ...markSession(markSession(h, '2026-09-14', 'forfeit'), '2026-09-21', 'attended'),
+        payments: h.payments.map((p) => ({ ...p, n: 1, price: 100_000 })),
+      })),
+    )
+    show({ kind: 'payment', hobbyId: 'gym', queue: [] })
+    expect(screen.getByLabelText('First paid session')).toHaveValue('2026-09-21')
+    expect(
+      screen.getByRole('option', { name: 'Mon, Sep 14, 10:00 · Deducted' }),
+    ).toBeInTheDocument()
+  })
+
   it('opened for one session: One session mode on that session', () => {
     show({ kind: 'payment', hobbyId: 'gym', queue: [], from: '2026-10-19', one: true })
     expect(screen.getByRole('button', { name: 'One session' })).toHaveAttribute(
@@ -351,6 +388,24 @@ describe('Session sheet', () => {
     show({ kind: 'session', hobbyId: 'gym', key: '2026-10-19' })
     await userEvent.click(screen.getByRole('button', { name: 'Cancel session' }))
     expect(gym()?.marks['2026-10-19']).toBe('cancelled')
+  })
+
+  it('a cancelled, deducted session nobody paid for can be paid from its sheet', async () => {
+    useApp.getState().updateHobby('gym', (h) => ({
+      ...markSession(h, '2026-09-28', 'forfeit'),
+      payments: [],
+    }))
+    show({ kind: 'session', hobbyId: 'gym', key: '2026-09-28' })
+    expect(screen.getByText('Cancelled · unpaid')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Pay for this session' }))
+    expect(useFlow.getState().next).toMatchObject({ kind: 'payment', from: '2026-09-28' })
+  })
+
+  it('a deducted session that holds a payment offers only to restore it', () => {
+    useApp.getState().updateHobby('gym', (h) => markSession(h, '2026-09-28', 'forfeit'))
+    show({ kind: 'session', hobbyId: 'gym', key: '2026-09-28' })
+    expect(screen.getByText('Deducted')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Pay for this session' })).toBeNull()
   })
 
   it('restores a cancelled session', async () => {

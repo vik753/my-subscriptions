@@ -4,6 +4,17 @@ User-facing changes, newest first. Versions follow [Semantic Versioning](https:/
 a new feature bumps the minor number, a fix the patch number. The app shows the same list in
 three languages under **About → What's new** (`src/i18n/changelog.ts`) — keep both in step.
 
+## [1.5.0] — 2026-10-09
+
+- Pay after the fact: _First paid session_ in _Add payment_ also lists sessions that were attended
+  but not paid, labelled with their status; the oldest one is preselected.
+- A session that was attended but not paid no longer looks like a paid one: grey outline in the
+  calendar, "Attended · unpaid" in the history. Tapping it in the hobby calendar opens _Add payment_.
+  A session cancelled with deduction that nobody paid for is crossed out and reads "Cancelled ·
+  unpaid"; it can be paid from its sheet.
+- Google Calendar events of past sessions say whether they were paid for ("Attended · paid" /
+  "Attended · unpaid"); colors are unchanged.
+
 ## [1.4.0] — 2026-09-29
 
 - _Correct payment_ in the session sheet of a paid session opens the payment that covers it.

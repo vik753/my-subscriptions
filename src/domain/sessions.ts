@@ -95,7 +95,7 @@ const walk = (hobby: Hobby, now: LocalDateTime) => {
 }
 
 export const summarize = (hobby: Hobby, now: LocalDateTime): HobbySummary => {
-  const { sessions, paidTotal, usedByMarked } = walk(hobby, now)
+  const { sessions, payer, paidTotal, usedByMarked } = walk(hobby, now)
   const priceTotal = hobby.payments.reduce((sum, p) => sum + p.price, 0)
   const attended = sessions.filter((s) => s.mark === 'attended').length
   const last = hobby.payments[hobby.payments.length - 1]
@@ -109,6 +109,7 @@ export const summarize = (hobby: Hobby, now: LocalDateTime): HobbySummary => {
     pricePerSession: last && last.n > 0 ? Math.round(last.price / last.n) : null,
     next: sessions.find((s) => !s.mark && !s.pending) ?? null,
     pending: sessions.filter((s) => s.pending),
+    payable: sessions.filter((s) => s.status !== 'missed' && !payer.has(s.key)),
   }
 }
 

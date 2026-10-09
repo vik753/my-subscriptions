@@ -191,6 +191,7 @@ describe('eventBody', () => {
         dur: 60,
         status: 'paid',
         lastPaid: true,
+        owed: false,
       },
       'ru',
       30,
@@ -224,6 +225,7 @@ describe('eventBody', () => {
         dur: 60,
         status: 'forfeit',
         lastPaid: false,
+        owed: false,
       },
       'uk',
       30,
@@ -246,6 +248,7 @@ describe('eventBody', () => {
       time: '10:00',
       dur: 60,
       lastPaid: false,
+      owed: false,
     }
     const options = { paidColor: '3', guests: ['wife@gmail.com'] }
     const paid = eventBody({ ...base, status: 'paid' }, 'en', 0, 'u', 'UTC', options)
@@ -267,6 +270,7 @@ describe('eventBody', () => {
       dur: 60,
       status: 'paid' as const,
       lastPaid: false,
+      owed: false,
     }
     const owner = { name: 'Ігор Коренець', email: 'ihor@gmail.com' }
     const shared = { paidColor: '10', guests: ['wife@gmail.com'] }
@@ -293,6 +297,7 @@ describe('eventBody', () => {
       time: '10:00',
       dur: 60,
       lastPaid: false,
+      owed: false,
     }
     const unpaid = eventBody({ ...base, status: 'unpaid' }, 'en', 0, 'u', 'UTC')
     expect(unpaid).toMatchObject({
@@ -301,6 +306,12 @@ describe('eventBody', () => {
       reminders: { overrides: [] },
     })
     expect(eventBody({ ...base, status: 'attended' }, 'en', 0, 'u', 'UTC').colorId).toBe('2')
+    // Decision 21: the color stays, the text says whether the session was paid for.
+    const owed = eventBody({ ...base, status: 'attended', owed: true }, 'ru', 0, 'u', 'UTC')
+    expect(owed).toMatchObject({ summary: 'Gym · Посещено · не оплачено', colorId: '2' })
+    expect(
+      eventBody({ ...base, status: 'forfeit', owed: true }, 'en', 0, 'u', 'UTC').description,
+    ).toMatch(/^Cancelled · unpaid\n/)
   })
 })
 
@@ -422,7 +433,7 @@ describe('calendar sync', () => {
     const events = google.calendars.get('cal1')
     expect(events?.get(eventId('gym', '2026-09-21'))).toMatchObject({
       colorId: '2',
-      summary: 'Gym · Attended',
+      summary: 'Gym · Attended · paid',
     })
     expect(events?.get(eventId('gym', '2026-10-05'))).toMatchObject({
       colorId: '10',

@@ -119,8 +119,8 @@ export const eventBody = (
   const label = {
     paid: t.paid,
     unpaid: t.unpaid,
-    attended: t.attended,
-    forfeit: t.histForfeit,
+    attended: e.owed ? t.histOwed : t.evAttendedPaid,
+    forfeit: e.owed ? t.histForfeitOwed : t.histForfeit,
   }[e.status]
   return {
     summary: `${e.status === 'forfeit' ? strike(e.name) : e.name} · ${label}`,
