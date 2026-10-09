@@ -163,6 +163,7 @@ export const en = {
   cxOn: 'Payment moves to the next unpaid session',
   cxOff: 'The session will be deducted from your pass',
   histForfeit: 'Cancelled · deducted',
+  histOwed: 'Attended · unpaid',
   forfeitTag: 'Deducted',
   tForfeit: 'Session cancelled and deducted from your pass',
   tMovedAll: (a: string, b: string) => 'Schedule changed: ' + a + ' → ' + b,

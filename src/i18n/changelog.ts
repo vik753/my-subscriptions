@@ -17,12 +17,15 @@ export const CHANGELOG: readonly Release[] = [
     notes: {
       en: [
         'Pay after the fact: a new payment can start at a session you already attended. The oldest unpaid one is offered first.',
+        'Attended but unpaid sessions now look different in the calendar — a grey outline. Tap one to pay for it.',
       ],
       uk: [
         'Оплата після занять: нова оплата може починатися з уже відвіданого заняття. Першим пропонується найдавніше неоплачене.',
+        'Відвідані, але неоплачені заняття тепер виглядають у календарі інакше — сіра рамка. Натисніть на таке, щоб оплатити.',
       ],
       ru: [
         'Оплата после занятий: новая оплата может начинаться с уже посещённого занятия. Первым предлагается самое давнее неоплаченное.',
+        'Посещённые, но неоплаченные занятия теперь выглядят в календаре иначе — серая рамка. Нажмите на такое, чтобы оплатить.',
       ],
     },
   },

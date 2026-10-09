@@ -49,6 +49,12 @@ All items of `docs/design-brief-pwa.md` are covered. The brief is now historical
     - Default choice (user decision 2026-10-09): the oldest payable session — an attended, unpaid one comes before later unpaid ones — skipping sessions marked `forfeit` (cancelled); those can still be chosen by hand. (Sessions are always generated 12 weeks ahead, so an unmarked payable one always exists.)
     - Nothing else changes: a payment with `from` on an attended, uncovered session gives it a slot in the walk; the session stays **attended**, `sessionPayment` then names that payment, and _Remaining_ does not grow for slots taken by attended/forfeit sessions.
 
+20. **Attended, but not paid — its own look** (user decision 2026-10-09, refines decision 1 and answers the open question "debt: show anything?"): a session marked `attended` that no payment covers (it is in `payable`, decision 19) must not look like a paid-for one. The domain status stays `attended`; only the presentation differs.
+    - Hobby detail calendar: solid 1px `neutral-500` border, `neutral-300` text — solid line = it happened, no green = no payment (attended keeps the `paid-line` border, unpaid the dashed one). Legend gains "Attended · unpaid" after "Attended". **Tapping the cell opens _Add payment_ starting at that session** (attended sessions that are paid stay non-interactive).
+    - Labels: "Attended · unpaid" in the cell's accessible name, in History and in the All sessions day list.
+    - All sessions tab: the day dot and the pill use the existing _unpaid_ style (grey outline) with the "Attended · unpaid" text; no new legend entry there.
+    - Google Calendar is unchanged (attended → Sage).
+
 ## Accessibility adjustments (stage 11)
 
 - **Light-mode secondary text.** `neutral-400` / `neutral-500` in all four light schemes measured 4.0:1 / 2.6:1 on `--color-bg` (WCAG AA needs 4.5:1). Darkened to L 0.50 / 0.535 (≥ 4.6:1); dark modes unchanged. Checked by `e2e/a11y.spec.ts` (axe, WCAG 2 A/AA, every screen, light + dark).

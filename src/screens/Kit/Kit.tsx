@@ -41,7 +41,7 @@ import styles from './Kit.module.css'
 const SESSION_DAYS: Record<string, { time: string; status: SessionCellStatus }> = {
   '2026-09-07': { time: '10:00', status: 'attended' },
   '2026-09-11': { time: '18:00', status: 'attended' },
-  '2026-09-14': { time: '10:00', status: 'attended' },
+  '2026-09-14': { time: '10:00', status: 'owed' },
   '2026-09-18': { time: '18:00', status: 'missed' },
   '2026-09-21': { time: '10:00', status: 'pending' },
   '2026-09-25': { time: '18:00', status: 'paid' },
@@ -241,7 +241,13 @@ export function Kit() {
             const s = SESSION_DAYS[d.date]
             const dot =
               s &&
-              (s.status === 'missed' ? 'cancelled' : s.status === 'forfeit' ? 'attended' : s.status)
+              (s.status === 'missed'
+                ? 'cancelled'
+                : s.status === 'forfeit'
+                  ? 'attended'
+                  : s.status === 'owed'
+                    ? 'unpaid'
+                    : s.status)
             return (
               <DotDayCell
                 day={d.day}

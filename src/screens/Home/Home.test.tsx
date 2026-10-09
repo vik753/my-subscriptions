@@ -2,6 +2,7 @@ import { render, screen } from '@testing-library/react'
 import userEvent from '@testing-library/user-event'
 import { MemoryRouter, Route, Routes, useLocation } from 'react-router'
 import { beforeEach, describe, expect, it, vi } from 'vitest'
+import { markSession } from '../../domain'
 import { resetAppStore, useApp } from '../../store/appStore'
 import { localClock } from '../../store/clock'
 import { useFlow } from '../../store/flowStore'
@@ -109,6 +110,19 @@ describe('Home', () => {
       expect(screen.getByRole('button', { name: /Gym10:00/ })).toHaveTextContent('Unmarked')
       await userEvent.click(screen.getByRole('button', { name: 'Saturday, September 26' }))
       expect(screen.getByText('No sessions on this day')).toBeInTheDocument()
+    })
+
+    it('an attended session no payment covers reads "Attended · unpaid"', async () => {
+      useApp.getState().updateHobby('gym', (h) => ({
+        ...markSession(h, '2026-09-21', 'attended'),
+        payments: [],
+      }))
+      renderHome()
+      await userEvent.click(screen.getByRole('button', { name: 'All sessions' }))
+      await userEvent.click(screen.getByRole('button', { name: 'Monday, September 21, 1 session' }))
+      expect(screen.getByRole('button', { name: /Gym10:00/ })).toHaveTextContent(
+        'Attended · unpaid',
+      )
     })
 
     it('opens the hobby at the month of the tapped session', async () => {

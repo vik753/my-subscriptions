@@ -8,6 +8,8 @@ three languages under **About → What's new** (`src/i18n/changelog.ts`) — kee
 
 - Pay after the fact: _First paid session_ in _Add payment_ also lists sessions that were attended
   but not paid, labelled with their status; the oldest one is preselected.
+- A session that was attended but not paid no longer looks like a paid one: grey outline in the
+  calendar, "Attended · unpaid" in the history. Tapping it in the hobby calendar opens _Add payment_.
 
 ## [1.4.0] — 2026-09-29
 

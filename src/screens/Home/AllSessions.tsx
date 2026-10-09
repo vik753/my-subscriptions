@@ -13,13 +13,17 @@ import styles from './AllSessions.module.css'
 interface Item {
   hobby: Hobby
   session: Session
+  /** Attended, but no payment covers it: shown as unpaid, not as attended (decision 20). */
+  owed: boolean
 }
 
-const pillOf = (s: Session): SessionPillStatus =>
+const pillOf = ({ session: s, owed }: Item): SessionPillStatus =>
   s.pending
     ? 'pending'
     : s.mark === 'attended'
-      ? 'attended'
+      ? owed
+        ? 'unpaid'
+        : 'attended'
       : s.mark === 'forfeit'
         ? 'forfeit'
         : s.mark
@@ -46,7 +50,7 @@ const dotOf = (items: Item[]): DotStatus | undefined => {
     items.find((x) => x.session.mark === 'attended' || x.session.mark === 'forfeit') ??
     items[0]
   if (!pick) return undefined
-  const pill = pillOf(pick.session)
+  const pill = pillOf(pick)
   return pill === 'forfeit' ? 'attended' : pill
 }
 
@@ -73,12 +77,15 @@ export function AllSessions({
   ])
 
   const byDay = new Map<string, Item[]>()
-  for (const hobby of hobbies)
-    for (const session of summarize(hobby, now).sessions) {
+  for (const hobby of hobbies) {
+    const s = summarize(hobby, now)
+    for (const session of s.sessions) {
       const list = byDay.get(session.date) ?? []
-      list.push({ hobby, session })
+      const owed = session.mark === 'attended' && s.payable.includes(session)
+      list.push({ hobby, session, owed })
       byDay.set(session.date, list)
     }
+  }
   for (const list of byDay.values())
     list.sort((a, b) => a.session.time.localeCompare(b.session.time))
   const selected = byDay.get(day) ?? []
@@ -133,8 +140,9 @@ export function AllSessions({
           <p className={styles.empty}>{t.noSessionsDay}</p>
         ) : (
           <ul className={styles.list}>
-            {selected.map(({ hobby, session }) => {
-              const pill = pillOf(session)
+            {selected.map((item) => {
+              const { hobby, session } = item
+              const pill = pillOf(item)
               return (
                 <li key={`${hobby.id}|${session.key}`}>
                   <button
@@ -151,7 +159,9 @@ export function AllSessions({
                         {session.movedFrom && ` · ${t.movedShort}`}
                       </span>
                     </span>
-                    <StatusPill status={pill}>{pillLabel(t, pill)}</StatusPill>
+                    <StatusPill status={pill}>
+                      {item.owed ? t.histOwed : pillLabel(t, pill)}
+                    </StatusPill>
                     <CaretRight size={14} className={styles.chevron} aria-hidden="true" />
                   </button>
                 </li>
