@@ -10,6 +10,8 @@ three languages under **About → What's new** (`src/i18n/changelog.ts`) — kee
   but not paid, labelled with their status; the oldest one is preselected.
 - A session that was attended but not paid no longer looks like a paid one: grey outline in the
   calendar, "Attended · unpaid" in the history. Tapping it in the hobby calendar opens _Add payment_.
+  A session cancelled with deduction that nobody paid for is crossed out and reads "Cancelled ·
+  unpaid"; it can be paid from its sheet.
 
 ## [1.4.0] — 2026-09-29
 

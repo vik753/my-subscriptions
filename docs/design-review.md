@@ -53,6 +53,7 @@ All items of `docs/design-brief-pwa.md` are covered. The brief is now historical
     - Hobby detail calendar: solid 1px `neutral-500` border, `neutral-300` text — solid line = it happened, no green = no payment (attended keeps the `paid-line` border, unpaid the dashed one). Legend gains "Attended · unpaid" after "Attended". **Tapping the cell opens _Add payment_ starting at that session** (attended sessions that are paid stay non-interactive).
     - Labels: "Attended · unpaid" in the cell's accessible name, in History and in the All sessions day list.
     - All sessions tab: the day dot and the pill use the existing _unpaid_ style (grey outline) with the "Attended · unpaid" text; no new legend entry there.
+    - **Forfeit without a payment** (user decision 2026-10-09): a session cancelled with deduction that no payment covers gets the same unpaid look plus the strike-through of a cancelled one (`neutral-500` border, `neutral-300` text, line-through), labelled "Cancelled · unpaid" in the cell name, History, the All sessions list (unpaid dot) and its Session sheet. The sheet offers _Pay for this session_ above _Restore_. Once a payment covers it, it is the usual forfeit again: paid-line border + line-through, "Cancelled · deducted".
     - Google Calendar is unchanged (attended → Sage).
 
 ## Accessibility adjustments (stage 11)

@@ -245,7 +245,7 @@ export function Kit() {
                 ? 'cancelled'
                 : s.status === 'forfeit'
                   ? 'attended'
-                  : s.status === 'owed'
+                  : s.status === 'owed' || s.status === 'owedForfeit'
                     ? 'unpaid'
                     : s.status)
             return (

@@ -102,6 +102,19 @@ describe('HobbyDetail', () => {
     })
   })
 
+  it('a cancelled, deducted session no payment covers reads "Cancelled · unpaid"', () => {
+    useApp.getState().updateHobby('gym', (h) => ({
+      ...markSession(h, '2026-09-14', 'forfeit'),
+      payments: h.payments.map((p) => ({ ...p, n: 2 })),
+    }))
+    renderDetail()
+    expect(
+      screen.getByRole('button', { name: 'Mon, Sep 14, 10:00 — Cancelled · unpaid' }),
+    ).toBeInTheDocument()
+    const history = screen.getByRole('heading', { name: 'History' }).parentElement as HTMLElement
+    expect(within(history).getByText('Cancelled · unpaid')).toBeInTheDocument()
+  })
+
   it('says a local-only hobby lives on this phone, and shows sync status once it uses Google', () => {
     renderDetail()
     expect(screen.getByText('Stored only on this phone')).toBeInTheDocument()

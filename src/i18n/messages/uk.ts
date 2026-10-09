@@ -181,6 +181,7 @@ export const uk: Messages = {
   cxOff: 'Заняття буде списано з абонемента',
   histForfeit: 'Скасовано · списано',
   histOwed: 'Відвідано · не оплачено',
+  histForfeitOwed: 'Скасовано · не оплачено',
   forfeitTag: 'Списано',
   tForfeit: 'Заняття скасовано й списано з абонемента',
   tMovedAll: (a, b) => 'Розклад змінено: ' + a + ' → ' + b,

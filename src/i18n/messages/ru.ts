@@ -181,6 +181,7 @@ export const ru: Messages = {
   cxOff: 'Занятие будет списано из абонемента',
   histForfeit: 'Отменено · списано',
   histOwed: 'Посещено · не оплачено',
+  histForfeitOwed: 'Отменено · не оплачено',
   forfeitTag: 'Списано',
   tForfeit: 'Занятие отменено и списано из абонемента',
   tMovedAll: (a, b) => 'Расписание изменено: ' + a + ' → ' + b,

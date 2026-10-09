@@ -390,6 +390,24 @@ describe('Session sheet', () => {
     expect(gym()?.marks['2026-10-19']).toBe('cancelled')
   })
 
+  it('a cancelled, deducted session nobody paid for can be paid from its sheet', async () => {
+    useApp.getState().updateHobby('gym', (h) => ({
+      ...markSession(h, '2026-09-28', 'forfeit'),
+      payments: [],
+    }))
+    show({ kind: 'session', hobbyId: 'gym', key: '2026-09-28' })
+    expect(screen.getByText('Cancelled · unpaid')).toBeInTheDocument()
+    await userEvent.click(screen.getByRole('button', { name: 'Pay for this session' }))
+    expect(useFlow.getState().next).toMatchObject({ kind: 'payment', from: '2026-09-28' })
+  })
+
+  it('a deducted session that holds a payment offers only to restore it', () => {
+    useApp.getState().updateHobby('gym', (h) => markSession(h, '2026-09-28', 'forfeit'))
+    show({ kind: 'session', hobbyId: 'gym', key: '2026-09-28' })
+    expect(screen.getByText('Deducted')).toBeInTheDocument()
+    expect(screen.queryByRole('button', { name: 'Pay for this session' })).toBeNull()
+  })
+
   it('restores a cancelled session', async () => {
     useApp.getState().updateHobby('gym', (h) => markSession(h, '2026-09-28', 'cancelled'))
     show({ kind: 'session', hobbyId: 'gym', key: '2026-09-28' })

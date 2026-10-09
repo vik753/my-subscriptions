@@ -57,9 +57,9 @@ export function MonthCalendar({
   )
 }
 
-/** `owed`: attended, but no payment covers it. */
+/** `owed` / `owedForfeit`: attended / cancelled with deduction, but no payment covers it. */
 export type SessionCellStatus =
-  'paid' | 'unpaid' | 'attended' | 'owed' | 'forfeit' | 'missed' | 'pending'
+  'paid' | 'unpaid' | 'attended' | 'owed' | 'owedForfeit' | 'forfeit' | 'missed' | 'pending'
 
 /** Hobby detail cell: 44px, day number + session time, styled by status. */
 export function SessionDayCell({

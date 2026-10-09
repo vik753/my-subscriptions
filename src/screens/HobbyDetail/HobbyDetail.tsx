@@ -35,13 +35,15 @@ export function HobbyDetail() {
 }
 
 const cellStatus = (s: Session, owed: boolean): SessionCellStatus =>
-  s.pending ? 'pending' : owed ? 'owed' : s.status
+  s.pending ? 'pending' : owed ? (s.mark === 'forfeit' ? 'owedForfeit' : 'owed') : s.status
 
 const statusLabel = (t: Messages, s: Session, owed = false): string =>
   s.pending
     ? t.legendPending
     : owed
-      ? t.histOwed
+      ? s.mark === 'forfeit'
+        ? t.histForfeitOwed
+        : t.histOwed
       : (
           {
             paid: t.paid,
@@ -60,7 +62,9 @@ const historyLabel = (t: Messages, s: Session, owed: boolean): string =>
     : s.mark === 'cancelled'
       ? t.histCancelled
       : s.mark === 'forfeit'
-        ? t.histForfeit
+        ? owed
+          ? t.histForfeitOwed
+          : t.histForfeit
         : t.histMissed
 
 function Detail({ hobby }: { hobby: Hobby }) {
@@ -73,8 +77,8 @@ function Detail({ hobby }: { hobby: Hobby }) {
   const signIn = useAuth((s) => s.signIn)
   const s = summarize(hobby, now)
   const open = useFlow((f) => f.open)
-  // Attended, but no payment covers it (decision 20).
-  const owed = (x: Session) => x.mark === 'attended' && s.payable.includes(x)
+  // Attended or cancelled with deduction, but no payment covers it (decision 20).
+  const owed = (x: Session) => !!x.mark && s.payable.includes(x)
   // Pending → Attendance prompt; unmarked or cancelled → Session sheet; attended without a payment
   // → Add payment starting at it; attended / missed are final.
   const sheetFor = (x: Session): FlowSheet | null =>

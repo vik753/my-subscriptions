@@ -13,7 +13,7 @@ import styles from './AllSessions.module.css'
 interface Item {
   hobby: Hobby
   session: Session
-  /** Attended, but no payment covers it: shown as unpaid, not as attended (decision 20). */
+  /** Attended or forfeit, but no payment covers it: never shown as paid for (decision 20). */
   owed: boolean
 }
 
@@ -51,7 +51,7 @@ const dotOf = (items: Item[]): DotStatus | undefined => {
     items[0]
   if (!pick) return undefined
   const pill = pillOf(pick)
-  return pill === 'forfeit' ? 'attended' : pill
+  return pill === 'forfeit' ? (pick.owed ? 'unpaid' : 'attended') : pill
 }
 
 /** "All sessions" tab: every session of every hobby on one month grid. */
@@ -81,7 +81,7 @@ export function AllSessions({
     const s = summarize(hobby, now)
     for (const session of s.sessions) {
       const list = byDay.get(session.date) ?? []
-      const owed = session.mark === 'attended' && s.payable.includes(session)
+      const owed = !!session.mark && s.payable.includes(session)
       list.push({ hobby, session, owed })
       byDay.set(session.date, list)
     }
@@ -160,7 +160,11 @@ export function AllSessions({
                       </span>
                     </span>
                     <StatusPill status={pill}>
-                      {item.owed ? t.histOwed : pillLabel(t, pill)}
+                      {item.owed
+                        ? session.mark === 'forfeit'
+                          ? t.histForfeitOwed
+                          : t.histOwed
+                        : pillLabel(t, pill)}
                     </StatusPill>
                     <CaretRight size={14} className={styles.chevron} aria-hidden="true" />
                   </button>

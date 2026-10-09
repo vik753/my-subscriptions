@@ -81,9 +81,14 @@ button.cell {
   color: var(--paid-text);
 }
 
-.owed {
+.owed,
+.owedForfeit {
   border-color: var(--color-neutral-500);
   color: var(--color-neutral-300);
+}
+
+.owedForfeit {
+  text-decoration: line-through;
 }
 
 .forfeit {
