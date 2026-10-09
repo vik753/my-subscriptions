@@ -78,9 +78,10 @@ Never store derived values (`remaining`, statuses, `paid`/`price` totals) — co
 ## Git workflow
 
 - Branches: work on `dev`. For larger tasks branch `feat/<short-name>` / `fix/<short-name>` from `dev` and merge back into `dev`.
-- Claude commits and pushes to `dev` without asking. Then opens (or updates) a PR `dev → main` with `gh pr create --base main --head dev`. **The user merges PRs into `main` personally.**
-- Before every commit: `npm run typecheck && npm run lint && npm test` must pass. Enforced by husky (`pre-commit`: lint-staged + typecheck, `pre-push`: tests + build), by `.claude/hooks/guard-git.mjs` (blocks `main`, force-push, `--no-verify`, `gh pr merge`) and by CI (`.github/workflows/ci.yml`) — `main` accepts only PRs with green CI.
-- Ship finished work with `/ship`.
+- **One verification, one push, one PR update per task** (user decision 2026-10-09). While a task is in progress: ask every open question up front in one batch, commit locally in small steps, and run only typecheck, lint and the test files touched. Do **not** push, update the PR, run the full suite, e2e, `reviewer` or `ui-verifier` between steps. When everything is built, ask "is the task complete?" — only after the user confirms: full checks once, agents once (covering all changes), `/ship` once. Exception: the user is away and said to decide alone — then finish and ship without asking.
+- Claude commits to `dev` without asking; pushing and opening (or updating) the PR `dev → main` (`gh pr create --base main --head dev`) waits for that confirmation. **The user merges PRs into `main` personally.**
+- Before every push: `npm run typecheck && npm run lint && npm test` must pass. Enforced by husky (`pre-commit`: lint-staged + typecheck, `pre-push`: tests + build), by `.claude/hooks/guard-git.mjs` (blocks `main`, force-push, `--no-verify`, `gh pr merge`) and by CI (`.github/workflows/ci.yml`) — `main` accepts only PRs with green CI.
+- Ship finished, user-confirmed work with `/ship`.
 - The only PRs in this repo are `dev → main`. Dependabot PRs (target `dev`): evaluate, port accepted updates as regular commits on `dev`, then close the PR with a comment (`gh pr close <n> --comment ...`). Never merge PRs.
 - Releases: a PR with user-visible changes bumps `package.json` (feature → minor, fix → patch) and adds the release to `CHANGELOG.md` (English) and `src/i18n/changelog.ts` (uk/en/ru, plain language). After the user merges, tag the merge commit on `main` as `vX.Y.Z` and push the tag.
 - Conventional Commits: `feat(domain): carry payment over on cancel`. Small, focused commits.
@@ -88,7 +89,7 @@ Never store derived values (`remaining`, statuses, `paid`/`price` totals) — co
 
 ## Agents (`.claude/agents/`)
 
-Use exactly these, at these points — no others, no ad-hoc subagents:
+Use exactly these, at these points — no others, no ad-hoc subagents. `ui-verifier` and `reviewer` run **once per task**, after the user confirms it is complete (see Git workflow), with one brief covering every change:
 
 - `spec-tester` — before implementing or changing a rule in `src/domain`: writes tests from the spec, without seeing the implementation.
 - `ui-verifier` — after building or changing a screen/sheet: compares with design screenshots, returns text only. Scope the brief to the change (user decision 2026-09-26): **small style fix** → `nocturne` light + dark, 390×844 only, the longest language (uk or ru), plus touch-target measurements; **new screen or sheet** → the full matrix.
